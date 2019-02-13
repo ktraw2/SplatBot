@@ -6,8 +6,8 @@ import aiohttp
 import config
 from discord.ext import commands
 
-print("Starting SplatQueues...")
-SPLATQUEUES_EXTENSIONS = ["cogs.queue",
+print("Starting SplatBot...")
+SPLATQUEUES_EXTENSIONS = ["cogs.lobby",
                           "cogs.misc"]
 
 

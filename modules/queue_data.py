@@ -3,9 +3,9 @@ class Queue_Data:
     """
     Constructor for a Queue
     """
-    def __init__(self, channel_id):
+    def __init__(self, **metadata):
         self.queue = []
-        self.channel_id = channel_id
+        self.metadata = metadata
 
     """
     Appends an unique element to the Queue
@@ -15,7 +15,7 @@ class Queue_Data:
     """
     def add_nondup(self, data):
         if data not in self.queue:
-            self.queue.append(0, data)
+            self.queue.insert(0, data)
             return True
         return False
 
@@ -25,7 +25,7 @@ class Queue_Data:
     Appends the element regardless of it was already in the Queue
     """
     def add_dup(self, data):
-        self.queue.append(0, data)
+        self.queue.insert(0, data)
 
     """
     Removes and returns the head of the Queue

@@ -13,8 +13,8 @@ class Misc():
             help_embed = embeds.generate_base_help_embed(self.bot)
             help_embed.add_field(name=":question: **Help Categories**",
                                  value="To get help for the various parts of " + self.bot.user.name + ", "
-                                       "use `q!help [page]` to view any of the pages listed below:\n\n"
-                                       "1. Queue Commands\n"
+                                       "use `s!help [page]` to view any of the pages listed below:\n\n"
+                                       "1. Lobby Commands\n"
                                        "2. Misc. Commands\n"
                                        "3. Command Syntax Help\n\n"
                                        "You can also type `s!help full` "
@@ -24,10 +24,10 @@ class Misc():
         else:
             await ctx.send(":x: Sorry, that is not a valid help page. Type `q!help` to view the valid help pages.")
 
-    @help.command(name="1", aliases=["Queue"])
-    async def queue_commands(self, ctx):
+    @help.command(name="1", aliases=["Lobby"])
+    async def lobby_commands(self, ctx):
         help_embed = embeds.generate_base_help_embed(self.bot)
-        embeds.add_help_embed_field(help_embed, "queue_commands")
+        embeds.add_help_embed_field(help_embed, "lobby_commands")
         await ctx.send(embed=help_embed)
 
     @help.command(name="2", aliases=["Misc"])

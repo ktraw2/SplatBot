@@ -3,9 +3,10 @@ import config
 import math
 
 help_embed_fields = {
-    "queue_commands":
-        {"title": "Queue Commands",
-          "body": "`s!queue` - test"},
+    "lobby_commands":
+        {"title": "Lobby Commands",
+          "body": "`s!lobby` - display the currently active lobby, if there is one\n"
+                  "`s!lobby start` - create a new lobby"},
     "misc_commands":
         {"title": "Misc. Commands",
          "body": "`s!help` - view the help for SplatBot"},
@@ -15,7 +16,7 @@ help_embed_fields = {
                  "Some commands have more than one argument, in which case aguments are separated by a space. "
                  "You *do not* type the brackets around the command argument.\n"
                  "**Examples:**\n"
-                 "1. `s!queue start`\n"}
+                 "1. `s!lobby start \"Weekly Battles\" 8 10PM`\n"}
 }
 
 
