@@ -29,7 +29,7 @@ class Queue_Data:
     """
     Removes and returns the head of the Queue
     
-    Returns False w/ null null if there are no elements to pop
+    Returns False w/ null if there are no elements to pop
     Returns True w/ requested element if there was an element popped
     """
     def pop(self):
