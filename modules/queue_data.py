@@ -3,8 +3,9 @@ class Queue_Data:
     """
     Constructor for a Queue
     """
-    def __init__(self):
+    def __init__(self, channel_id):
         self.queue = []
+        self.channel_id = channel_id
 
     """
     Appends an unique element to the Queue
@@ -50,10 +51,11 @@ class Queue_Data:
     """
     def pop_num(self, num):
         num_elm_to_pop = num
+        index = 0
         peek = []
         if len(self.queue) > 0:
-            if index > num
+            if index > num:
                 return False, None
-            for i in range(0, num_elm_to_pop)
+            for i in range(0, num_elm_to_pop):
                 peek = [i, self.pop()[1]]
             return True, peek

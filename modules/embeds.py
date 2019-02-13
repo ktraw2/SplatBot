@@ -8,7 +8,7 @@ help_embed_fields = {
           "body": "`s!queue` - test"},
     "misc_commands":
         {"title": "Misc. Commands",
-         "body": "`s!help` - view the help for SplatQueues"},
+         "body": "`s!help` - view the help for SplatBot"},
     "command_syntax":
         {"title": "Command Syntax",
          "body": "Commands are formatted like this: `s!command [argument]`. "

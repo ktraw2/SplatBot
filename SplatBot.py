@@ -50,7 +50,7 @@ class SplatQueues(commands.Bot):
         elif isinstance(error, discord.ext.commands.CommandNotFound):
             if config.send_invalid_command:
                 await ctx.send(":x: Sorry, `" + ctx.invoked_with +
-                               "` is not a valid command.  Type `tv!help` for a list of commands.")
+                               "` is not a valid command.  Type `s!help` for a list of commands.")
             await self.get_channel(config.online_logger_id).send("Invalid command received from `" + ctx.author.name +
                                                                  "` on `" + ctx.guild.name + "`: " +
                                                                  ctx.message.content)
