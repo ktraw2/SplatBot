@@ -22,7 +22,7 @@ class SplatQueues(commands.Bot):
     async def on_ready(self):
         print("Connected")
         await self.get_channel(config.online_logger_id).send("*Connected to Discord*")
-        await self.change_presence(activity=discord.Game(name="Say tv!help"))
+        await self.change_presence(activity=discord.Game(name="Say s!help"))
 
     async def on_guild_join(self, guild):
         await self.get_channel(config.online_logger_id).send("Joined `" + guild.name + "`")
