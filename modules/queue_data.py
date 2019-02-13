@@ -37,6 +37,7 @@ class Queue_Data:
         if len(self.queue) > 0:
             return True, self.queue.pop(0)
         return False, None
+    
     """
     Returns the size of the Queue
     """
