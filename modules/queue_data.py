@@ -51,13 +51,12 @@ class Queue_Data:
     Otherwise will return True w/ the requested elements
     """
     def pop_num(self, num):
-        num_elm_to_pop = num
         index = 0
         peek = []
         if len(self.queue) > 0:
             if index > num:
                 return False, None
-            for i in range(0, num_elm_to_pop):
+            for i in range(0, num):
                 peek = [i, self.pop()[1]]
             return True, peek
         return False, None

@@ -1,7 +1,6 @@
 import aiohttp
 import asyncio
 import json
-# TODO: Fix weird syntax error w/ import statement
 
 
 class Splatnet:
@@ -29,7 +28,7 @@ class Splatnet:
     async def __send_request__(self, request, return_raw_and_json=False):
         # Recommended header for splatoon2.ink's API
         header = {"User:Agent": "SplatBot/1.0 Github: github.com/ktraw2/SplatBot"}
-        async with self.connection.get("https://splatoon2.ink/data/" + request + ".json", header=header) as response:
+        async with self.connection.get("https://splatoon2.ink/data/" + request + ".json") as response:
             if response.status == 200:
                 if return_raw_and_json:
                     text = await response.text()
@@ -40,7 +39,7 @@ class Splatnet:
                 # bot is sending too many requests, try again after a couple seconds
                 print("Bot is being rate limited by Splatoon2.ink, resending request...")
                 await asyncio.sleep(5)
-                return await self.send_request(request, return_raw_and_json=return_raw_and_json)
+                return await self.__send_request__(request, return_raw_and_json=return_raw_and_json)
             else:
                 error_string = '{"error":' + str(response.status) + '}'
                 if return_raw_and_json:
@@ -54,7 +53,7 @@ class Splatnet:
     Returns the JSON data about turf wars' stages and when the rotation will occur
     """
     async def get_turf(self):
-        return await self.send_request("schedules")['regular']
+        return await self.__send_request__("schedules")['regular']
 
     """
     Gets the JSON data for ranked battles
@@ -62,7 +61,7 @@ class Splatnet:
     Returns the JSON data about ranked battles' mode, stages, and when the rotation will occur
     """
     async def get_ranked(self):
-        return await self.send_request("schedules")['gachi']
+        return await self.__send_request__("schedules")['gachi']
 
     """
     Gets the JSON data for league battles
@@ -70,7 +69,7 @@ class Splatnet:
     Returns the JSON data about league battles' mode, stages, and when the rotation will occur
     """
     async def get_league(self):
-        return await self.send_request("schedules")['league']
+        return await self.__send_request__("schedules")['league']
 
     """
     Gets the JSON data for salmon run's weapons and stages
@@ -78,7 +77,7 @@ class Splatnet:
     Returns the JSON data about salmon run's weapons and stages for the next 2 rotations
     """
     async def get_salmon_detail(self):
-        return await self.send_request("coop-schedules")['details']
+        return await self.__send_request__("coop-schedules")['details']
 
     """
     Gets the JSON data for salmon run's stages
@@ -86,7 +85,7 @@ class Splatnet:
     Returns the JSON data about salmon run's stages
     """
     async def get_salmon_schedule(self):
-        return await self.send_request("coop-schedules")['schedules']
+        return await self.__send_request__("coop-schedules")['schedules']
 
     """
     Gets the JSON data for splatfest in North America
@@ -94,7 +93,15 @@ class Splatnet:
     Returns the JSON data for splatfests in NA: returns info about the festival and the results
     """
     async def get_na_splatfest(self):
-        return await self.send_request("festivals.json")['na']
+        return await self.__send_request__("festivals")
 
     # TODO: fix [] error found in above functions
+
+    @staticmethod
+    async def main():
+        test = Splatnet()
+        await asyncio.gather(test.get_na_splatfest())
+
+
+asyncio.run(Splatnet.main())
 
