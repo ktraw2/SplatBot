@@ -1,10 +1,12 @@
+from modules.linked_list import LinkedList
+
 class Queue_Data:
 
     """
     Constructor for a Queue
     """
     def __init__(self, **metadata):
-        self.queue = []
+        self.queue = LinkedList()
         self.metadata = metadata
 
     """

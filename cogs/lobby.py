@@ -6,6 +6,11 @@ from discord.ext import commands
 from modules.queue_data import Queue_Data
 from modules.league import League
 
+# constants for arguments
+NUM_PLAYERS = 0
+TIME = 1
+TITLE = 2
+
 
 class Lobby:
     def __init__(self, bot):
@@ -18,9 +23,9 @@ class Lobby:
         if lobby is None:
             await ctx.send("Available lobby commands are: start, add, remove, end")
         else:
-            await ctx.send(embed=Lobby.generate_lobby_embed(lobby.metadata))
+            await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
 
-    @lobby.command(alias=["create"])
+    @lobby.command(aliases=["create"])
     async def start(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel.id)
         if lobby is None:
@@ -33,16 +38,16 @@ class Lobby:
             time += timedelta(minutes=60 - time.minute)
 
             # get arguments if they exist
-            if len(args) >= 1:
-                title = args[0]
-            if len(args) >= 2:
+            if len(args) >= TITLE + 1:
+                title = args[TITLE]
+            if len(args) >= NUM_PLAYERS + 1:
                 try:
-                    num_players = int(args[1])
+                    num_players = int(args[NUM_PLAYERS])
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid number of players, defaulting to 4 players.")
-            if len(args) >= 3:
+            if len(args) >= TIME + 1:
                 try:
-                    time = parse(args[2])
+                    time = parse(args[TIME])
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
@@ -57,23 +62,43 @@ class Lobby:
                                   "time": time})
             self.lobbies.append(lobby)
             await ctx.send(":white_check_mark: Created a lobby in " + ctx.channel.mention)
-            await ctx.send(embed=Lobby.generate_lobby_embed(lobby.metadata))
+            await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
         else:
             await ctx.send(":x: A lobby already exists in " + ctx.channel.mention)
 
-    @lobby.command()
+    @lobby.command(aliases=["join"])
     async def add(self, ctx, *args):
-        pass
+        lobby = self.find_lobby(ctx.channel.id)
+        if lobby is not None:
+            await ctx.send("DEBUG: queue size: " + str(lobby.queue.size) + "; max players: " + str(lobby.metadata["num_players"]))
+            if lobby.queue.size < lobby.metadata["num_players"]:
+                if lobby.queue.add(ctx.author, prevent_duplicates=True):
+                    await ctx.send(":white_check_mark: Successfully added " + ctx.author.mention + " to the lobby.")
+                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+                else:
+                    await ctx.send(":x: You are already in this lobby.")
+            else:
+                await ctx.send(":x: This lobby is full.")
+        else:
+            await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
     @lobby.command()
     async def remove(self, ctx, *args):
-        pass
+        lobby = self.find_lobby(ctx.channel.id)
+        if lobby is not None:
+            if lobby.queue.remove_by_key(ctx.author):
+                await ctx.send(":white_check_mark: Successfully removed " + ctx.author.mention + " from the lobby.")
+                await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+            else:
+                await ctx.send(":x: You are not currently in this lobby.")
+        else:
+            await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
     @lobby.group(case_insensitive=True, invoke_without_command=True)
     async def edit(self, ctx, *args):
         pass
 
-    @edit.command(alias=["name", "lobbytitle"])
+    @edit.command(aliases=["name", "lobbytitle"])
     async def title(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel.id)
         if lobby is not None:
@@ -85,13 +110,13 @@ class Lobby:
                         lobby.metadata["league"] = Lobby.generate_league(args[0])
 
                     await ctx.send(":white_check_mark: Successfully changed the lobby title.")
-                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby.metadata))
+                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
             else:
                 await ctx.send(":x: Please give a lobby title.")
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @edit.command(alias=["num", "numplayers", "num_players"])
+    @edit.command(aliases=["num", "numplayers", "num_players"])
     async def players(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel.id)
         if lobby is not None:
@@ -106,13 +131,13 @@ class Lobby:
                         return
 
                     await ctx.send(":white_check_mark: Successfully changed the number of players.")
-                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby.metadata))
+                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
             else:
                 await ctx.send(":x: Please give a number.")
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @edit.command(alias=["start", "starttime"])
+    @edit.command(aliases=["start", "starttime"])
     async def time(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel.id)
         if lobby is not None:
@@ -127,13 +152,13 @@ class Lobby:
                         return
 
                     await ctx.send(":white_check_mark: Successfully changed the start time.")
-                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby.metadata))
+                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
             else:
                 await ctx.send(":x: Please give a time.")
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @lobby.command(alias=["delete"])
+    @lobby.command(aliases=["delete"])
     async def end(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel.id)
         if lobby is not None:
@@ -149,8 +174,9 @@ class Lobby:
         return None
 
     @staticmethod
-    def generate_lobby_embed(metadata: dict):
+    def generate_lobby_embed(lobby: Queue_Data):
         title = "Splatoon Lobby"
+        metadata = lobby.metadata
         if "title" in metadata:
             if Lobby.is_league(metadata["title"]):
                 title = "League Battle"
@@ -164,12 +190,24 @@ class Lobby:
             lobby_embed.add_field(name="Mode", value=metadata["league"].mode)
             lobby_embed.add_field(name="Maps", value=metadata["league"].map1 + "\n" + metadata["league"].map2)
             lobby_embed.add_field(name="Rotation Time", value=Lobby.format_time(metadata["league"].start_time) + " - "
-                                                              + Lobby.format_time(metadata["league"].end_time))
+                                  + Lobby.format_time(metadata["league"].end_time))
+        # add rest of data
         if "num_players" in metadata:
             lobby_embed.add_field(name="Number of Players", value=str(metadata["num_players"]))
         if "time" in metadata:
             lobby_embed.add_field(name="Start Time", value=Lobby.format_time(metadata["time"]))
-        lobby_embed.add_field(name="Players", value="TODO")
+
+        # add list of players
+        i = 0
+        player_string = ""
+        for player in lobby.queue:
+            player_string = player_string + str(i + 1) + ". " + player.mention + "\n"
+            i += 1
+        # now, add all the blank spots
+        while i < metadata["num_players"]:
+            player_string = player_string + str(i + 1) + ". Empty\n"
+            i += 1
+        lobby_embed.add_field(name="Players", value=player_string)
 
         return lobby_embed
 
