@@ -60,3 +60,4 @@ class Queue_Data:
             for i in range(0, num_elm_to_pop):
                 peek = [i, self.pop()[1]]
             return True, peek
+        return False, None
