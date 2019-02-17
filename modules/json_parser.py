@@ -13,7 +13,7 @@ class Json_Parser:
         for val in json_data:
             if time_requ is None:
                 local_time = int(datetime.now(tz=timezone.utc).timestamp())
-            else
+            else:
                 local_time = time_requ
             start_time = date.fromtimestamp(val['start_time'])
             end_time = date.fromtimestamp(val['end_time'])

@@ -5,18 +5,24 @@ import math
 help_embed_fields = {
     "lobby_commands":
         {"title": "Lobby Commands",
-          "body": "`s!lobby` - display the currently active lobby, if there is one\n"
-                  "`s!lobby start` - create a new lobby"},
+         "body": "`s!lobby` - display the currently active lobby, if there is one\n"
+                 "`s!lobby start [optional:Number of Players] [optional:Lobby Name] [optional:Lobby Start Time]` - "
+                 "create a new lobby\n"
+                 "`s!lobby join` - join the currently active lobby\n"
+                 "`s!lobby leave` - leave the currently active lobby\n"
+                 "`s!lobby delete` - delete the current lobby\n"
+                 "`s!lobby edit [players|name|time] [New Value]` - "
+                 "change the number of players, lobby name, or lobby start time"},
     "misc_commands":
         {"title": "Misc. Commands",
          "body": "`s!help` - view the help for SplatBot"},
     "command_syntax":
         {"title": "Command Syntax",
          "body": "Commands are formatted like this: `s!command [argument]`. "
-                 "Some commands have more than one argument, in which case aguments are separated by a space. "
+                 "Some commands have more than one argument, in which case arguments are separated by a space. "
                  "You *do not* type the brackets around the command argument.\n"
                  "**Examples:**\n"
-                 "1. `s!lobby start \"Weekly Battles\" 8 10PM`\n"}
+                 "1. `s!lobby start 8 10PM \"Weekly Battles\"`\n"}
 }
 
 
@@ -60,11 +66,11 @@ def add_help_embed_footer_links(help_embed, bot):
                                                           "https://ktraw2.github.io/SplatQueues")
     help_embed.add_field(name="<:discord:545143558789791755> " + bot.user.name + " Discord",
                          value="Join the official " + bot.user.name + " Discord at https://discord.gg/A2aWm9 "
-                               "for information, support, or just to have a chat!")
+                                                                      "for information, support, or just to have a chat!")
     help_embed.add_field(name="Bring " + bot.user.name + " to Your Discord",
                          value="[Click here](https://discordapp.com/oauth2/authorize?"
                                "client_id=545107229842472971&scope=bot&permissions=16384) "
                                "to invite " + bot.user.name + " to your own Discord server")
     help_embed.add_field(name=":arrow_up: Support " + bot.user.name,
                          value="Support " + bot.user.name + " by upvoting it "
-                               "[here](https://google.com)!")
+                                                            "[here](https://google.com)!")

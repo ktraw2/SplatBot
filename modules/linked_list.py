@@ -20,6 +20,22 @@ class LinkedList:
         else:
             raise StopIteration
 
+    def __getitem__(self, item):
+        # support negative indexing
+        if item < 0:
+            index = self.size + item
+
+        if 0 <= item < self.size and self.size is not 0:
+            get_point = self.front
+            for i in range(0, item):
+                get_point = get_point.next
+            return get_point.data
+        else:
+            raise IndexError("linked list accessor index out of range")
+
+    def __len__(self):
+        return self.size
+
     def add(self, data, index: int = -1, prevent_duplicates: bool = False):
         # check for duplicate insertion if it is being prevented
         if prevent_duplicates:
@@ -27,7 +43,7 @@ class LinkedList:
                 if item == data:
                     return False
 
-        # support negative indexingi did
+        # support negative indexing
         if index < 0:
             index = self.size + index + 1
 
@@ -43,19 +59,8 @@ class LinkedList:
         else:
             raise IndexError("linked list insertion index out of range")
 
-    def get_item(self, index: int):
-        if index < 0:
-            index = self.size + index
-
-        if 0 <= index < self.size and self.size is not 0:
-            get_point = self.front
-            for i in range(0, index):
-                get_point = get_point.next
-            return get_point.data
-        else:
-            raise IndexError("linked list accessor index out of range")
-
     def remove(self, index: int):
+        # support negative indexing
         if index < 0:
             index = self.size + index
 
@@ -71,7 +76,7 @@ class LinkedList:
         else:
             raise IndexError("linked list removal index out of range")
 
-    def remove_by_key(self, data):
+    def remove_object(self, data):
         if self.size is not 0:
             i = 0
             for item in self:

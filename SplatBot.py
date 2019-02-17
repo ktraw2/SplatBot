@@ -35,7 +35,7 @@ class SplatQueues(commands.Bot):
                                                              ctx.guild.name + "`: " + ctx.message.content)
 
     async def on_command_error(self, ctx, error):
-        if isinstance(error, discord.Forbidden):
+        if isinstance(error, discord.Forbidden) or "missing permissions" in str(error).lower():
             await ctx.send(":x: I do not have permission to send embedded messages in this channel and/or server!  "
                            "Make sure I have the permission `Embed Links`, or I can't function!")
             await self.get_channel(config.online_logger_id).send(":information_source: A handled error occured "
@@ -73,7 +73,6 @@ class SplatQueues(commands.Bot):
             await self.get_channel(config.online_logger_id).send(":warning: An unexpected error occurred of type `" +
                                                                  type(error).__name__ + "` for message `" +
                                                                  ctx.message.content + "`: `" + str(error) + "`")
-
 
     @staticmethod
     def make_sure_file_exists(path, default_config=""):

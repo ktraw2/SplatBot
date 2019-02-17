@@ -2,8 +2,8 @@ from discord.ext import commands
 from modules import embeds
 
 
-class Misc():
-    def __init__(self, bot):
+class Misc:
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["commands"])
