@@ -28,7 +28,7 @@ class Splatnet:
     async def __send_request__(self, request, return_raw_and_json=False):
         # Recommended header for splatoon2.ink's API
         header = {"User:Agent": "SplatBot/1.0 Github: github.com/ktraw2/SplatBot"}
-        async with self.connection.get("https://splatoon2.ink/data/" + request + ".json") as response:
+        async with self.connection.get("https://splatoon2.ink/data/" + request + ".json", headers=header) as response:
             if response.status == 200:
                 if return_raw_and_json:
                     text = await response.text()
@@ -77,7 +77,7 @@ class Splatnet:
     Returns the JSON data about salmon run's weapons and stages for the next 2 rotations
     """
     async def get_salmon_detail(self):
-        return await self.__send_request__("coop-schedules")['details']
+        return (await self.__send_request__("coop-schedules"))['details']
 
     """
     Gets the JSON data for salmon run's stages
@@ -85,7 +85,7 @@ class Splatnet:
     Returns the JSON data about salmon run's stages
     """
     async def get_salmon_schedule(self):
-        return await self.__send_request__("coop-schedules")['schedules']
+        return (await self.__send_request__("coop-schedules"))['schedules']
 
     """
     Gets the JSON data for splatfest in North America
@@ -93,9 +93,7 @@ class Splatnet:
     Returns the JSON data for splatfests in NA: returns info about the festival and the results
     """
     async def get_na_splatfest(self):
-        return await self.__send_request__("festivals")
-
-    # TODO: fix [] error found in above functions
+        return (await self.__send_request__("festivals"))['na']
 
 #     @staticmethod
 #     async def main():

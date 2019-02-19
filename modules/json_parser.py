@@ -9,6 +9,7 @@ class Json_Parser:
     Will return True w/ the corresponding battle json info if one can be found
     Will return False w/ null if one could not be found
     """
+    @staticmethod
     def get_requ_battle(json_data, time_requ=None):
         for val in json_data:
             if time_requ is None:
