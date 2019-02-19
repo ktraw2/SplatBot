@@ -7,14 +7,16 @@ import config
 from discord.ext import commands
 
 print("Starting SplatBot...")
-SPLATQUEUES_EXTENSIONS = ["cogs.lobby",
-                          "cogs.misc"]
+SPLATBOT_EXTENSIONS = ["cogs.lobby",
+                       "cogs.misc"]
 
 
 class SplatQueues(commands.Bot):
     def __init__(self, extensions):
         SplatQueues.make_sure_file_exists("config.py")
         super().__init__(command_prefix=config.prefix, description=config.description, case_insensitive=True)
+
+        self.session = aiohttp.ClientSession()
 
         for e in extensions:
             self.load_extension(e)
@@ -84,4 +86,4 @@ class SplatQueues(commands.Bot):
             new_file.close()
 
 
-SplatQueues(SPLATQUEUES_EXTENSIONS).run(config.token)
+SplatQueues(SPLATBOT_EXTENSIONS).run(config.token)

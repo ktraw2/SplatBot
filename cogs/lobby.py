@@ -15,7 +15,7 @@ NAME = 0
 
 
 class Lobby:
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot):
         self.bot = bot
         self.lobbies = []
 
@@ -63,7 +63,9 @@ class Lobby:
             # get arguments if they exist
             if len(args) >= NAME + 1:
                 name = args[NAME]
-                if Lobby.is_private_battle(name):
+                if Lobby.is_league(name):
+                    name = "League Battle"
+                elif Lobby.is_private_battle(name):
                     name = "Private Battle"
                     num_players = 8
             if len(args) >= NUM_PLAYERS + 1:
@@ -79,7 +81,7 @@ class Lobby:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
             # handle extra data for league battle
-            league = Lobby.generate_league(name, time)
+            league = await Lobby.generate_league(name, time, self.bot.session)
 
             # add the lobby to the list
             lobby = QueueData({"channel": ctx.channel,
@@ -134,7 +136,8 @@ class Lobby:
                     lobby.metadata["name"] = args[0]
                     # add or remove league battle data if necessary
                     if Lobby.is_league(args[0]):
-                        lobby.metadata["league"] = Lobby.generate_league(args[0])
+                        lobby.metadata["league"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
+                                                                               self.bot.session)
                         lobby.metadata["name"] = "League Battle"
                     else:
                         lobby.metadata["league"] = None
@@ -224,8 +227,9 @@ class Lobby:
         # add data for league
         if "league" in metadata and metadata["league"] is not None:
             lobby_embed.set_thumbnail(url=config.images["league"])
+            lobby_embed.set_image(url=metadata["league"].stage_a_image)
             lobby_embed.add_field(name="Mode", value=metadata["league"].mode)
-            lobby_embed.add_field(name="Maps", value=metadata["league"].map1 + "\n" + metadata["league"].map2)
+            lobby_embed.add_field(name="Maps", value=metadata["league"].stage_a + "\n" + metadata["league"].stage_b)
             lobby_embed.add_field(name="Rotation Time", value=Lobby.format_time(metadata["league"].start_time) + " - "
                                   + Lobby.format_time(metadata["league"].end_time))
         # add rest of data
@@ -265,9 +269,11 @@ class Lobby:
             return False
 
     @staticmethod
-    def generate_league(name: str, time: datetime = datetime.now()):
+    async def generate_league(name: str, time: datetime = datetime.now(), session=None):
         if Lobby.is_league(name):
-            return League("Test Mode", "Test Map 1", "Test Map 2", time)
+            league = League(time, session)
+            await league.populate_data()
+            return league
         else:
             return None
 

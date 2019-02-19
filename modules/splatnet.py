@@ -53,7 +53,7 @@ class Splatnet:
     Returns the JSON data about turf wars' stages and when the rotation will occur
     """
     async def get_turf(self):
-        return await self.__send_request__("schedules")['regular']
+        return (await self.__send_request__("schedules"))['regular']
 
     """
     Gets the JSON data for ranked battles
@@ -61,7 +61,7 @@ class Splatnet:
     Returns the JSON data about ranked battles' mode, stages, and when the rotation will occur
     """
     async def get_ranked(self):
-        return await self.__send_request__("schedules")['gachi']
+        return (await self.__send_request__("schedules"))['gachi']
 
     """
     Gets the JSON data for league battles
@@ -69,7 +69,7 @@ class Splatnet:
     Returns the JSON data about league battles' mode, stages, and when the rotation will occur
     """
     async def get_league(self):
-        return await self.__send_request__("schedules")['league']
+        return (await self.__send_request__("schedules"))['league']
 
     """
     Gets the JSON data for salmon run's weapons and stages
@@ -97,11 +97,11 @@ class Splatnet:
 
     # TODO: fix [] error found in above functions
 
-    @staticmethod
-    async def main():
-        test = Splatnet()
-        await asyncio.gather(test.get_na_splatfest())
-
-
-asyncio.run(Splatnet.main())
+#     @staticmethod
+#     async def main():
+#         test = Splatnet()
+#         print(str(await test.get_league()))
+#
+#
+# asyncio.run(Splatnet.main())
 
