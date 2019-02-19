@@ -6,13 +6,15 @@ help_embed_fields = {
     "lobby_commands":
         {"title": "Lobby Commands",
          "body": "`s!lobby` - display the currently active lobby, if there is one\n"
-                 "`s!lobby start [optional:Number of Players] [optional:Lobby Name] [optional:Lobby Start Time]` - "
-                 "create a new lobby\n"
+                 "`s!lobby start [optional:Lobby Name] [optional:Lobby Start Time] [optional:Number of Players]` - "
+                    "create a new lobby, can be customized with the optional arguments. Naming the lobby something with "
+                    "\"league\" in the name will also embed league battle information into the lobby for the lobby "
+                    "start time.\n"
                  "`s!lobby join` - join the currently active lobby\n"
                  "`s!lobby leave` - leave the currently active lobby\n"
                  "`s!lobby delete` - delete the current lobby\n"
                  "`s!lobby edit [players|name|time] [New Value]` - "
-                 "change the number of players, lobby name, or lobby start time"},
+                    "change the number of players, lobby name, or lobby start time"},
     "misc_commands":
         {"title": "Misc. Commands",
          "body": "`s!help` - view the help for SplatBot"},

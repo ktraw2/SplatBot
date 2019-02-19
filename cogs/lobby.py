@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
 from modules.queue_data import QueueData
-from modules.league import League
+from modules.splatoon_schedule import SplatoonSchedule, ScheduleTypes
 from misc_date_utilities.date_difference import DateDifference
 
 # constants for arguments
@@ -34,7 +34,9 @@ class Lobby:
                         announcement += player.mention
                         if i < len(lobby.queue) - 1:
                             announcement += ", "
-                    announcement += " it's time for your scheduled lobby: \"" + lobby.metadata["name"] + "\"!"
+                        if i == len(lobby.queue) - 1 and len(lobby.queue) > 1:
+                            announcement += "and "
+                    announcement += " it's time for your scheduled lobby: `" + lobby.metadata["name"] + "`!"
                     await lobby.metadata["channel"].send(announcement)
                     await lobby.metadata["channel"].send(embed=Lobby.generate_lobby_embed(lobby))
                     lobby.metadata["notified"] = True
@@ -77,6 +79,9 @@ class Lobby:
             if len(args) >= TIME + 1:
                 try:
                     time = parse(args[TIME])
+                    # if the time has already happened, delay the lobby start time to the next day
+                    if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
+                        time = time + timedelta(days=1)
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
@@ -188,7 +193,11 @@ class Lobby:
                 if "time" in lobby.metadata:
                     old_time = lobby.metadata["time"]
                     try:
-                        lobby.metadata["time"] = parse(args[0])
+                        time = parse(args[0])
+                        # if the time has already happened, delay the lobby start time to the next day
+                        if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
+                            time = time + timedelta(days=1)
+                        lobby.metadata["time"] = time
                     except ValueError as e:
                         await ctx.send(":warning: You gave an invalid start time.")
                         lobby.metadata["time"] = old_time
@@ -230,15 +239,16 @@ class Lobby:
             lobby_embed.set_image(url=metadata["league"].stage_a_image)
             lobby_embed.add_field(name="Mode", value=metadata["league"].mode)
             lobby_embed.add_field(name="Maps", value=metadata["league"].stage_a + "\n" + metadata["league"].stage_b)
-            lobby_embed.add_field(name="Rotation Time", value=Lobby.format_time(metadata["league"].start_time) + " - "
-                                  + Lobby.format_time(metadata["league"].end_time))
+            lobby_embed.add_field(name="Rotation Time",
+                                  value=SplatoonSchedule.format_time(metadata["league"].start_time) + " - "
+                                  + SplatoonSchedule.format_time(metadata["league"].end_time))
         # add rest of data
         if Lobby.is_private_battle(name):
             lobby_embed.set_thumbnail(url=config.images["private_battle"])
         if "num_players" in metadata:
             lobby_embed.add_field(name="Number of Players", value=str(metadata["num_players"]))
         if "time" in metadata:
-            lobby_embed.add_field(name="Start Time", value=Lobby.format_time(metadata["time"]))
+            lobby_embed.add_field(name="Lobby Start Time", value=SplatoonSchedule.format_time(metadata["time"]))
 
         # add list of players
         i = 0
@@ -271,16 +281,11 @@ class Lobby:
     @staticmethod
     async def generate_league(name: str, time: datetime = datetime.now(), session=None):
         if Lobby.is_league(name):
-            league = League(time, session)
+            league = SplatoonSchedule(time, ScheduleTypes.LEAGUE, session)
             await league.populate_data()
             return league
         else:
             return None
-
-    @staticmethod
-    def format_time(time: datetime):
-        return time.strftime("%I:%M %p")
-
 
 def setup(bot):
     bot.add_cog(Lobby(bot))

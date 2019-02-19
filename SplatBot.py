@@ -8,7 +8,8 @@ from discord.ext import commands
 
 print("Starting SplatBot...")
 SPLATBOT_EXTENSIONS = ["cogs.lobby",
-                       "cogs.misc"]
+                       "cogs.misc",
+                       "cogs.schedule"]
 
 
 class SplatQueues(commands.Bot):
