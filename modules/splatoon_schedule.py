@@ -23,7 +23,6 @@ class SplatoonSchedule:
         self.start_time = None
         self.end_time = None
         self.weapons_array = None           # for salmon run
-        self.weapon_image_array = None      # for salmon run
 
         self.target_time = target_time
         self.schedule_type = schedule_type
@@ -40,7 +39,7 @@ class SplatoonSchedule:
         elif self.schedule_type == ScheduleTypes.LEAGUE:
             data = await sn.get_league()
         elif self.schedule_type == ScheduleTypes.SALMON:
-            data = await sn.get_salmon_schedule()
+            data = await sn.get_salmon_detail()
 
         # find a league session given the target time
         if self.schedule_type != ScheduleTypes.SALMON:
@@ -62,18 +61,22 @@ class SplatoonSchedule:
                     self.mode = "Salmon Run"
                     self.stage_a = schedule["stage"]["name"]
                     self.stage_a_image = schedule["stage"]["image"]
-                    self.stage_b = None
-                    self.stage_b_image = None
                     self.start_time = datetime.fromtimestamp(schedule["start_time"], self.target_time.tzname())
                     self.end_time = datetime.fromtimestamp(schedule["end_time"], self.target_time.tzname())
                     self.weapons_array = LinkedList()
-                    self.weapon_image_array = LinkedList()
 
                     # getting weapons
                     for weapon in schedule["weapons"]:
                         self.weapons_array.add(weapon["weapon"["name"]])
-                        self.weapon_image_array.add(weapon["weapon"]["image"])
                     return True
+
+            data = await sn.get_salmon_schedule()
+            for schedule in data:
+                if schedule["start_time"] <= timestamp < schedule["end_time"]:
+                    print("Warning: Weapons and Stage not released! Showing times...")
+                    self.mode = "Salmon Run"
+                    self.start_time = datetime.fromtimestamp(schedule["start_time"], self.target_time.tzname())
+                    self.end_time = datetime.fromtimestamp(schedule["end_time"], self.target_time.tzname())
             return False
 
     @staticmethod
