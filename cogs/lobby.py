@@ -34,7 +34,7 @@ class Lobby:
                         announcement += player.mention
                         if i < len(lobby.queue) - 1:
                             announcement += ", "
-                        if i == len(lobby.queue) - 1 and len(lobby.queue) > 1:
+                        if i == len(lobby.queue) - 2 and len(lobby.queue) > 1:
                             announcement += "and "
                     announcement += " it's time for your scheduled lobby: `" + lobby.metadata["name"] + "`!"
                     await lobby.metadata["channel"].send(announcement)
@@ -105,14 +105,15 @@ class Lobby:
     async def join(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
-            if lobby.queue.size < lobby.metadata["num_players"]:
-                if lobby.queue.add(ctx.author, prevent_duplicates=True):
+            if ctx.author not in lobby.queue:
+                if lobby.queue.size < lobby.metadata["num_players"]:
+                    lobby.queue.add(ctx.author, prevent_duplicates=True)
                     await ctx.send(":white_check_mark: Successfully added " + ctx.author.mention + " to the lobby.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
                 else:
-                    await ctx.send(":x: You are already in this lobby.")
+                    await ctx.send(":x: This lobby is full.")
             else:
-                await ctx.send(":x: This lobby is full.")
+                await ctx.send(":x: You are already in this lobby.")
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
@@ -174,7 +175,7 @@ class Lobby:
                                            " amount of players that are currently in the lobby.")
                             return
                     except ValueError as e:
-                        await ctx.send(":warning: You gave an invalid number of players.")
+                        await ctx.send(":x: You gave an invalid number of players.")
                         lobby.metadata["num_players"] = old_num
                         return
 
@@ -199,7 +200,7 @@ class Lobby:
                             time = time + timedelta(days=1)
                         lobby.metadata["time"] = time
                     except ValueError as e:
-                        await ctx.send(":warning: You gave an invalid start time.")
+                        await ctx.send(":x: You gave an invalid start time.")
                         lobby.metadata["time"] = old_time
                         return
 
@@ -282,10 +283,10 @@ class Lobby:
     async def generate_league(name: str, time: datetime = datetime.now(), session=None):
         if Lobby.is_league(name):
             league = SplatoonSchedule(time, ScheduleTypes.LEAGUE, session)
-            await league.populate_data()
-            return league
-        else:
-            return None
+            success = await league.populate_data()
+            if success:
+                return league
+        return None
 
 def setup(bot):
     bot.add_cog(Lobby(bot))

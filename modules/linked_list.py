@@ -36,6 +36,12 @@ class LinkedList:
     def __len__(self):
         return self.size
 
+    def __contains__(self, item):
+        for entry in self:
+            if entry == item:
+                return True
+        return False
+
     def add(self, data, index: int = -1, prevent_duplicates: bool = False):
         # check for duplicate insertion if it is being prevented
         if prevent_duplicates:
