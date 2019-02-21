@@ -70,7 +70,7 @@ class SplatQueues(commands.Bot):
                                    "the following permissions: `Administrator`, `Manage Channels`, "
                                    "and/or `Manage Server`.")
         elif isinstance(error, discord.ext.commands.BadArgument):
-            await ctx.send(":x: Your command arguments could not be interpreted please try again (Did you forget a"
+            await ctx.send(":x: Your command arguments could not be interpreted, please try again (Did you forget a"
                            " \" character?).")
             await self.get_channel(config.online_logger_id).send("Invalid command arguments received from `" +
                                                                  ctx.author.name + "` on `" + ctx.guild.name + "`: " +
