@@ -74,7 +74,7 @@ class SplatoonSchedule:
                             self.weapons_array.add(weapon["coop_special_weapon"]["name"])
                     return True
 
-            # if we can't find a detailed schedule, search some more
+            # if we can't find a detailed schedule, search some more in the other schedule
             data = await sn.get_salmon_schedule()
             for schedule in data:
                 if schedule["start_time"] <= timestamp < schedule["end_time"]:
