@@ -6,7 +6,7 @@ help_embed_fields = {
     "lobby_commands":
         {"title": "Lobby Commands",
          "body": "`s!lobby` - display the currently active lobby, if there is one\n"
-                 "`s!lobby start [optional:Lobby Name] [optional:Lobby Start Time] [optional:Number of Players]` - "
+                 "`s!lobby create [optional:Lobby Name] [optional:Lobby Start Time] [optional:Number of Players]` - "
                     "create a new lobby, can be customized with the optional arguments. Naming the lobby something with "
                     "\"league\" in the name will also embed league battle information into the lobby for the lobby "
                     "start time.\n"

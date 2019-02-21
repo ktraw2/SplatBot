@@ -204,6 +204,11 @@ class Lobby:
                         lobby.metadata["time"] = old_time
                         return
 
+                    # update league battle rotation time
+                    if lobby.metadata["league"] is not None:
+                        lobby.metadata["league"] = await Lobby.generate_league(lobby.metadata["name"],
+                                                                               lobby.metadata["time"], self.bot.session)
+
                     await ctx.send(":white_check_mark: Successfully changed the start time.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
             else:
