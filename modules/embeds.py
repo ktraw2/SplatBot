@@ -15,6 +15,10 @@ help_embed_fields = {
                  "`s!lobby delete` - delete the current lobby\n"
                  "`s!lobby edit [players|name|time] [New Value]` - "
                     "change the number of players, lobby name, or lobby start time"},
+    "schedule_commands":
+        {"title": "Schedule Commands",
+         "body": "`s!schedule [regular|ranked|league] [optional:Time]` - get the scheduled mode and maps for the given"
+                    "battle type. If no time is given, the current rotation is sent."},
     "misc_commands":
         {"title": "Misc. Commands",
          "body": "`s!help` - view the help for SplatBot"},

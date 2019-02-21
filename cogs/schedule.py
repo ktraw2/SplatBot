@@ -29,7 +29,8 @@ class Schedule:
 
     @schedule.command()
     async def salmon(self, ctx, *args):
-        await self.make_schedule(ScheduleTypes.SALMON, ctx, *args)
+        await ctx.send(":x: This command is currently under development.")
+        # await self.make_schedule(ScheduleTypes.SALMON, ctx, *args)
 
     async def make_schedule(self, schedule_type: ScheduleTypes, ctx, *args):
         time = datetime.now()
