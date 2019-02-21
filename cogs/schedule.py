@@ -29,8 +29,8 @@ class Schedule:
 
     @schedule.command()
     async def salmon(self, ctx, *args):
-        await ctx.send(":x: This command is currently under development.")
-        # await self.make_schedule(ScheduleTypes.SALMON, ctx, *args)
+        await ctx.send(":warning: This command is being beta tested.")
+        await self.make_schedule(ScheduleTypes.SALMON, ctx, *args)
 
     async def make_schedule(self, schedule_type: ScheduleTypes, ctx, *args):
         time = datetime.now()
@@ -73,7 +73,7 @@ class Schedule:
             if schedule_type == ScheduleTypes.SALMON:
                 # Checking if full schedule has been released yet for salmon
                 if schedule.stage_a is None:
-                    ctx.send("Weapons and stage has not been released yet: showing rotation time only...")
+                    ctx.send(":warning: Weapons and stage has not been released yet: showing rotation time only...")
                     # use special formatting because salmon run can occur between two separate days
                     embed.add_field(name="Rotation Time",
                                     value=SplatoonSchedule.format_time_sr(schedule.start_time) + " - "

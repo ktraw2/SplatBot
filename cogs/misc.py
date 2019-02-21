@@ -18,12 +18,12 @@ class Misc:
                                        "2. Schedule Commands\n"
                                        "3. Misc. Commands\n"
                                        "3. Command Syntax Help\n\n"
-                                       "4ou can also type `s!help full` "
+                                       "Uou can also type `s!help full` "
                                        "if you would like the view the full contents of the help in a DM.")
             embeds.add_help_embed_footer_links(help_embed, self.bot)
             await ctx.send(embed=help_embed)
         else:
-            await ctx.send(":x: Sorry, that is not a valid help page. Type `q!help` to view the valid help pages.")
+            await ctx.send(":x: Sorry, that is not a valid help page. Type `s!help` to view the valid help pages.")
 
     @help.command(name="1", aliases=["Lobby"])
     async def lobby_commands(self, ctx):
