@@ -71,7 +71,7 @@ class SplatoonSchedule:
                         if weapon["id"] != '-1':
                             self.weapons_array.add(weapon["weapon"]["name"])
                         else:
-                            self.weapons_array.add(weapon["weapon"]["coop_special_weapon"])
+                            self.weapons_array.add(weapon["coop_special_weapon"]["name"])
                     return True
 
             # if we can't find a detailed schedule, search some more
