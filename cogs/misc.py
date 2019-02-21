@@ -62,9 +62,13 @@ class Misc:
 
     @commands.command()
     @commands.is_owner()
-    async def update(self, ctx, args):
+    async def update(self, ctx, *args):
         await ctx.send(":white_check_mark: Updating and restarting " + self.bot.user.name + "...")
         sys.exit(3)  # exit code will be interpreted by bash to update bot
+
+    @commands.command()
+    async def hello(self, ctx, *args):
+        await ctx.send("Hello!")
 
 
 def setup(bot):
