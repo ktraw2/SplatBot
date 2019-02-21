@@ -1,2 +1,2 @@
 # SplatBot
-A Discord bot to streamline the creation of queues for playing Splatoon.
+A Discord bot for Splatoon fans that can manage lobbies and get rotation schedules. 
