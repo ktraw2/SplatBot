@@ -95,11 +95,10 @@ class Splatnet:
     async def get_na_splatfest(self):
         return (await self.__send_request__("festivals"))['na']
 
-#     @staticmethod
-#     async def main():
-#         test = Splatnet()
-#         print(str(await test.get_league()))
-#
+#    @staticmethod
+#    async def main():
+#        test = Splatnet()
+#        print(str(await test.get_salmon_schedule()))
 #
 # asyncio.run(Splatnet.main())
 
