@@ -1,3 +1,4 @@
+import sys
 from discord.ext import commands
 from modules import embeds
 
@@ -58,6 +59,12 @@ class Misc:
         await ctx.author.send(embed=help_embed)
         await ctx.send(":white_check_mark: " + ctx.author.mention +
                        ", the full help for " + self.bot.user.name + " has been DMed to you to prevent spam.")
+
+    @commands.command()
+    @commands.is_owner()
+    async def update(self, ctx, args):
+        await ctx.send(":white_check_mark: Updating and restarting " + self.bot.user.name + "...")
+        sys.exit(3)  # exit code will be interpreted by bash to update bot
 
 
 def setup(bot):
