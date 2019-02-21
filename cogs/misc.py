@@ -1,6 +1,15 @@
 import sys
+import config
 from discord.ext import commands
 from modules import embeds
+
+
+def check_user_is_developer(ctx):
+    is_developer = False
+    for id in config.developers:
+        if ctx.author.id == id:
+            is_developer = True
+    return is_developer
 
 
 class Misc:
@@ -61,7 +70,7 @@ class Misc:
                        ", the full help for " + self.bot.user.name + " has been DMed to you to prevent spam.")
 
     @commands.command()
-    @commands.is_owner()
+    @commands.check(check_user_is_developer)
     async def update(self, ctx, *args):
         await ctx.send(":white_check_mark: Updating and restarting " + self.bot.user.name + "...")
         sys.exit(3)  # exit code will be interpreted by bash to update bot
