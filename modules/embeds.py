@@ -59,7 +59,7 @@ def generate_base_help_embed(bot):
     help_embed = discord.Embed(title=bot.user.name + " Help", color=config.embed_color)
     help_embed.set_thumbnail(
         url=bot.user.avatar_url)
-    help_embed.set_footer(text="Developed by ktraw2#9962")
+    help_embed.set_footer(text="Developed by ktraw2#9962 and AdamWang#1770")
     return help_embed
 
 
@@ -74,7 +74,7 @@ def add_help_embed_footer_links(help_embed, bot):
     help_embed.add_field(name="<:discord:545143558789791755> " + bot.user.name + " Discord",
                          value="Join the official " + bot.user.name + " Discord at https://discord.gg/A2aWm9 "
                                                                       "for information, support, or just to have a chat!")
-    help_embed.add_field(name="Bring " + bot.user.name + " to Your Discord",
+    help_embed.add_field(name="<:SplatBot:548052186337116164> Bring " + bot.user.name + " to Your Discord",
                          value="[Click here](https://discordapp.com/oauth2/authorize?"
                                "client_id=545107229842472971&scope=bot&permissions=16384) "
                                "to invite " + bot.user.name + " to your own Discord server")

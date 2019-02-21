@@ -4,6 +4,7 @@ import discord
 import os
 import aiohttp
 import config
+import traceback
 from discord.ext import commands
 
 print("Starting SplatBot...")
@@ -46,10 +47,7 @@ class SplatQueues(commands.Bot):
                                                                  + ctx.message.content + "`: `" + str(error) + "`")
         elif (isinstance(error, discord.HTTPException) or isinstance(error, aiohttp.ClientOSError)) \
                 and not hasattr("on_error", ctx.command):
-            await ctx.send(":warning: An unexpected error occurred and a report has been sent to the developer.")
-            await self.get_channel(config.online_logger_id).send(":warning: An unexpected error occurred of type `" +
-                                                                 type(error).__name__ + "` for message `" +
-                                                                 ctx.message.content + "`: `" + str(error) + "`")
+            await self.send_unexpected_error(ctx, error)
         elif isinstance(error, discord.ext.commands.CommandNotFound):
             if config.send_invalid_command:
                 await ctx.send(":x: Sorry, `" + ctx.invoked_with +
@@ -72,10 +70,17 @@ class SplatQueues(commands.Bot):
                                    "the following permissions: `Administrator`, `Manage Channels`, "
                                    "and/or `Manage Server`.")
         else:
-            await ctx.send(":warning: An unexpected error occurred and a report has been sent to the developer.")
-            await self.get_channel(config.online_logger_id).send(":warning: An unexpected error occurred of type `" +
-                                                                 type(error).__name__ + "` for message `" +
-                                                                 ctx.message.content + "`: `" + str(error) + "`")
+            await self.send_unexpected_error(ctx, error)
+
+    async def send_unexpected_error(self, ctx, error):
+        await ctx.send(":warning: An unexpected error occurred and a report has been sent to the developer.")
+        tb = traceback.extract_tb(tb=error.original.__traceback__)
+        await self.get_channel(config.online_logger_id).send(":warning: An unexpected error occurred of type `" +
+                                                             type(error).__name__ + "` for message `" +
+                                                             ctx.message.content + "`: `" + str(error) + "`" +
+                                                             " in function `" + tb[-1].name + "`" +
+                                                             " on line `" + str(tb[-1].lineno) + "`" +
+                                                             " in file `" + tb[-1].filename + "`")
 
     @staticmethod
     def make_sure_file_exists(path, default_config=""):
