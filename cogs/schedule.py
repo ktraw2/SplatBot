@@ -53,16 +53,16 @@ class Schedule:
             thumbnail = ""
             if schedule_type == ScheduleTypes.REGULAR:
                 title += "Regular Battle"
-                thumbnail = config.images["default"]
+                thumbnail = config.images["regular"]
             elif schedule_type == ScheduleTypes.RANKED:
                 title += "Ranked Battle"
-                thumbnail = config.images["default"]
+                thumbnail = config.images["ranked"]
             elif schedule_type == ScheduleTypes.LEAGUE:
                 title += "League Battle"
                 thumbnail = config.images["league"]
             elif schedule_type == ScheduleTypes.SALMON:
                 title += "Salmon Run"
-                thumbnail = config.images["default"]
+                thumbnail = config.images["salmon"]
 
             embed = discord.Embed(title=title, color=config.embed_color)
             embed.set_thumbnail(url=thumbnail)
