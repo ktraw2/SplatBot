@@ -66,11 +66,35 @@ class Schedule:
 
             embed = discord.Embed(title=title, color=config.embed_color)
             embed.set_thumbnail(url=thumbnail)
-            embed.set_image(url=schedule.stage_a_image)
+
             embed.add_field(name="Mode", value=schedule.mode)
-            embed.add_field(name="Stages", value=schedule.stage_a + "\n" + schedule.stage_b)
-            embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time(schedule.start_time) + " - " +
-                                                        SplatoonSchedule.format_time(schedule.end_time))
+
+            # custom stuff for salmon run
+            if schedule_type == ScheduleTypes.SALMON:
+                # Checking if full schedule has been released yet for salmon
+                if schedule.stage_a is None:
+                    ctx.send("Weapons and stage has not been released yet: showing rotation time only...")
+                    # use special formatting because salmon run can occur between two separate days
+                    embed.add_field(name="Rotation Time",
+                                    value=SplatoonSchedule.format_time_sr(schedule.start_time) + " - "
+                                          + SplatoonSchedule.format_time_sr(schedule.end_time))
+                else:
+                    embed.set_image(url=schedule.stage_a_image)
+                    embed.add_field(name="Stages", value=schedule.stage_a)
+                    # use special formatting because salmon run can occur between two separate days
+                    embed.add_field(name="Rotation Time",
+                                    value=SplatoonSchedule.format_time_sr(schedule.start_time) + " - "
+                                          + SplatoonSchedule.format_time_sr(schedule.end_time))
+                    embed.add_field(name="Weapons", value=schedule.weapons_array[0] + "\n" +
+                                    schedule.weapons_array[1] + "\n" +
+                                    schedule.weapons_array[2] + "\n" +
+                                    schedule.weapons_array[3])
+
+            else:
+                embed.set_image(url=schedule.stage_a_image)
+                embed.add_field(name="Stages", value=schedule.stage_a + "\n" + schedule.stage_b)
+                embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time(schedule.start_time) + " - " +
+                                                            SplatoonSchedule.format_time(schedule.end_time))
 
             await ctx.send(embed=embed)
         else:

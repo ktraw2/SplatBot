@@ -18,8 +18,8 @@ class SplatoonSchedule:
         self.mode = None
         self.stage_a = None
         self.stage_a_image = None
-        self.stage_b = None
-        self.stage_b_image = None
+        self.stage_b = None                 # Not populated for salmon run
+        self.stage_b_image = None           # Not populated for salmon run
         self.start_time = None
         self.end_time = None
         self.weapons_array = None           # for salmon run
@@ -41,7 +41,7 @@ class SplatoonSchedule:
         elif self.schedule_type == ScheduleTypes.SALMON:
             data = await sn.get_salmon_detail()
 
-        # find a league session given the target time
+        # find a regular/ranked/league session given the target time
         if self.schedule_type != ScheduleTypes.SALMON:
             for schedule in data:
                 if schedule["start_time"] <= timestamp < schedule["end_time"]:
@@ -67,18 +67,29 @@ class SplatoonSchedule:
 
                     # getting weapons
                     for weapon in schedule["weapons"]:
-                        self.weapons_array.add(weapon["weapon"["name"]])
+                        # weapon id of -1 indicates a special weapon, parsed differently
+                        if weapon["id"] is not -1:
+                            self.weapons_array.add(weapon["weapon"["name"]])
+                        else:
+                            self.weapons_array.add(weapon["weapon"["coop_special_weapon"]])
                     return True
 
+            # if we can't find a detailed schedule, search some more
             data = await sn.get_salmon_schedule()
             for schedule in data:
                 if schedule["start_time"] <= timestamp < schedule["end_time"]:
-                    print("Warning: Weapons and Stage not released! Showing times...")
                     self.mode = "Salmon Run"
                     self.start_time = datetime.fromtimestamp(schedule["start_time"], self.target_time.tzname())
                     self.end_time = datetime.fromtimestamp(schedule["end_time"], self.target_time.tzname())
+                    return True
             return False
 
     @staticmethod
     def format_time(time: datetime):
+        # returns <hour>:<time> <am/pm>
         return time.strftime("%I:%M %p")
+
+    @staticmethod
+    def format_time_sr(time: datetime):
+        # returns <abbr. weekday> <abbr. month> <date> <hour>:<time> <am/pm>
+        return time.strftime("%a %b %d %I:%M %p")
