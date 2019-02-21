@@ -69,9 +69,9 @@ class SplatoonSchedule:
                     for weapon in schedule["weapons"]:
                         # weapon id of -1 indicates a special weapon, parsed differently
                         if weapon["id"] is not -1:
-                            self.weapons_array.add(weapon["weapon"["name"]])
+                            self.weapons_array.add(weapon["weapon"]["name"])
                         else:
-                            self.weapons_array.add(weapon["weapon"["coop_special_weapon"]])
+                            self.weapons_array.add(weapon["weapon"]["coop_special_weapon"])
                     return True
 
             # if we can't find a detailed schedule, search some more
