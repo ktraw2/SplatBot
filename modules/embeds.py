@@ -28,7 +28,8 @@ help_embed_fields = {
                  "Some commands have more than one argument, in which case arguments are separated by a space. "
                  "You *do not* type the brackets around the command argument.\n"
                  "**Examples:**\n"
-                 "1. `s!lobby start 8 10PM \"Weekly Battles\"`\n"}
+                 "1. `s!lobby create \"Weekly 3v3\" 10PM 6`\n"
+                 "2. `s!schedule regular`"}
 }
 
 
