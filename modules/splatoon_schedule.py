@@ -60,7 +60,7 @@ class SplatoonSchedule:
                 if schedule["start_time"] <= timestamp < schedule["end_time"]:
                     self.mode = "Salmon Run"
                     self.stage_a = schedule["stage"]["name"]
-                    self.stage_a_image = schedule["stage"]["image"]
+                    self.stage_a_image = IMAGE_BASE + schedule["stage"]["image"]
                     self.start_time = datetime.fromtimestamp(schedule["start_time"], self.target_time.tzname())
                     self.end_time = datetime.fromtimestamp(schedule["end_time"], self.target_time.tzname())
                     self.weapons_array = LinkedList()
