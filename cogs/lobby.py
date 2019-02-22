@@ -99,11 +99,11 @@ class Lobby:
                                   "time": time,
                                   "notified": False})
             elif Lobby.is_salmon_run(name):
-                battle_lob = await Lobby.generate_salmon(name, time, self.bot.session)
+                battle_lobby = await Lobby.generate_salmon(name, time, self.bot.session)
                 # add the lobby to the list
                 lobby = QueueData({"channel": ctx.channel,
                                   "name": name,
-                                  "salmon": battle_lob,
+                                  "league": battle_lobby,
                                   "num_players": num_players,
                                   "time": time,
                                   "notified": False})
@@ -159,7 +159,7 @@ class Lobby:
                                                                                self.bot.session)
                         lobby.metadata["name"] = "League Battle"
                     elif Lobby.is_salmon_run(args[0]):
-                        lobby.metadata["salmon"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
+                        lobby.metadata["league"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
                                                                                self.bot.session)
                     else:
                         lobby.metadata["league"] = None
@@ -167,6 +167,8 @@ class Lobby:
                     # set private battle title if necessary
                     if Lobby.is_private_battle(args[0]):
                         lobby.metadata["name"] = "Private Battle"
+                    elif Lobby.is_salmon_run(args[0]):
+                        lobby.metedata["name"] = "Salmon Run"
 
                     await ctx.send(":white_check_mark: Successfully changed the lobby name.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
