@@ -254,7 +254,7 @@ class Lobby:
 
     @staticmethod
     def generate_lobby_embed(lobby: QueueData):
-        metadata = lobby.metadata
+        metadata = lobby.metadata  # TODO something wrong here
         name = metadata["name"]
 
         lobby_embed = discord.Embed(title="Lobby Information - " + name, color=config.embed_color)
