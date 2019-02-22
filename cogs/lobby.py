@@ -70,6 +70,9 @@ class Lobby:
                 elif Lobby.is_private_battle(name):
                     name = "Private Battle"
                     num_players = 8
+                elif Lobby.is_salmon_run(name):
+                    name = "Salmon Run"
+                    num_players = 4
             if len(args) >= NUM_PLAYERS + 1:
                 try:
                     num_players = int(args[NUM_PLAYERS])
@@ -85,16 +88,26 @@ class Lobby:
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
-            # handle extra data for league battle
-            league = await Lobby.generate_league(name, time, self.bot.session)
+            if Lobby.is_league(name):
+                # handle extra data for league battle
+                battle_lobby = await Lobby.generate_league(name, time, self.bot.session)
+                # add the lobby to the list
+                lobby = QueueData({"channel": ctx.channel,
+                                  "name": name,
+                                  "league": battle_lobby,
+                                  "num_players": num_players,
+                                  "time": time,
+                                  "notified": False})
+            elif Lobby.is_salmon_run(name):
+                battle_lob = await Lobby.generate_salmon(name, time, self.bot.session)
+                # add the lobby to the list
+                lobby = QueueData({"channel": ctx.channel,
+                                  "name": name,
+                                  "salmon": battle_lob,
+                                  "num_players": num_players,
+                                  "time": time,
+                                  "notified": False})
 
-            # add the lobby to the list
-            lobby = QueueData({"channel": ctx.channel,
-                               "name": name,
-                               "league": league,
-                               "num_players": num_players,
-                               "time": time,
-                               "notified": False})
             self.lobbies.append(lobby)
             await ctx.send(":white_check_mark: Created a lobby in " + ctx.channel.mention)
             await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
@@ -145,6 +158,9 @@ class Lobby:
                         lobby.metadata["league"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
                                                                                self.bot.session)
                         lobby.metadata["name"] = "League Battle"
+                    elif Lobby.is_salmon_run(args[0]):
+                        lobby.metadata["salmon"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
+                                                                               self.bot.session)
                     else:
                         lobby.metadata["league"] = None
 
@@ -208,6 +224,9 @@ class Lobby:
                     if lobby.metadata["league"] is not None:
                         lobby.metadata["league"] = await Lobby.generate_league(lobby.metadata["name"],
                                                                                lobby.metadata["time"], self.bot.session)
+                    elif lobby.metadata["salmon"] is not None:
+                        lobby.metadata["salmon"] = await Lobby.generate_salmon(lobby.metadata["name"],
+                                                                               lobby.metadata["time"], self.bot.session)
 
                     await ctx.send(":white_check_mark: Successfully changed the start time.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
@@ -248,9 +267,21 @@ class Lobby:
             lobby_embed.add_field(name="Rotation Time",
                                   value=SplatoonSchedule.format_time(metadata["league"].start_time) + " - "
                                   + SplatoonSchedule.format_time(metadata["league"].end_time))
+        elif "salmon" in metadata and metadata["salmon"] is not None:
+            lobby_embed.set_thumbnail(url=config.images["salmon"])
+            lobby_embed.set_image(url=metadata["salmon"].stage_a_image)
+            lobby_embed.add_field(name="Mode", value=metadata["salmon"].mode)
+            lobby_embed.add_field(name="Maps", value=metadata["salmon"].stage_a)
+            lobby_embed.add_field(name="Rotation Time",
+                                  value=SplatoonSchedule.format_time_sr(metadata["salmon"].start_time) + " - "
+                                  + SplatoonSchedule.format_time_sr(metadata["salmon"].end_time))
+
         # add rest of data
         if Lobby.is_private_battle(name):
             lobby_embed.set_thumbnail(url=config.images["private_battle"])
+        elif Lobby.is_salmon_run(name):
+            lobby_embed.set_thumbnail(url=config.images["salmon_run"])
+
         if "num_players" in metadata:
             lobby_embed.add_field(name="Number of Players", value=str(metadata["num_players"]))
         if "time" in metadata:
@@ -285,6 +316,13 @@ class Lobby:
             return False
 
     @staticmethod
+    def is_salmon_run(name: str):
+        if "salmon" in name.lower():
+            return True
+        else:
+            return False
+
+    @staticmethod
     async def generate_league(name: str, time: datetime = datetime.now(), session=None):
         if Lobby.is_league(name):
             league = SplatoonSchedule(time, ScheduleTypes.LEAGUE, session)
@@ -292,6 +330,16 @@ class Lobby:
             if success:
                 return league
         return None
+
+    @staticmethod
+    async def generate_salmon(name: str, time: datetime = datetime.now(), session=None):
+        if Lobby.is_salmon_run(name):
+            league = SplatoonSchedule(time, ScheduleTypes.SALMON, session)
+            success = await league.populate_data()
+            if success:
+                return league
+        return None
+
 
 def setup(bot):
     bot.add_cog(Lobby(bot))
