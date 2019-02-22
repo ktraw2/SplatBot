@@ -269,14 +269,14 @@ class Lobby:
             lobby_embed.add_field(name="Rotation Time",
                                   value=SplatoonSchedule.format_time(metadata["league"].start_time) + " - "
                                   + SplatoonSchedule.format_time(metadata["league"].end_time))
-        elif "salmon" in metadata and metadata["salmon"] is not None:
+        elif "salmon" in metadata and metadata["league"] is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
-            lobby_embed.set_image(url=metadata["salmon"].stage_a_image)
-            lobby_embed.add_field(name="Mode", value=metadata["salmon"].mode)
-            lobby_embed.add_field(name="Maps", value=metadata["salmon"].stage_a)
+            lobby_embed.set_image(url=metadata["league"].stage_a_image)
+            lobby_embed.add_field(name="Mode", value=metadata["league"].mode)
+            lobby_embed.add_field(name="Maps", value=metadata["league"].stage_a)
             lobby_embed.add_field(name="Rotation Time",
-                                  value=SplatoonSchedule.format_time_sr(metadata["salmon"].start_time) + " - "
-                                  + SplatoonSchedule.format_time_sr(metadata["salmon"].end_time))
+                                  value=SplatoonSchedule.format_time_sr(metadata["league"].start_time) + " - "
+                                  + SplatoonSchedule.format_time_sr(metadata["league"].end_time))
 
         # add rest of data
         if Lobby.is_private_battle(name):
