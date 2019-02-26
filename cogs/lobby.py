@@ -34,11 +34,11 @@ class Lobby:
                 # notify if less than zero and not notified
                 if not lobby.metadata["notified"] and difference <= DateDifference():
                     announcement = "Hey "
-                    for i, player in enumerate(lobby.queue):
+                    for i, player in enumerate(lobby.players):
                         announcement += player.mention
-                        if i < len(lobby.queue) - 1:
+                        if i < len(lobby.players) - 1:
                             announcement += ", "
-                        if i == len(lobby.queue) - 2 and len(lobby.queue) > 1:
+                        if i == len(lobby.players) - 2 and len(lobby.players) > 1:
                             announcement += "and "
                     announcement += " it's time for your scheduled lobby: `" + lobby.metadata["name"] + "`!"
                     await lobby.metadata["channel"].send(announcement)
@@ -110,9 +110,9 @@ class Lobby:
     async def join(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
-            if ctx.author not in lobby.queue:
-                if lobby.queue.size < lobby.metadata["num_players"]:
-                    lobby.queue.add(ctx.author, prevent_duplicates=True)
+            if ctx.author not in lobby.players:
+                if lobby.players.size < lobby.metadata["num_players"]:
+                    lobby.players.add(ctx.author, prevent_duplicates=True)
                     await ctx.send(":white_check_mark: Successfully added " + ctx.author.mention + " to the lobby.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
                 else:
@@ -126,7 +126,7 @@ class Lobby:
     async def leave(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
-            if lobby.queue.remove_object(ctx.author):
+            if lobby.players.remove_object(ctx.author):
                 await ctx.send(":white_check_mark: Successfully removed " + ctx.author.mention + " from the lobby.")
                 await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
             else:
@@ -173,7 +173,7 @@ class Lobby:
                     old_num = lobby.metadata["num_players"]
                     try:
                         new_num = int(args[0])
-                        if new_num >= lobby.queue.size:
+                        if new_num >= lobby.players.size:
                             lobby.metadata["num_players"] = int(args[0])
                         else:
                             await ctx.send(":x: You cannot set the number of players to a number that is lower than the"
