@@ -293,5 +293,6 @@ class Lobby:
                 return league
         return None
 
+
 def setup(bot):
     bot.add_cog(Lobby(bot))

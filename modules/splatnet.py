@@ -1,9 +1,7 @@
-import aiohttp
-import asyncio
-import json
+from modules.async_client import AsyncClient
 
 
-class Splatnet:
+class Splatnet(AsyncClient):
 
     """
     Constructor for Splatnet
@@ -11,41 +9,9 @@ class Splatnet:
     If no session is given, make a new one via aiohttp
     """
     def __init__(self, session=None):
-        if session is None:
-            self.connection = aiohttp.ClientSession()
-        else:
-            self.connection = session
-
-    """
-    Sends a request to splatoon2.ink's API.
-    
-    Request param should match splatoon2.ink's API.
-    return_raw_and_json denotes if you want both the raw file and the API returned
-    Otherwise will return just the JSON
-    
-    Will return the JSON or the JSON and the raw file or an error code from splatoon2.ink.
-    """
-    async def __send_request__(self, request, return_raw_and_json=False):
-        # Recommended header for splatoon2.ink's API
-        header = {"User:Agent": "SplatBot/1.0 Github: github.com/ktraw2/SplatBot"}
-        async with self.connection.get("https://splatoon2.ink/data/" + request + ".json", headers=header) as response:
-            if response.status == 200:
-                if return_raw_and_json:
-                    text = await response.text()
-                    return json.loads(text), text
-                else:
-                    return json.loads(await response.text())
-            elif response.status == 429:
-                # bot is sending too many requests, try again after a couple seconds
-                print("Bot is being rate limited by Splatoon2.ink, resending request...")
-                await asyncio.sleep(5)
-                return await self.__send_request__(request, return_raw_and_json=return_raw_and_json)
-            else:
-                error_string = '{"error":' + str(response.status) + '}'
-                if return_raw_and_json:
-                    return json.loads(error_string), error_string
-                else:
-                    return json.loads(error_string)
+        super(Splatnet, self).__init__(user_agent="SplatBot/1.0 Github: github.com/ktraw2/SplatBot",
+                                       request_prefix="https://splatoon2.ink/data/", request_suffix=".json",
+                                       session=session)
 
     """
     Gets the JSON data for turf wars
@@ -53,7 +19,7 @@ class Splatnet:
     Returns the JSON data about turf wars' stages and when the rotation will occur
     """
     async def get_turf(self):
-        return (await self.__send_request__("schedules"))['regular']
+        return (await self.send_json_request("schedules"))['regular']
 
     """
     Gets the JSON data for ranked battles
@@ -61,7 +27,7 @@ class Splatnet:
     Returns the JSON data about ranked battles' mode, stages, and when the rotation will occur
     """
     async def get_ranked(self):
-        return (await self.__send_request__("schedules"))['gachi']
+        return (await self.send_json_request("schedules"))['gachi']
 
     """
     Gets the JSON data for league battles
@@ -69,7 +35,7 @@ class Splatnet:
     Returns the JSON data about league battles' mode, stages, and when the rotation will occur
     """
     async def get_league(self):
-        return (await self.__send_request__("schedules"))['league']
+        return (await self.send_json_request("schedules"))['league']
 
     """
     Gets the JSON data for salmon run's weapons and stages
@@ -77,7 +43,7 @@ class Splatnet:
     Returns the JSON data about salmon run's weapons and stages for the next 2 rotations
     """
     async def get_salmon_detail(self):
-        return (await self.__send_request__("coop-schedules"))['details']
+        return (await self.send_json_request("coop-schedules"))['details']
 
     """
     Gets the JSON data for salmon run's stages
@@ -85,7 +51,7 @@ class Splatnet:
     Returns the JSON data about salmon run's stages
     """
     async def get_salmon_schedule(self):
-        return (await self.__send_request__("coop-schedules"))['schedules']
+        return (await self.send_json_request("coop-schedules"))['schedules']
 
     """
     Gets the JSON data for splatfest in North America
@@ -93,12 +59,4 @@ class Splatnet:
     Returns the JSON data for splatfests in NA: returns info about the festival and the results
     """
     async def get_na_splatfest(self):
-        return (await self.__send_request__("festivals"))['na']
-
-#    @staticmethod
-#    async def main():
-#        test = Splatnet()
-#        print(str(await test.get_salmon_schedule()))
-#
-# asyncio.run(Splatnet.main())
-
+        return (await self.send_json_request("festivals"))['na']

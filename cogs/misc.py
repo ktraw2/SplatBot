@@ -1,6 +1,7 @@
 import sys
 import config
 from discord.ext import commands
+from modules.async_client import AsyncClient
 from modules import embeds
 
 
@@ -13,7 +14,7 @@ def check_user_is_developer(ctx):
 
 
 class Misc:
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot):
         self.bot = bot
 
     @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["commands"])
@@ -77,7 +78,15 @@ class Misc:
 
     @commands.command()
     async def hello(self, ctx, *args):
-        await ctx.send("Hello!")
+        await ctx.send("Hello, World!")
+
+    @commands.command()
+    @commands.is_owner()
+    async def getip(self, ctx, *args):
+        ip_text = await AsyncClient(session=self.bot.session).send_request("http://checkip.dyndns.org/")
+        # scrape page for body
+        body = ip_text[ip_text.index("<body>") + len("<body>"):ip_text.index("</body>")]
+        await ctx.send(body)
 
 
 def setup(bot):

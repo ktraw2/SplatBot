@@ -13,9 +13,9 @@ SPLATBOT_EXTENSIONS = ["cogs.lobby",
                        "cogs.schedule"]
 
 
-class SplatQueues(commands.Bot):
+class SplatBot(commands.Bot):
     def __init__(self, extensions):
-        SplatQueues.make_sure_file_exists("config.py")
+        SplatBot.make_sure_file_exists("config.py")
         super().__init__(command_prefix=config.prefix, description=config.description, case_insensitive=True)
 
         self.session = aiohttp.ClientSession()
@@ -98,4 +98,4 @@ class SplatQueues(commands.Bot):
             new_file.close()
 
 
-SplatQueues(SPLATBOT_EXTENSIONS).run(config.token)
+SplatBot(SPLATBOT_EXTENSIONS).run(config.token)
