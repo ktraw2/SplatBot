@@ -1,10 +1,11 @@
 import discord
 import asyncio
 import config
+from collections import namedtuple
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
-from modules.queue_data import QueueData
+from modules.linked_list import LinkedList
 from modules.splatoon_schedule import SplatoonSchedule, ScheduleTypes
 from misc_date_utilities.date_difference import DateDifference
 
@@ -12,6 +13,9 @@ from misc_date_utilities.date_difference import DateDifference
 NUM_PLAYERS = 2
 TIME = 1
 NAME = 0
+
+# define lobby namedtuple
+LobbyData = namedtuple("LobbyData", ["players", "metadata"])
 
 
 class Lobby:
@@ -89,7 +93,8 @@ class Lobby:
             league = await Lobby.generate_league(name, time, self.bot.session)
 
             # add the lobby to the list
-            lobby = QueueData({"channel": ctx.channel,
+            lobby = LobbyData(LinkedList(),
+                              {"channel": ctx.channel,
                                "name": name,
                                "league": league,
                                "num_players": num_players,
@@ -227,7 +232,7 @@ class Lobby:
         return None
 
     @staticmethod
-    def generate_lobby_embed(lobby: QueueData):
+    def generate_lobby_embed(lobby: LobbyData):
         metadata = lobby.metadata
         name = metadata["name"]
 
@@ -254,7 +259,7 @@ class Lobby:
         # add list of players
         i = 0
         player_string = ""
-        for player in lobby.queue:
+        for player in lobby.players:
             player_string = player_string + str(i + 1) + ". " + player.mention + "\n"
             i += 1
         # now, add all the blank spots
