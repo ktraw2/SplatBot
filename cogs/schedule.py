@@ -1,6 +1,6 @@
 import config
 import discord
-from modules.splatoon_schedule import SplatoonSchedule, ScheduleTypes
+from modules.splatoon_schedule import SplatoonSchedule, ModeTypes
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
@@ -17,21 +17,21 @@ class Schedule:
 
     @schedule.command()
     async def regular(self, ctx, *args):
-        await self.make_schedule(ScheduleTypes.REGULAR, ctx, *args)
+        await self.make_schedule(ModeTypes.REGULAR, ctx, *args)
 
     @schedule.command()
     async def ranked(self, ctx, *args):
-        await self.make_schedule(ScheduleTypes.RANKED, ctx, *args)
+        await self.make_schedule(ModeTypes.RANKED, ctx, *args)
 
     @schedule.command()
     async def league(self, ctx, *args):
-        await self.make_schedule(ScheduleTypes.LEAGUE, ctx, *args)
+        await self.make_schedule(ModeTypes.LEAGUE, ctx, *args)
 
     @schedule.command()
     async def salmon(self, ctx, *args):
-        await self.make_schedule(ScheduleTypes.SALMON, ctx, *args)
+        await self.make_schedule(ModeTypes.SALMON, ctx, *args)
 
-    async def make_schedule(self, schedule_type: ScheduleTypes, ctx, *args):
+    async def make_schedule(self, schedule_type: ModeTypes, ctx, *args):
         time = datetime.now()
 
         if len(args) > 0:
@@ -50,16 +50,16 @@ class Schedule:
         if success:
             title = "Schedule Information - "
             thumbnail = ""
-            if schedule_type == ScheduleTypes.REGULAR:
+            if schedule_type == ModeTypes.REGULAR:
                 title += "Regular Battle"
                 thumbnail = config.images["regular"]
-            elif schedule_type == ScheduleTypes.RANKED:
+            elif schedule_type == ModeTypes.RANKED:
                 title += "Ranked Battle"
                 thumbnail = config.images["ranked"]
-            elif schedule_type == ScheduleTypes.LEAGUE:
+            elif schedule_type == ModeTypes.LEAGUE:
                 title += "League Battle"
                 thumbnail = config.images["league"]
-            elif schedule_type == ScheduleTypes.SALMON:
+            elif schedule_type == ModeTypes.SALMON:
                 title += "Salmon Run"
                 thumbnail = config.images["salmon"]
 
@@ -69,7 +69,7 @@ class Schedule:
             embed.add_field(name="Mode", value=schedule.mode)
 
             # custom stuff for salmon run
-            if schedule_type == ScheduleTypes.SALMON:
+            if schedule_type == ModeTypes.SALMON:
                 # Checking if full schedule has been released yet for salmon
                 if schedule.stage_a is None:
                     await ctx.send(":warning: Weapons and stage have not been released yet.")

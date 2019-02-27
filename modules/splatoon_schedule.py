@@ -6,15 +6,16 @@ from modules.linked_list import LinkedList
 IMAGE_BASE = "https://splatoon2.ink/assets/splatnet"
 
 
-class ScheduleTypes(Enum):
+class ModeTypes(Enum):
     REGULAR = auto()
     RANKED = auto()
     LEAGUE = auto()
     SALMON = auto()
+    PRIVATE = auto()
 
 
 class SplatoonSchedule:
-    def __init__(self, target_time: datetime, schedule_type: ScheduleTypes, session=None):
+    def __init__(self, target_time: datetime, schedule_type: ModeTypes, session=None):
         self.mode = None
         self.stage_a = None
         self.stage_a_image = None
@@ -32,17 +33,17 @@ class SplatoonSchedule:
         sn = Splatnet(self.session)
         timestamp = self.target_time.timestamp()
         data = None
-        if self.schedule_type == ScheduleTypes.REGULAR:
+        if self.schedule_type == ModeTypes.REGULAR:
             data = await sn.get_turf()
-        elif self.schedule_type == ScheduleTypes.RANKED:
+        elif self.schedule_type == ModeTypes.RANKED:
             data = await sn.get_ranked()
-        elif self.schedule_type == ScheduleTypes.LEAGUE:
+        elif self.schedule_type == ModeTypes.LEAGUE:
             data = await sn.get_league()
-        elif self.schedule_type == ScheduleTypes.SALMON:
+        elif self.schedule_type == ModeTypes.SALMON:
             data = await sn.get_salmon_detail()
 
         # find a regular/ranked/league session given the target time
-        if self.schedule_type != ScheduleTypes.SALMON:
+        if self.schedule_type != ModeTypes.SALMON:
             for schedule in data:
                 if schedule["start_time"] <= timestamp < schedule["end_time"]:
                     self.mode = schedule["rule"]["name"]

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
 from modules.linked_list import LinkedList
-from modules.splatoon_schedule import SplatoonSchedule, ScheduleTypes
+from modules.splatoon_schedule import SplatoonSchedule, ModeTypes
 from misc_date_utilities.date_difference import DateDifference
 
 # constants for arguments
@@ -69,9 +69,12 @@ class Lobby:
             # get arguments if they exist
             if len(args) >= NAME + 1:
                 name = args[NAME]
-                if Lobby.is_league(name):
+                lobby_type = Lobby.parse_special_lobby_type(name)
+                if lobby_type == ModeTypes.LEAGUE:
                     name = "League Battle"
-                elif Lobby.is_private_battle(name):
+                elif lobby_type == ModeTypes.SALMON:
+                    name = "Salmon Run"
+                elif lobby_type == ModeTypes.PRIVATE:
                     name = "Private Battle"
                     num_players = 8
             if len(args) >= NUM_PLAYERS + 1:
@@ -96,7 +99,7 @@ class Lobby:
             lobby = LobbyData(LinkedList(),
                               {"channel": ctx.channel,
                                "name": name,
-                               "league": league,
+                               "schedule_data": league,
                                "num_players": num_players,
                                "time": time,
                                "notified": False})
@@ -136,7 +139,7 @@ class Lobby:
 
     @lobby.group(case_insensitive=True, invoke_without_command=True)
     async def edit(self, ctx, *args):
-        pass
+        await ctx.send("Available edit commands are: name, players, time")
 
     @edit.command(aliases=["title", "lobbyname", "lobbytitle"])
     async def name(self, ctx, *args):
@@ -144,18 +147,24 @@ class Lobby:
         if lobby is not None:
             if len(args) > 0:
                 if "name" in lobby.metadata:
-                    lobby.metadata["name"] = args[0]
-                    # add or remove league battle data if necessary
-                    if Lobby.is_league(args[0]):
-                        lobby.metadata["league"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
-                                                                               self.bot.session)
+                    # add or remove custom battle data if necessary
+                    lobby_type = Lobby.parse_special_lobby_type(args[0])
+                    if lobby_type == ModeTypes.LEAGUE:
                         lobby.metadata["name"] = "League Battle"
-                    else:
-                        lobby.metadata["league"] = None
-
-                    # set private battle title if necessary
-                    if Lobby.is_private_battle(args[0]):
+                        lobby.metadata["schedule_data"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
+                                                                               self.bot.session)
+                        Lobby.attempt_update_num_players(lobby, 4)
+                    elif lobby_type == ModeTypes.SALMON:
+                        lobby.metadata["name"] = "Salmon Run"
+                        lobby.metadata["schedule_data"] = None
+                        Lobby.attempt_update_num_players(lobby, 4)
+                    elif lobby_type == ModeTypes.PRIVATE:
                         lobby.metadata["name"] = "Private Battle"
+                        lobby.metadata["schedule_data"] = None
+                        Lobby.attempt_update_num_players(lobby, 8)
+                    else:
+                        lobby.metadata["name"] = args[0]
+                        lobby.metadata["schedule_data"] = None
 
                     await ctx.send(":white_check_mark: Successfully changed the lobby name.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
@@ -239,18 +248,23 @@ class Lobby:
         lobby_embed = discord.Embed(title="Lobby Information - " + name, color=config.embed_color)
         lobby_embed.set_thumbnail(url=config.images["default"])
 
+        lobby_type = Lobby.parse_special_lobby_type(name)
         # add data for league
-        if "league" in metadata and metadata["league"] is not None:
+        if lobby_type == ModeTypes.LEAGUE and "schedule_data" in metadata and metadata["schedule_data"] is not None:
             lobby_embed.set_thumbnail(url=config.images["league"])
-            lobby_embed.set_image(url=metadata["league"].stage_a_image)
-            lobby_embed.add_field(name="Mode", value=metadata["league"].mode)
-            lobby_embed.add_field(name="Maps", value=metadata["league"].stage_a + "\n" + metadata["league"].stage_b)
+            lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
+            lobby_embed.add_field(name="Mode", value=metadata["schedule_data"].mode)
+            lobby_embed.add_field(name="Maps", value=metadata["schedule_data"].stage_a + "\n" +
+                                                     metadata["schedule_data"].stage_b)
             lobby_embed.add_field(name="Rotation Time",
-                                  value=SplatoonSchedule.format_time(metadata["league"].start_time) + " - "
-                                  + SplatoonSchedule.format_time(metadata["league"].end_time))
-        # add rest of data
-        if Lobby.is_private_battle(name):
+                                  value=SplatoonSchedule.format_time(metadata["schedule_data"].start_time) + " - "
+                                  + SplatoonSchedule.format_time(metadata["schedule_data"].end_time))
+        elif lobby_type == ModeTypes.SALMON:
+            lobby_embed.set_thumbnail(url=config.images["salmon"])
+        elif lobby_type == ModeTypes.PRIVATE:
             lobby_embed.set_thumbnail(url=config.images["private_battle"])
+
+        # add rest of data
         if "num_players" in metadata:
             lobby_embed.add_field(name="Number of Players", value=str(metadata["num_players"]))
         if "time" in metadata:
@@ -271,23 +285,26 @@ class Lobby:
         return lobby_embed
 
     @staticmethod
-    def is_league(name: str):
-        if "league" in name.lower():
-            return True
-        else:
-            return False
+    def attempt_update_num_players(lobby: LobbyData, new_num: int):
+        if len(lobby.players) < new_num:
+            lobby.metadata["num_players"] = new_num
 
     @staticmethod
-    def is_private_battle(name: str):
+    def parse_special_lobby_type(name: str):
         if "private" in name.lower():
-            return True
+            return ModeTypes.PRIVATE
+        elif "league" in name.lower():
+            return ModeTypes.LEAGUE
+        elif "salmon" in name.lower():
+            return ModeTypes.SALMON
         else:
-            return False
+            return None
 
     @staticmethod
     async def generate_league(name: str, time: datetime = datetime.now(), session=None):
-        if Lobby.is_league(name):
-            league = SplatoonSchedule(time, ScheduleTypes.LEAGUE, session)
+        lobby_type = Lobby.parse_special_lobby_type(name)
+        if lobby_type == ModeTypes.LEAGUE:
+            league = SplatoonSchedule(time, ModeTypes.LEAGUE, session)
             success = await league.populate_data()
             if success:
                 return league
