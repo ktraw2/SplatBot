@@ -44,7 +44,24 @@ class Lobby:
                     await lobby.metadata["channel"].send(announcement)
                     await lobby.metadata["channel"].send(embed=Lobby.generate_lobby_embed(lobby))
                     lobby.metadata["notified"] = True
-            await asyncio.sleep(60)
+                elif lobby.metadata["notified"]:
+                    if lobby.metadata["schedule_data"] is not None:
+                        end_difference = DateDifference.subtract_datetimes(lobby.metadata["schedule_data"].end_time,
+                                                                           datetime.now())
+                        # delete league lobby if the rotation ends
+                        if lobby.metadata["schedule_data"].schedule_type == ModeTypes.LEAGUE and \
+                           end_difference <= DateDifference():
+                            self.lobbies.remove(lobby)
+                    else:
+                        # use 1 hour as default autodeletion time
+                        end_difference = DateDifference.subtract_datetimes(lobby.metadata["time"],
+                                                                           datetime.now() + timedelta(hours=1))
+                        if end_difference <= DateDifference(hours=-1):
+                            self.lobbies.remove(lobby)
+            # sleep until the next minute
+            sleep_time = datetime.now()
+            sleep_time += timedelta(seconds=60 - sleep_time.second)
+            await asyncio.sleep(sleep_time.second)
 
     @commands.group(case_insensitive=True, invoke_without_command=True)
     async def lobby(self, ctx, *args):
