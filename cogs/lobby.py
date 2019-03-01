@@ -67,7 +67,7 @@ class Lobby:
     async def lobby(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is None:
-            await ctx.send("Available lobby commands are: create, edit, join, leave, end")
+            await ctx.send("Available lobby commands are: `create`, `edit`, `join`, `leave`, `end`")
         else:
             await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
 

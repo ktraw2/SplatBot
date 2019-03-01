@@ -13,7 +13,8 @@ class Schedule:
 
     @commands.group(case_insensitive=True, invoke_without_command=True)
     async def schedule(self, ctx, *args):
-        await ctx.send("Available subcommands are: regular, ranked, league, salmon")
+        await ctx.send("Available subcommands are: `regular`, `ranked`, `league`, `salmon`\n"
+                       "Available subcommands for `salmon` are: `upcoming`")
 
     @schedule.command()
     async def regular(self, ctx, *args):
@@ -27,9 +28,13 @@ class Schedule:
     async def league(self, ctx, *args):
         await self.make_schedule(ModeTypes.LEAGUE, ctx, *args)
 
-    @schedule.command()
+    @schedule.group(case_insensitive=True, invoke_without_command=True)
     async def salmon(self, ctx, *args):
         await self.make_schedule(ModeTypes.SALMON, ctx, *args)
+
+    @salmon.command()
+    async def upcoming(self, ctx, *args):
+        await ctx.send(":information_source: This command is upcoming.")
 
     async def make_schedule(self, schedule_type: ModeTypes, ctx, *args):
         time = datetime.now()
