@@ -89,7 +89,7 @@ class Misc:
     @commands.guild_only()
     async def kevin(self, ctx, *args):
         if ctx.guild.id == 533820666458144769:
-            await ctx.send(ctx.guild.get_role(551526968760205324) + " KEVIN GANG KEVIN GANG KEVIN GANG")
+            await ctx.send(ctx.guild.get_role(537872945914314772).mention + " KEVIN GANG KEVIN GANG KEVIN GANG")
 
     @commands.command()
     @commands.is_owner()
