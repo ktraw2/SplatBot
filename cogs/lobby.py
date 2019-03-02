@@ -19,7 +19,15 @@ LobbyData = namedtuple("LobbyData", ["players", "metadata"])
 
 
 class Lobby:
+    """
+    Defines commands for the lobby system of SplatBot.
+    """
+
     def __init__(self, bot):
+        """
+        Initializes the reference to the bot, an empty lobbies list, and creates a notifications task
+        :param bot: reference to the bot that created this cog
+        """
         self.bot = bot
         self.lobbies = []
 
@@ -27,12 +35,20 @@ class Lobby:
         bot.loop.create_task(self.send_notifications())
 
     async def send_notifications(self):
+        """
+        Check if any lobbies need to have their notifications sent, also deletes old lobbies automatically.
+        :return: Nothing
+        """
+
+        # wait for the bot to be ready, then loop while the bot is running
         await self.bot.wait_until_ready()
         while not self.bot.is_closed():
+            # loop through all lobbies
             for lobby in self.lobbies:
                 difference = DateDifference.subtract_datetimes(lobby.metadata["time"], datetime.now())
                 # notify if less than zero and not notified
                 if not lobby.metadata["notified"] and difference <= DateDifference():
+                    # build and send the notification
                     announcement = "Hey "
                     for i, player in enumerate(lobby.players):
                         announcement += player.mention
@@ -44,6 +60,7 @@ class Lobby:
                     await lobby.metadata["channel"].send(announcement)
                     await lobby.metadata["channel"].send(embed=Lobby.generate_lobby_embed(lobby))
                     lobby.metadata["notified"] = True
+                # code to clean up old notifications
                 elif lobby.metadata["notified"]:
                     if lobby.metadata["schedule_data"] is not None:
                         end_difference = DateDifference.subtract_datetimes(lobby.metadata["schedule_data"].end_time,

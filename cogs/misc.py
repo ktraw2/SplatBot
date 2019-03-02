@@ -43,7 +43,7 @@ class Misc:
         await ctx.send(embed=help_embed)
 
     @help.command(name="2", aliases=["Schedule"])
-    async def misc_commands(self, ctx):
+    async def schedule_commands(self, ctx):
         help_embed = embeds.generate_base_help_embed(self.bot)
         embeds.add_help_embed_field(help_embed, "schedule_commands")
         await ctx.send(embed=help_embed)
@@ -79,6 +79,11 @@ class Misc:
     @commands.command()
     async def hello(self, ctx, *args):
         await ctx.send("Hello, World!")
+
+    @commands.command(aliases=["🍑"])
+    async def buttcheeks(self, ctx, *args):
+        await ctx.message.add_reaction("🍑")
+        await ctx.send("Who is buttcheeks???")
 
     @commands.command()
     @commands.is_owner()
