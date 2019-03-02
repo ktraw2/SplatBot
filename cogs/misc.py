@@ -86,6 +86,10 @@ class Misc:
         await ctx.send("Who is buttcheeks???")
 
     @commands.command()
+    async def kevin(self, ctx, *args):
+        await ctx.send("@Kevin KEVIN GANG KEVIN GANG KEVIN GANG")
+
+    @commands.command()
     @commands.is_owner()
     async def getip(self, ctx, *args):
         ip_text = await AsyncClient(session=self.bot.session).send_request("http://checkip.dyndns.org/")
