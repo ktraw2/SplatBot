@@ -86,8 +86,10 @@ class Misc:
         await ctx.send("Who is buttcheeks???")
 
     @commands.command()
+    @commands.guild_only()
     async def kevin(self, ctx, *args):
-        await ctx.send("@Kevin KEVIN GANG KEVIN GANG KEVIN GANG")
+        if ctx.guild.id == 533820666458144769:
+            await ctx.send(ctx.guild.get_role(551526968760205324) + " KEVIN GANG KEVIN GANG KEVIN GANG")
 
     @commands.command()
     @commands.is_owner()
