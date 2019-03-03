@@ -132,8 +132,8 @@ class Schedule:
         if schedule_type == ModeTypes.SALMON:
             value = ""
             for element in schedule_array:
-                value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - "
-                              + SplatoonSchedule.format_time_sr(element.end_time) + "\n"
+                value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
+                        SplatoonSchedule.format_time_sr(element.end_time) + "\n"
             embed.add_field(name="Rotation Time", value=value)
         else:
             for element in schedule_array:
