@@ -16,7 +16,7 @@ class Schedule:
         await ctx.send("Available subcommands are: `regular`, `ranked`, `league`, `salmon`\n"
                        "Available subcommands for `salmon` are: `upcoming`")
 
-    @schedule.command()
+    @schedule.command(aliases=["turf"])
     async def regular(self, ctx, *args):
         await self.make_schedule(ModeTypes.REGULAR, ctx, *args)
 
