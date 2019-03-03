@@ -106,7 +106,7 @@ class Schedule:
 
     async def print_schedule(self, schedule_type: ModeTypes, ctx):
         ctx.send(":warning: Command in testing")
-        schedule_array = SplatoonSchedule.populate_array(schedule_array=schedule_type, session=self.bot.session)
+        schedule_array = SplatoonSchedule.populate_array(schedule_type=schedule_type, session=self.bot.session)
 
         title = "Schedule Information - "
         thumbnail = ""
