@@ -86,6 +86,67 @@ class SplatoonSchedule:
             return False
 
     @staticmethod
+    async def populate_array(schedule_type: ModeTypes, session=None):
+        sn = Splatnet(session)
+        data = None
+
+        schedule_array = []
+
+        if schedule_type == ModeTypes.REGULAR:
+            data = await sn.get_turf()
+        elif schedule_type == ModeTypes.RANKED:
+            data = await sn.get_ranked()
+        elif schedule_type == ModeTypes.LEAGUE:
+            data = await sn.get_league()
+        elif schedule_type == ModeTypes.SALMON:
+            data = await sn.get_salmon_detail()
+
+        if data is None:
+            raise Exception("Splatnet call failed.")
+
+        for schedule in data:
+            if self.schedule_type != ModeTypes.SALMON:
+                element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
+                element.mode = schedule["rule"]["name"]
+                element.stage_a = schedule["stage_a"]["name"]
+                element.stage_a_image = IMAGE_BASE + schedule["stage_a"]["image"]
+                element.stage_b = schedule["stage_b"]["name"]
+                element.stage_b_image = IMAGE_BASE + schedule["stage_b"]["image"]
+                element.start_time = datetime.fromtimestamp(schedule["start_time"], self.target_time.tzname())
+                element.end_time = datetime.fromtimestamp(schedule["end_time"], self.target_time.tzname())
+                schedule_array.append(element)
+
+            # salmon run is a special exception, requires special processing
+            else:
+                for sr_schedule in data:
+                    element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
+                    element.mode = "Salmon Run"
+                    element.stage_a = sr_schedule["stage"]["name"]
+                    element.stage_a_image = IMAGE_BASE + sr_schedule["stage"]["image"]
+                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], self.target_time.tzname())
+                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], self.target_time.tzname())
+                    element.weapons_array = LinkedList()
+
+                    # getting weapons
+                    for weapon in sr_schedule["weapons"]:
+                        # weapon id of -1 indicates a special weapon, parsed differently
+                        if weapon["id"] != '-1':
+                            element.weapons_array.add(weapon["weapon"]["name"])
+                        else:
+                            element.weapons_array.add(weapon["coop_special_weapon"]["name"])
+                    schedule_array.append(element)
+
+                # Getting salmon schedule w/o weapons or stage release
+                data = await sn.get_salmon_schedule()
+                for sr_schedule in data:
+                    element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
+                    element.mode = "Salmon Run"
+                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], self.target_time.tzname())
+                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], self.target_time.tzname())
+                    element_array.append(element)
+        return schedule_array
+
+    @staticmethod
     def format_time(time: datetime):
         # returns <hour>:<time> <am/pm>
         return time.strftime("%I:%M %p")

@@ -34,7 +34,7 @@ class Schedule:
 
     @salmon.command()
     async def upcoming(self, ctx, *args):
-        await ctx.send(":information_source: This command is upcoming.")
+        await self.print_schedule(ModeTypes.SALMON, ctx)
 
     async def make_schedule(self, schedule_type: ModeTypes, ctx, *args):
         time = datetime.now()
@@ -103,6 +103,44 @@ class Schedule:
             await ctx.send(embed=embed)
         else:
             await ctx.send(":x: No schedule information was found for the given time.")
+
+    async def print_schedule(self, schedule_type: ModeTypes, ctx):
+        ctx.send(":warning: Command in testing")
+        schedule_array = SplatoonSchedule.populate_array(schedule_array=schedule_type, session=self.bot.session)
+
+        title = "Schedule Information - "
+        thumbnail = ""
+        if schedule_type == ModeTypes.REGULAR:
+            title += "Regular Battle"
+            thumbnail = config.images["regular"]
+        elif schedule_type == ModeTypes.RANKED:
+            title += "Ranked Battle"
+            thumbnail = config.images["ranked"]
+        elif schedule_type == ModeTypes.LEAGUE:
+            title += "League Battle"
+            thumbnail = config.images["league"]
+        elif schedule_type == ModeTypes.SALMON:
+            title += "Salmon Run"
+            thumbnail = config.images["salmon"]
+
+        embed = discord.Embed(title=title, color=config.embed_color)
+        embed.set_thumbnail(url=thumbnail)
+
+        embed.add_field(name="Mode", value=schedule_array[0].mode)
+
+        # custom stuff for salmon run
+        if schedule_type == ModeTypes.SALMON:
+            value = ""
+            for element in schedule_array:
+                value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - "
+                              + SplatoonSchedule.format_time_sr(element.end_time) + "\n"
+            embed.add_field(name="Rotation Time", value=value)
+        else:
+            for element in schedule_array:
+                embed.add_field(name="Stages", value=element.stage_a + "\n" + element.stage_b)
+                embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time(element.start_time) + " - "
+                                                      + SplatoonSchedule.format_time(element.end_time))
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
