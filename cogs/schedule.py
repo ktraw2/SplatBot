@@ -11,7 +11,7 @@ class Schedule:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(case_insensitive=True, invoke_without_command=True)
+    @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["rotation"])
     async def schedule(self, ctx, *args):
         await ctx.send("Available subcommands are: `regular`, `ranked`, `league`, `salmon`\n"
                        "Available subcommands for `salmon` are: `upcoming`")
