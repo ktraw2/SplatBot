@@ -147,7 +147,7 @@ class Schedule:
             embed.add_field(name="Mode", value=schedule_array[0].mode)
             value = ""
             for element in schedule_array:
-                if element.end_time == datetime.today().date():
+                if element.end_time.date() == datetime.today().date():
                     value = value + SplatoonSchedule.format_time(element.start_time) + " - " + \
                             SplatoonSchedule.format_time(element.end_time) + "\n"
                 else:
