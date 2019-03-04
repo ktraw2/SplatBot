@@ -142,10 +142,9 @@ class Schedule:
         embed = discord.Embed(title=title, color=config.embed_color)
         embed.set_thumbnail(url=thumbnail)
 
-        embed.add_field(name="Mode", value=schedule_array[0].mode)
-
         # custom stuff for salmon run
         if schedule_type == ModeTypes.SALMON:
+            embed.add_field(name="Mode", value=schedule_array[0].mode)
             value = ""
             for element in schedule_array:
                 value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
@@ -154,9 +153,10 @@ class Schedule:
         else:
             array_access = 1
             for element in schedule_array:
+                embed.add_field(name="Mode", value=element.mode)
                 embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time(element.start_time) + " - "
                                                            + SplatoonSchedule.format_time(element.end_time))
-                embed.add_field(name="Mode", value=element.mode)
+
 
 
         # Calculates the amount of time until the next rotation
