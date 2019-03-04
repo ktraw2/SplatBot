@@ -70,7 +70,7 @@ class Misc:
         await ctx.send(":white_check_mark: " + ctx.author.mention +
                        ", the full help for " + self.bot.user.name + " has been DMed to you to prevent spam.")
 
-    @commands.command(aliases=["restart"])
+    @commands.command()
     @commands.check(check_user_is_developer)
     async def update(self, ctx, *args):
         await ctx.send(":white_check_mark: Updating and restarting " + self.bot.user.name + "...")
@@ -104,9 +104,8 @@ class Misc:
                         "Kevin #3: <@192053720236818432>" + "\n"
             await ctx.send(kevin_str)
 
-    @commands.command(name=["f"])
+    @commands.command(aliases=["f"])
     async def eff(self, ctx, *args):
-        await ctx.message.add_reaction(":regional_indicator_f:")
         await ctx.send("FFFFFFFFFFFFFFFFFFF" + "\n" + \
                        "FFFFFFFFFFFFFFFFFFF" + "\n" + \
                        "FFFFFFFFFFFFFFFFFFF" + "\n" + \
@@ -118,7 +117,7 @@ class Misc:
                        "FFFFFFFFFFFF" + "\n" + \
                        "FFFFFF" + "\n" + \
                        "FFFFFF" + "\n" + \
-                       "FFFFFF" + "\n" + \
+                       "FFFFFF"  + "\n" + \
                        "FFFFFF" + "\n" + \
                        "FFFFFF" + "\n")
 
