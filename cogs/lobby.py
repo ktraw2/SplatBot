@@ -133,11 +133,15 @@ class Lobby:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
             else:
                 await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
+
             # handle extra data for league battle
             if lobby_type == ModeTypes.LEAGUE:
                 league = await Lobby.generate_league(name, time, self.bot.session)
             elif lobby_type == ModeTypes.SALMON:
                 league = await Lobby.generate_salmon(name, time, self.bot.session)
+            # error checking
+            if league is None:
+                raise Exception("Splatnet call failed.")
 
             # add the lobby to the list
             lobby = LobbyData(LinkedList(),
@@ -304,6 +308,7 @@ class Lobby:
             lobby_embed.add_field(name="Rotation Time",
                                   value=SplatoonSchedule.format_time(metadata["schedule_data"].start_time) + " - "
                                   + SplatoonSchedule.format_time(metadata["schedule_data"].end_time))
+        # add data for salmon
         elif lobby_type == ModeTypes.SALMON and "schedule_data" in metadata and metadata["schedule_data"] is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
             weapons_str = "*Not released yet*"
@@ -315,7 +320,6 @@ class Lobby:
                                     metadata["schedule_data"].weapons_array[2] + "\n" + \
                                     metadata["schedule_data"].weapons_array[3]
                 map_str = metadata["schedule_data"].stage_a
-
             lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
             lobby_embed.add_field(name="Mode", value=metadata["schedule_data"].mode)
             lobby_embed.add_field(name="Maps", value=map_str)
@@ -325,7 +329,6 @@ class Lobby:
             lobby_embed.add_field(name="Weapons", value=weapons_str)
         elif lobby_type == ModeTypes.PRIVATE:
             lobby_embed.set_thumbnail(url=config.images["private_battle"])
-
         # add rest of data
         if "num_players" in metadata:
             lobby_embed.add_field(name="Number of Players", value=str(metadata["num_players"]))
@@ -381,7 +384,6 @@ class Lobby:
             if success:
                 return salmon
         return None
-
 
 
 def setup(bot):

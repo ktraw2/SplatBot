@@ -93,16 +93,26 @@ class Misc:
             await ctx.send(ctx.guild.get_role(537872945914314772).mention + " KEVIN GANG KEVIN GANG KEVIN GANG")
 
     @commands.command()
+    async def boxie(self, ctx, *args):
+        await ctx.send("VIAN WHERE'S BRIDGETT")
+
+    @commands.command()
+    @commands.guild_only()
+    async def master_kevin(self, ctx, *args):
+        if ctx.guild.id == 533820666458144769:
+            kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
+                        "Kevin #2: <@333435876275388426>" + "\n" + \
+                        "Kevin #3: <@192053720236818432>" + "\n"
+            await ctx.send(kevin_str)
+
+
+    @commands.command()
     @commands.is_owner()
     async def getip(self, ctx, *args):
         ip_text = await AsyncClient(session=self.bot.session).send_request("http://checkip.dyndns.org/")
         # scrape page for body
         body = ip_text[ip_text.index("<body>") + len("<body>"):ip_text.index("</body>")]
         await ctx.send(body)
-
-    @commands.command()
-    async def boxie(self, ctx, *args):
-        await ctx.send("VIAN WHERE'S BRIDGETT")
 
 
 def setup(bot):
