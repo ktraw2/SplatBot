@@ -153,8 +153,8 @@ class Schedule:
         else:
             next_rot_val = 1
             for element in schedule_array:
-                    fmt_time = SplatoonSchedule.format_time_sch(element.start_time) + " - " \
-                                                           + SplatoonSchedule.format_time_sch(element.end_time)
+                fmt_time = SplatoonSchedule.format_time_sch(element.start_time) + " - " \
+                            + SplatoonSchedule.format_time_sch(element.end_time)
                 embed.add_field(name="Rotation Time", value=fmt_time)
                 embed.add_field(name="Mode", value=element.mode)
 
