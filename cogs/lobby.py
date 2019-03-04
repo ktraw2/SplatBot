@@ -108,9 +108,11 @@ class Lobby:
                     name = "League Battle"
                 elif lobby_type == ModeTypes.SALMON:
                     name = "Salmon Run"
-                elif lobby_type == ModeTypes.PRIVATE:
+                else:
+                    lobby_type = ModeTypes.PRIVATE
                     name = "Private Battle"
                     num_players = 8
+                    await ctx.send(":warning: No lobby name, defaulting to " + name + ".")
             if len(args) >= NUM_PLAYERS + 1:
                 try:
                     num_players = int(args[NUM_PLAYERS])
@@ -127,9 +129,9 @@ class Lobby:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
             # handle extra data for league battle
-            if lobby_type is not None and lobby_type == ModeTypes.LEAGUE:
+            if lobby_type == ModeTypes.LEAGUE:
                 league = await Lobby.generate_league(name, time, self.bot.session)
-            elif lobby_type is not None and lobby_type == ModeTypes.SALMON:
+            elif lobby_type == ModeTypes.SALMON:
                 league = await Lobby.generate_salmon(name, time, self.bot.session)
 
             # add the lobby to the list
