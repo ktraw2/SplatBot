@@ -104,8 +104,8 @@ class SplatoonSchedule:
         if data is None:
             raise Exception("Splatnet call failed.")
 
-        for schedule in data:
-            if schedule_type != ModeTypes.SALMON:
+        if schedule_type != ModeTypes.SALMON:
+            for schedule in data:
                 element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
                 element.mode = schedule["rule"]["name"]
                 element.stage_a = schedule["stage_a"]["name"]
@@ -116,33 +116,32 @@ class SplatoonSchedule:
                 element.end_time = datetime.fromtimestamp(schedule["end_time"], self.target_time.tzname())
                 schedule_array.append(element)
 
-            # salmon run is a special exception, requires special processing
-            else:
-                for sr_schedule in data:
-                    element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
-                    element.mode = "Salmon Run"
-                    element.stage_a = sr_schedule["stage"]["name"]
-                    element.stage_a_image = IMAGE_BASE + sr_schedule["stage"]["image"]
-                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
-                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
-                    element.weapons_array = LinkedList()
-
-                    # getting weapons
-                    for weapon in sr_schedule["weapons"]:
-                        # weapon id of -1 indicates a special weapon, parsed differently
-                        if weapon["id"] != '-1':
-                            element.weapons_array.add(weapon["weapon"]["name"])
-                        else:
-                            element.weapons_array.add(weapon["coop_special_weapon"]["name"])
-                    schedule_array.append(element)
+        # salmon run is a special exception, requires special processing
+        else:
+            for sr_schedule in data:
+                element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
+                element.mode = "Salmon Run"
+                element.stage_a = sr_schedule["stage"]["name"]
+                element.stage_a_image = IMAGE_BASE + sr_schedule["stage"]["image"]
+                element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
+                element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
+                element.weapons_array = LinkedList()
+                # getting weapons
+                for weapon in sr_schedule["weapons"]:
+                    # weapon id of -1 indicates a special weapon, parsed differently
+                    if weapon["id"] != '-1':
+                        element.weapons_array.add(weapon["weapon"]["name"])
+                    else:
+                        element.weapons_array.add(weapon["coop_special_weapon"]["name"])
+                schedule_array.append(element)
 
                 # Getting salmon schedule w/o weapons or stage release
                 data = await sn.get_salmon_schedule()
-                for sr_schedule in data:
+                for sr_info in data:
                     element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
                     element.mode = "Salmon Run"
-                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
-                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
+                    element.start_time = datetime.fromtimestamp(sr_info["start_time"], time.tzname())
+                    element.end_time = datetime.fromtimestamp(sr_info["end_time"], time.tzname())
                     schedule_array.append(element)
         return schedule_array
 
