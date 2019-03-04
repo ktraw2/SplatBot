@@ -189,11 +189,12 @@ class Lobby:
                     if lobby_type == ModeTypes.LEAGUE:
                         lobby.metadata["name"] = "League Battle"
                         lobby.metadata["schedule_data"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
-                                                                               self.bot.session)
+                                                                                self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.SALMON:
                         lobby.metadata["name"] = "Salmon Run"
-                        lobby.metadata["schedule_data"] = None
+                        lobby.metadata["schedule_data"] = await Lobby.generate_salmon(args[0], lobby.metadata["time"],
+                                                                                self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.PRIVATE:
                         lobby.metadata["name"] = "Private Battle"
