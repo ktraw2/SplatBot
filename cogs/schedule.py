@@ -13,8 +13,8 @@ class Schedule:
 
     @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["rotation"])
     async def schedule(self, ctx, *args):
-        await ctx.send("Available subcommands are: `regular`, `ranked`, `league`, `salmon`\n"
-                       "Available subcommands for `salmon` are: `upcoming`")
+        await ctx.send("Available subcommands are: `regular`/'turf', `ranked`, `league`, `salmon`\n"
+                       "Available subcommands are: `upcoming`")
 
     @schedule.command(aliases=["turf"])
     async def regular(self, ctx, *args):
@@ -122,6 +122,7 @@ class Schedule:
         schedule_array = await SplatoonSchedule.populate_array(time=datetime.now(), schedule_type=schedule_type,
                                                                session=self.bot.session)
 
+        array_access = 0
         title = "Schedule Information - "
         thumbnail = ""
         if schedule_type == ModeTypes.REGULAR:
@@ -142,8 +143,6 @@ class Schedule:
 
         embed.add_field(name="Mode", value=schedule_array[0].mode)
 
-        array_access = -1
-
         # custom stuff for salmon run
         if schedule_type == ModeTypes.SALMON:
             array_access = 0
@@ -152,19 +151,18 @@ class Schedule:
                 value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
                         SplatoonSchedule.format_time_sr(element.end_time) + "\n"
             embed.add_field(name="Rotation Times", value=value)
-
         else:
             array_access = 1
             for element in schedule_array:
                 embed.add_field(name="Stages", value=element.stage_a + "\n" + element.stage_b)
                 embed.add_field(name="Rotation Times", value=SplatoonSchedule.format_time(element.start_time) + " - "
-                                                      + SplatoonSchedule.format_time(element.end_time))
+                                                           + SplatoonSchedule.format_time(element.end_time))
 
         # Calculates the amount of time until the next rotation
         time = schedule_array[array_access].start_time
         time_diff = DateDifference.subtract_datetimes(time, datetime.now())
         time_str = str(time_diff)
-        if time_diff <= DateDifference(0):
+        if schedule_type == ModeTypes.SALMON and time_diff <= DateDifference(0):
             time_str = "Rotation is happening now!"
         embed.add_field(name="Time To Next Rotation", value=time_str)
 
