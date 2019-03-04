@@ -102,10 +102,7 @@ class Misc:
 
     @commands.command()
     async def boxie(self, ctx, *args):
-        embed = discord.Embed(title="VIAN WHERE'S BRIDGETT")
-        embed.add_field(name="Boxie!", value="Quiet...", inline=False)
-        await ctx.send(embed=embed)
-        await ctx.send(file=discord.File("assets/boxie.jpg"))
+        await ctx.send("VIAN WHERE'S BRIDGETT")
 
 
 def setup(bot):
