@@ -154,8 +154,8 @@ class Schedule:
             for element in schedule_array:
                 fmt_time = SplatoonSchedule.format_time_sch(element.start_time) + " - " \
                             + SplatoonSchedule.format_time_sch(element.end_time)
-                embed.add_field(name="Rotation Time", value=fmt_time)
-                embed.add_field(name="Mode", value=element.mode)
+                embed.add_field(name="Rotation Time", value=fmt_time, inline=True)
+                embed.add_field(name="Mode", value=element.mode, inline=True)
 
         # Calculates the amount of time until the next rotation
         time = schedule_array[next_rot_val].start_time

@@ -111,18 +111,16 @@ class Lobby:
                 elif lobby_type == ModeTypes.PRIVATE:
                     name = "Private Battle"
                     num_players = 8
+            # If there isn't a name, throw alert and abort
             else:
-                lobby_type = ModeTypes.LEAGUE
-                await ctx.send(":warning: You gave an invalid name, defaulting to " + "*" + name + "*" + ".")
+                await ctx.send(":warning: No lobby name.")
+                return
             if len(args) >= NUM_PLAYERS + 1:
                 try:
                     num_players = int(args[NUM_PLAYERS])
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid number of players, defaulting to " + str(num_players)
                                    + " players.")
-            else:
-                await ctx.send(":warning: You gave an invalid number of players, defaulting to " + str(num_players)
-                               + " players.")
             if len(args) >= TIME + 1:
                 try:
                     time = parse(args[TIME])
@@ -131,17 +129,12 @@ class Lobby:
                         time = time + timedelta(days=1)
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
-            else:
-                await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
             # handle extra data for league battle
             if lobby_type == ModeTypes.LEAGUE:
                 league = await Lobby.generate_league(name, time, self.bot.session)
             elif lobby_type == ModeTypes.SALMON:
                 league = await Lobby.generate_salmon(name, time, self.bot.session)
-            # error checking
-            if league is None:
-                raise Exception("Splatnet call failed.")
 
             # add the lobby to the list
             lobby = LobbyData(LinkedList(),
