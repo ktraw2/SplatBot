@@ -1,5 +1,6 @@
 import sys
 import config
+import discord
 from discord.ext import commands
 from modules.async_client import AsyncClient
 from modules import embeds
@@ -19,7 +20,7 @@ class Misc:
 
     @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["commands"])
     async def help(self, ctx, *args):
-        """default help message for TVBot"""
+        """default help message for SplatBot"""
         if len(args) == 0:
             help_embed = embeds.generate_base_help_embed(self.bot)
             help_embed.add_field(name=":question: **Help Categories**",
@@ -98,6 +99,17 @@ class Misc:
         # scrape page for body
         body = ip_text[ip_text.index("<body>") + len("<body>"):ip_text.index("</body>")]
         await ctx.send(body)
+
+    @commands.command()
+    async def boxie(self, ctx, *args):
+        title = "Boxie"
+        thumbnail = "https://smashboards.com/attachments/octoling-head-png.152645/"
+        embed = discord.Embed(title=title, color=config.embed_color)
+        embed.set_thumbnail(url=thumbnail)
+        embed.add_field(name="VIAN WHERE'S BRIDGETT", value="Quiet...")
+        await ctx.send(embed=embed)
+
+
 
 
 def setup(bot):

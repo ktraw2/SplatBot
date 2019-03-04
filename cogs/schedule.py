@@ -153,20 +153,19 @@ class Schedule:
         else:
             array_access = 1
             for element in schedule_array:
+                embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time_sch(element.start_time) + " - "
+                                                           + SplatoonSchedule.format_time_sch(element.end_time))
                 embed.add_field(name="Mode", value=element.mode)
-                embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time(element.start_time) + " - "
-                                                           + SplatoonSchedule.format_time(element.end_time))
-
-
 
         # Calculates the amount of time until the next rotation
         time = schedule_array[array_access].start_time
         time_diff = DateDifference.subtract_datetimes(time, datetime.now())
         time_str = str(time_diff)
+        # For Salmon Run only: print if the rotation is happening right now
         if schedule_type == ModeTypes.SALMON and time_diff <= DateDifference(0):
             time_str = "Rotation is happening now!"
-        embed.add_field(name="Time To Next Rotation", value=time_str)
 
+        embed.add_field(name="Time To Next Rotation", value=time_str)
         await ctx.send(embed=embed)
 
 

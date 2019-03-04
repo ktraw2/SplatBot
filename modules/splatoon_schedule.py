@@ -135,3 +135,8 @@ class SplatoonSchedule:
     def format_time_sr(time: datetime):
         # returns <abbr. weekday> <abbr. month> <date> <hour>:<time> <am/pm>
         return time.strftime("%a %b %d %I:%M %p")
+
+    @staticmethod
+    def format_time_sch(time: datetime):
+        # returns <num month>/<num date> <date> <hour>:<time> <am/pm>
+        return time.strftime("%m/%d %I:%M %p")
