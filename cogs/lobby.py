@@ -108,11 +108,13 @@ class Lobby:
                     name = "League Battle"
                 elif lobby_type == ModeTypes.SALMON:
                     name = "Salmon Run"
-                else:
-                    lobby_type = ModeTypes.PRIVATE
+                elif lobby_type == ModeTypes.PRIVATE:
                     name = "Private Battle"
                     num_players = 8
-                    await ctx.send(":warning: No lobby name, defaulting to " + name + ".")
+                else:
+                    lobby_type = ModeTypes.LEAGUE
+                    name = "League Battle"
+                    await ctx.send(":warning: You did not provide a name, defaulting to " + name + ".")
             if len(args) >= NUM_PLAYERS + 1:
                 try:
                     num_players = int(args[NUM_PLAYERS])
