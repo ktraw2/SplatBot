@@ -86,7 +86,7 @@ class SplatoonSchedule:
             return False
 
     @staticmethod
-    async def populate_array(schedule_type: ModeTypes, session=None):
+    async def populate_array(time: datetime, schedule_type: ModeTypes, session=None):
         sn = Splatnet(session)
         data = None
 
@@ -123,8 +123,8 @@ class SplatoonSchedule:
                     element.mode = "Salmon Run"
                     element.stage_a = sr_schedule["stage"]["name"]
                     element.stage_a_image = IMAGE_BASE + sr_schedule["stage"]["image"]
-                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], self.target_time.tzname())
-                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], self.target_time.tzname())
+                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
+                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
                     element.weapons_array = LinkedList()
 
                     # getting weapons
