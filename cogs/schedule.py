@@ -135,11 +135,20 @@ class Schedule:
             for element in schedule_array:
                 value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
                         SplatoonSchedule.format_time_sr(element.end_time) + "\n"
-            embed.add_field(name="Rotation Time", value=value)
+            embed.add_field(name="Rotation Times", value=value)
+
+            # Calculates the amount of time until the next rotation
+            time = schedule_array[0].start_time
+            time_diff = DateDifference.subtract_datetimes(time, datetime.now())
+            time_str = str(time_diff)
+            if time_diff <= DateDifference(0):
+                time_str = "Rotation is happening now!"
+            embed.add_field(name="Time To Next Rotation", value=time_str)
+
         else:
             for element in schedule_array:
                 embed.add_field(name="Stages", value=element.stage_a + "\n" + element.stage_b)
-                embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time(element.start_time) + " - "
+                embed.add_field(name="Rotation Times", value=SplatoonSchedule.format_time(element.start_time) + " - "
                                                       + SplatoonSchedule.format_time(element.end_time))
         await ctx.send(embed=embed)
 
