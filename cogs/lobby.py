@@ -113,7 +113,7 @@ class Lobby:
                     num_players = 8
             else:
                 lobby_type = ModeTypes.LEAGUE
-                await ctx.send(":warning: You gave an invalid name, defaulting to " + name + ".")
+                await ctx.send(":warning: You gave an invalid name, defaulting to " + "*" + name + "*" + ".")
             if len(args) >= NUM_PLAYERS + 1:
                 try:
                     num_players = int(args[NUM_PLAYERS])
