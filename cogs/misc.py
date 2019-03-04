@@ -102,15 +102,12 @@ class Misc:
 
     @commands.command()
     async def boxie(self, ctx, *args):
-        title = "Boxie"
+        title = "VIAN WHERE'S BRIDGETT"
         thumbnail = "https://smashboards.com/attachments/octoling-head-png.152645/"
         embed = discord.Embed(title=title, color=config.embed_color)
         embed.set_thumbnail(url=thumbnail)
-        embed.add_field(name="VIAN WHERE'S BRIDGETT", value="Quiet...")
+        embed.add_field(value="Quiet...")
         await ctx.send(embed=embed)
-
-
-
 
 def setup(bot):
     # remove the default help command so the better one can be used
