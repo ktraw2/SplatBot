@@ -112,8 +112,8 @@ class SplatoonSchedule:
                 element.stage_a_image = IMAGE_BASE + schedule["stage_a"]["image"]
                 element.stage_b = schedule["stage_b"]["name"]
                 element.stage_b_image = IMAGE_BASE + schedule["stage_b"]["image"]
-                element.start_time = datetime.fromtimestamp(schedule["start_time"], self.target_time.tzname())
-                element.end_time = datetime.fromtimestamp(schedule["end_time"], self.target_time.tzname())
+                element.start_time = datetime.fromtimestamp(schedule["start_time"], time.tzname())
+                element.end_time = datetime.fromtimestamp(schedule["end_time"], time.tzname())
                 schedule_array.append(element)
 
         # salmon run is a special exception, requires special processing
