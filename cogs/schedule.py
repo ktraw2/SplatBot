@@ -150,8 +150,9 @@ class Schedule:
                 if element.end_time == datetime.today().date():
                     value = value + SplatoonSchedule.format_time(element.start_time) + " - " + \
                             SplatoonSchedule.format_time(element.end_time) + "\n"
-                value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
-                                SplatoonSchedule.format_time_sr(element.end_time) + "\n"
+                else:
+                    value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
+                                    SplatoonSchedule.format_time_sr(element.end_time) + "\n"
             embed.add_field(name="Rotation Times", value=value)
         else:
             next_rot_val = 1
