@@ -127,9 +127,9 @@ class Lobby:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
             # handle extra data for league battle
-            if lobby_type == ModeTypes.LEAGUE:
+            if lobby_type is not None and lobby_type == ModeTypes.LEAGUE:
                 league = await Lobby.generate_league(name, time, self.bot.session)
-            elif lobby_type == ModeTypes.SALMON:
+            elif lobby_type is not None and lobby_type == ModeTypes.SALMON:
                 league = await Lobby.generate_salmon(name, time, self.bot.session)
 
             # add the lobby to the list
