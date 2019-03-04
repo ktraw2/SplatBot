@@ -102,11 +102,9 @@ class Misc:
 
     @commands.command()
     async def boxie(self, ctx, *args):
-        title = "VIAN WHERE'S BRIDGETT"
-        thumbnail = "https://smashboards.com/attachments/octoling-head-png.152645/"
-        embed = discord.Embed(title=title, color=config.embed_color)
-        embed.set_thumbnail(url=thumbnail)
-        embed.add_field(name="", value="Quiet...")
+        embed = discord.Embed(title="VIAN WHERE'S BRIDGETT")
+        embed.set_thumbnail(url="https://smashboards.com/attachments/octoling-head-png.152645/")
+        embed.add_field(name="Boxie!", value=" ", inline=False)
         await ctx.send(embed=embed)
 
 
