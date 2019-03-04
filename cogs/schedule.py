@@ -11,41 +11,42 @@ class Schedule:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["rotation"])
+    @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["rotation", "info"])
     async def schedule(self, ctx, *args):
-        await ctx.send("Available subcommands are: `regular`/'turf', `ranked`, `league`, `salmon`\n"
-                       "Available subcommands are: `upcoming`")
+        await ctx.send("Available subcommands are: `regular`, `ranked`, `league`, `salmon`\n"
+                       "Available subcommands for `ranked`, `league`, and `salmon` are: `upcoming`")
 
-    @schedule.group(case_insensitive=True, invoke_without_command=True, aliases=["turf"])
+    @schedule.group(case_insensitive=True, invoke_without_command=True, aliases=["turf", "t", "reg"])
     async def regular(self, ctx, *args):
         await self.make_schedule(ModeTypes.REGULAR, ctx, *args)
 
-    @schedule.group(case_insensitive=True, invoke_without_command=True)
+    @schedule.group(case_insensitive=True, invoke_without_command=True, aliases=["rank", "rk"])
     async def ranked(self, ctx, *args):
         await self.make_schedule(ModeTypes.RANKED, ctx, *args)
 
-    @schedule.group(case_insensitive=True, invoke_without_command=True)
+    @schedule.group(case_insensitive=True, invoke_without_command=True, aliases=["l"])
     async def league(self, ctx, *args):
         await self.make_schedule(ModeTypes.LEAGUE, ctx, *args)
 
-    @schedule.group(case_insensitive=True, invoke_without_command=True)
+    @schedule.group(case_insensitive=True, invoke_without_command=True, aliases=["sr", "s"])
     async def salmon(self, ctx, *args):
+
         await self.make_schedule(ModeTypes.SALMON, ctx, *args)
 
-    @salmon.command()
-    async def upcoming(self, ctx, *args):
+    @salmon.command(name="upcoming")
+    async def sr_upcoming(self, ctx, *args):
         await self.print_schedule(ModeTypes.SALMON, ctx)
 
-    @ranked.command()
-    async def upcoming(self, ctx, *args):
+    @ranked.command(name="upcoming")
+    async def ranked_upcoming(self, ctx, *args):
         await self.print_schedule(ModeTypes.RANKED, ctx)
 
-    @league.command()
-    async def upcoming(self, ctx, *args):
+    @league.command(name="upcoming")
+    async def league_upcoming(self, ctx, *args):
         await self.print_schedule(ModeTypes.LEAGUE, ctx)
 
-    @regular.command()
-    async def upcoming(self, ctx, *args):
+    @regular.command(name="upcoming")
+    async def turf_upcoming(self, ctx, *args):
         await self.print_schedule(ModeTypes.REGULAR, ctx)
 
     async def make_schedule(self, schedule_type: ModeTypes, ctx, *args):
