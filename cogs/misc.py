@@ -103,9 +103,9 @@ class Misc:
     @commands.command()
     async def boxie(self, ctx, *args):
         embed = discord.Embed(title="VIAN WHERE'S BRIDGETT")
-        embed.set_thumbnail(url="https://smashboards.com/attachments/octoling-head-png.152645/")
-        embed.add_field(name="Boxie!", value=" ", inline=False)
+        embed.add_field(name="Boxie!", value="Quiet...", inline=False)
         await ctx.send(embed=embed)
+        await ctx.send(file=discord.File("assets/boxie.jpg"))
 
 
 def setup(bot):
