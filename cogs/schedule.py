@@ -158,7 +158,7 @@ class Schedule:
                     fmt_time = SplatoonSchedule.format_time(element.start_time) + " - " \
                                + SplatoonSchedule.format_time(element.end_time)
                 else:
-                    fmt_time = SplatoonSchedule.format_time_sch(element.start_time) + " - "
+                    fmt_time = SplatoonSchedule.format_time_sch(element.start_time) + " - " \
                                                            + SplatoonSchedule.format_time_sch(element.end_time)
 
 
