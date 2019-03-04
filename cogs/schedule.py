@@ -16,15 +16,15 @@ class Schedule:
         await ctx.send("Available subcommands are: `regular`/'turf', `ranked`, `league`, `salmon`\n"
                        "Available subcommands are: `upcoming`")
 
-    @schedule.command(aliases=["turf"])
+    @schedule.group(case_insensitive=True, invoke_without_command=True, aliases=["turf"])
     async def regular(self, ctx, *args):
         await self.make_schedule(ModeTypes.REGULAR, ctx, *args)
 
-    @schedule.command()
+    @schedule.group(case_insensitive=True, invoke_without_command=True)
     async def ranked(self, ctx, *args):
         await self.make_schedule(ModeTypes.RANKED, ctx, *args)
 
-    @schedule.command()
+    @schedule.group(case_insensitive=True, invoke_without_command=True)
     async def league(self, ctx, *args):
         await self.make_schedule(ModeTypes.LEAGUE, ctx, *args)
 
