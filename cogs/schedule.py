@@ -119,7 +119,6 @@ class Schedule:
             await ctx.send(":x: No schedule information was found for the given time.")
 
     async def print_full_schedule(self, schedule_type: ModeTypes, ctx):
-        await ctx.send(":warning: Command in testing")
         schedule_array = await SplatoonSchedule.populate_array(time=datetime.now(), schedule_type=schedule_type,
                                                                session=self.bot.session)
 
@@ -166,7 +165,7 @@ class Schedule:
         if schedule_type == ModeTypes.SALMON and time_diff <= DateDifference(0):
             time_str = "Rotation is happening now!"
 
-        embed.add_field(name="Time To Next Rotation", value=time_str)
+        embed.add_field(name="Time Until Next Rotation", value=time_str)
         await ctx.send(embed=embed)
 
 
