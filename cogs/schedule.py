@@ -33,19 +33,19 @@ class Schedule:
 
         await self.make_schedule(ModeTypes.SALMON, ctx, *args)
 
-    @salmon.command(name="upcoming", aliases=["next", "future", "list"])
+    @salmon.command(name="upcoming")
     async def sr_upcoming(self, ctx, *args):
         await self.print_full_schedule(ModeTypes.SALMON, ctx)
 
-    @ranked.command(name="upcoming", aliases=["next", "future", "list"])
+    @ranked.command(name="upcoming")
     async def ranked_upcoming(self, ctx, *args):
         await self.print_full_schedule(ModeTypes.RANKED, ctx)
 
-    @league.command(name="upcoming", aliases=["next", "future", "list"])
+    @league.command(name="upcoming")
     async def league_upcoming(self, ctx, *args):
         await self.print_full_schedule(ModeTypes.LEAGUE, ctx)
 
-    @regular.command(name="upcoming", aliases=["next", "future", "list"])
+    @regular.command(name="upcoming")
     async def turf_upcoming(self, ctx, *args):
         await self.print_full_schedule(ModeTypes.REGULAR, ctx)
 
