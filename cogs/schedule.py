@@ -77,11 +77,12 @@ class Schedule:
             if schedule_type == ModeTypes.SALMON:
                 # Checking if full schedule has been released yet for salmon
                 if schedule.stage_a is None:
-                    await ctx.send(":warning: Weapons and stage have not been released yet.")
                     # use special formatting because salmon run can occur between two separate days
+                    embed.add_field(name="Stage", value="*Not released yet*")
                     embed.add_field(name="Rotation Time",
                                     value=SplatoonSchedule.format_time_sr(schedule.start_time) + " - "
                                           + SplatoonSchedule.format_time_sr(schedule.end_time))
+                    embed.add_field(name="Weapons", value="*Not released yet*")
                 else:
                     embed.set_image(url=schedule.stage_a_image)
                     embed.add_field(name="Stage", value=schedule.stage_a)
@@ -137,19 +138,20 @@ class Schedule:
                         SplatoonSchedule.format_time_sr(element.end_time) + "\n"
             embed.add_field(name="Rotation Times", value=value)
 
-            # Calculates the amount of time until the next rotation
-            time = schedule_array[0].start_time
-            time_diff = DateDifference.subtract_datetimes(time, datetime.now())
-            time_str = str(time_diff)
-            if time_diff <= DateDifference(0):
-                time_str = "Rotation is happening now!"
-            embed.add_field(name="Time To Next Rotation", value=time_str)
-
         else:
             for element in schedule_array:
                 embed.add_field(name="Stages", value=element.stage_a + "\n" + element.stage_b)
                 embed.add_field(name="Rotation Times", value=SplatoonSchedule.format_time(element.start_time) + " - "
                                                       + SplatoonSchedule.format_time(element.end_time))
+
+        # Calculates the amount of time until the next rotation
+        time = schedule_array[0].start_time
+        time_diff = DateDifference.subtract_datetimes(time, datetime.now())
+        time_str = str(time_diff)
+        if time_diff <= DateDifference(0):
+            time_str = "Rotation is happening now!"
+        embed.add_field(name="Time To Next Rotation", value=time_str)
+
         await ctx.send(embed=embed)
 
 
