@@ -106,7 +106,7 @@ class Misc:
         thumbnail = "https://smashboards.com/attachments/octoling-head-png.152645/"
         embed = discord.Embed(title=title, color=config.embed_color)
         embed.set_thumbnail(url=thumbnail)
-        embed.add_field(title="", value="Quiet...")
+        embed.add_field(name="", value="Quiet...")
         await ctx.send(embed=embed)
 
 
