@@ -293,7 +293,7 @@ class Lobby:
             lobby_embed.add_field(name="Rotation Time",
                                   value=SplatoonSchedule.format_time(metadata["schedule_data"].start_time) + " - "
                                   + SplatoonSchedule.format_time(metadata["schedule_data"].end_time))
-        elif lobby_type == ModeTypes.SALMON:
+        elif lobby_type == ModeTypes.SALMON and "schedule_data" in metadata and metadata["schedule_data"] is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
             weapons_str = "*Not released yet*"
             map_str = "Not released yet*"
