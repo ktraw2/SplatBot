@@ -23,7 +23,7 @@ class SplatoonSchedule:
         self.stage_b_image = None           # Not populated for salmon run
         self.start_time = None
         self.end_time = None
-        self.weapons_array = None           # for salmon run
+        self.weapons_array = None           # for salmon run only
 
         self.target_time = target_time
         self.schedule_type = schedule_type

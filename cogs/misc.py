@@ -1,6 +1,5 @@
 import sys
 import config
-import discord
 from discord.ext import commands
 from modules.async_client import AsyncClient
 from modules import embeds
@@ -94,11 +93,11 @@ class Misc:
 
     @commands.command()
     async def boxie(self, ctx, *args):
-        await ctx.send("VIAN WHERE'S BRIDGETT")
+        await ctx.send("VIAN WHERE'S BRIDGETT :(")
 
     @commands.command()
     @commands.guild_only()
-    async def master_kevin(self, ctx, *args):
+    async def list_kevins(self, ctx, *args):
         if ctx.guild.id == 533820666458144769:
             kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
                         "Kevin #2: <@333435876275388426>" + "\n" + \
