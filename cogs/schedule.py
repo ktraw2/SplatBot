@@ -35,19 +35,19 @@ class Schedule:
 
     @salmon.command(name="upcoming")
     async def sr_upcoming(self, ctx, *args):
-        await self.print_schedule(ModeTypes.SALMON, ctx)
+        await self.print_full_schedule(ModeTypes.SALMON, ctx)
 
     @ranked.command(name="upcoming")
     async def ranked_upcoming(self, ctx, *args):
-        await self.print_schedule(ModeTypes.RANKED, ctx)
+        await self.print_full_schedule(ModeTypes.RANKED, ctx)
 
     @league.command(name="upcoming")
     async def league_upcoming(self, ctx, *args):
-        await self.print_schedule(ModeTypes.LEAGUE, ctx)
+        await self.print_full_schedule(ModeTypes.LEAGUE, ctx)
 
     @regular.command(name="upcoming")
     async def turf_upcoming(self, ctx, *args):
-        await self.print_schedule(ModeTypes.REGULAR, ctx)
+        await self.print_full_schedule(ModeTypes.REGULAR, ctx)
 
     async def make_schedule(self, schedule_type: ModeTypes, ctx, *args):
         time = datetime.now()
@@ -118,7 +118,7 @@ class Schedule:
         else:
             await ctx.send(":x: No schedule information was found for the given time.")
 
-    async def print_schedule(self, schedule_type: ModeTypes, ctx):
+    async def print_full_schedule(self, schedule_type: ModeTypes, ctx):
         await ctx.send(":warning: Command in testing")
         schedule_array = await SplatoonSchedule.populate_array(time=datetime.now(), schedule_type=schedule_type,
                                                                session=self.bot.session)
@@ -146,7 +146,6 @@ class Schedule:
 
         # custom stuff for salmon run
         if schedule_type == ModeTypes.SALMON:
-            array_access = 0
             value = ""
             for element in schedule_array:
                 value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
@@ -155,9 +154,10 @@ class Schedule:
         else:
             array_access = 1
             for element in schedule_array:
-                embed.add_field(name="Stages", value=element.stage_a + "\n" + element.stage_b)
-                embed.add_field(name="Rotation Times", value=SplatoonSchedule.format_time(element.start_time) + " - "
+                embed.add_field(name="Rotation Time", value=SplatoonSchedule.format_time(element.start_time) + " - "
                                                            + SplatoonSchedule.format_time(element.end_time))
+                embed.add_field(name="Mode", value=element.mode)
+
 
         # Calculates the amount of time until the next rotation
         time = schedule_array[array_access].start_time
