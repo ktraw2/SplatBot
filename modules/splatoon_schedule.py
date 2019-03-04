@@ -105,7 +105,7 @@ class SplatoonSchedule:
             raise Exception("Splatnet call failed.")
 
         for schedule in data:
-            if self.schedule_type != ModeTypes.SALMON:
+            if schedule_type != ModeTypes.SALMON:
                 element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
                 element.mode = schedule["rule"]["name"]
                 element.stage_a = schedule["stage_a"]["name"]
@@ -143,7 +143,7 @@ class SplatoonSchedule:
                     element.mode = "Salmon Run"
                     element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], self.target_time.tzname())
                     element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], self.target_time.tzname())
-                    element_array.append(element)
+                    schedule_array.append(element)
         return schedule_array
 
     @staticmethod
