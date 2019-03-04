@@ -141,8 +141,8 @@ class SplatoonSchedule:
                 for sr_schedule in data:
                     element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
                     element.mode = "Salmon Run"
-                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], self.target_time.tzname())
-                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], self.target_time.tzname())
+                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
+                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
                     schedule_array.append(element)
         return schedule_array
 
