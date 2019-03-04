@@ -138,5 +138,5 @@ class SplatoonSchedule:
 
     @staticmethod
     def format_time_sch(time: datetime):
-        # returns <num month>/<num date> <date> <hour>:<time> <am/pm>
-        return time.strftime("%m/%d %I:%M %p")
+        # <hour> <am/pm>
+        return time.strftime("%-I %p")
