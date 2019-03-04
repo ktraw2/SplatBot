@@ -295,6 +295,23 @@ class Lobby:
                                   + SplatoonSchedule.format_time(metadata["schedule_data"].end_time))
         elif lobby_type == ModeTypes.SALMON:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
+            weapons_str = "*Not released yet*"
+            map_str = "Not released yet*"
+            # Checking if weapons and map have been released yet
+            if metadata["schedule_data"].stage_a is not None:
+                weapons_str = metadata["schedule_data"].weapons_array[0] + "\n" + \
+                                    metadata["schedule_data"].weapons_array[1] + "\n" + \
+                                    metadata["schedule_data"].weapons_array[2] + "\n" + \
+                                    metadata["schedule_data"].weapons_array[3]
+                map_str = metadata["schedule_data"].stage_a
+
+            lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
+            lobby_embed.add_field(name="Mode", value=metadata["schedule_data"].mode)
+            lobby_embed.add_field(name="Maps", value=map_str)
+            lobby_embed.add_field(name="Rotation Time",
+                                    value=SplatoonSchedule.format_time_sr(metadata["schedule_data"].start_time) + " - "
+                                    + SplatoonSchedule.format_time_sr(metadata["schedule_data"].end_time))
+            lobby_embed.add_field(name="Weapons", value=weapons_str)
         elif lobby_type == ModeTypes.PRIVATE:
             lobby_embed.set_thumbnail(url=config.images["private_battle"])
 
