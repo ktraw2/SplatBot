@@ -105,7 +105,7 @@ class Schedule:
             await ctx.send(":x: No schedule information was found for the given time.")
 
     async def print_schedule(self, schedule_type: ModeTypes, ctx):
-        ctx.send(":warning: Command in testing")
+        await ctx.send(":warning: Command in testing")
         schedule_array = await SplatoonSchedule.populate_array(time=datetime.now(), schedule_type=schedule_type,
                                                                session=self.bot.session)
 

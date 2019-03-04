@@ -99,7 +99,7 @@ class SplatoonSchedule:
         elif schedule_type == ModeTypes.LEAGUE:
             data = await sn.get_league()
         elif schedule_type == ModeTypes.SALMON:
-            data = await sn.get_salmon_detail()
+            data = await sn.get_salmon_schedule()
 
         if data is None:
             raise Exception("Splatnet call failed.")
@@ -119,29 +119,10 @@ class SplatoonSchedule:
         # salmon run is a special exception, requires special processing
         else:
             for sr_schedule in data:
-                element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
-                element.mode = "Salmon Run"
-                element.stage_a = sr_schedule["stage"]["name"]
-                element.stage_a_image = IMAGE_BASE + sr_schedule["stage"]["image"]
-                element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
-                element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
-                element.weapons_array = LinkedList()
-                # getting weapons
-                for weapon in sr_schedule["weapons"]:
-                    # weapon id of -1 indicates a special weapon, parsed differently
-                    if weapon["id"] != '-1':
-                        element.weapons_array.add(weapon["weapon"]["name"])
-                    else:
-                        element.weapons_array.add(weapon["coop_special_weapon"]["name"])
-                schedule_array.append(element)
-
-                # Getting salmon schedule w/o weapons or stage release
-                data = await sn.get_salmon_schedule()
-                for sr_info in data:
                     element = SplatoonSchedule(target_time=None, schedule_type=schedule_type, session=None)
                     element.mode = "Salmon Run"
-                    element.start_time = datetime.fromtimestamp(sr_info["start_time"], time.tzname())
-                    element.end_time = datetime.fromtimestamp(sr_info["end_time"], time.tzname())
+                    element.start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
+                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
                     schedule_array.append(element)
         return schedule_array
 
