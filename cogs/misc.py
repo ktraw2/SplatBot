@@ -104,6 +104,22 @@ class Misc:
                         "Kevin #3: <@192053720236818432>" + "\n"
             await ctx.send(kevin_str)
 
+    @commands.command(aliases=["f"])
+    async def eff(self, ctx, *args):
+        await ctx.send("FFFFFFFFFFFFFFFFFFF" + "\n" + \
+                       "FFFFFFFFFFFFFFFFFFF" + "\n" + \
+                       "FFFFFFFFFFFFFFFFFFF" + "\n" + \
+                       "FFFFFF" + "\n" + \
+                       "FFFFFF" + "\n" + \
+                       "FFFFFF" + "\n" + \
+                       "FFFFFFFFFFFF" + "\n" + \
+                       "FFFFFFFFFFFF" + "\n" + \
+                       "FFFFFFFFFFFF" + "\n" + \
+                       "FFFFFF" + "\n" + \
+                       "FFFFFF" + "\n" + \
+                       "FFFFFF"  + "\n" + \
+                       "FFFFFF" + "\n" + \
+                       "FFFFFF" + "\n")
 
     @commands.command()
     @commands.is_owner()
