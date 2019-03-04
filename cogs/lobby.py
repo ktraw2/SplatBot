@@ -127,7 +127,10 @@ class Lobby:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
             # handle extra data for league battle
-            league = await Lobby.generate_league(name, time, self.bot.session)
+            if lobby_type == ModeTypes.LEAGUE:
+                league = await Lobby.generate_league(name, time, self.bot.session)
+            elif lobby_type == ModeTypes.SALMON:
+                league = await Lobby.generate_salmon(name, time, self.bot.session)
 
             # add the lobby to the list
             lobby = LobbyData(LinkedList(),
@@ -360,6 +363,17 @@ class Lobby:
             if success:
                 return league
         return None
+
+    @staticmethod
+    async def generate_salmon(name: str, time: datetime = datetime.now(), session=None):
+        lobby_type = Lobby.parse_special_lobby_type(name)
+        if lobby_type == ModeTypes.SALMON:
+            salmon = SplatoonSchedule(time, ModeTypes.SALMON, session)
+            success = await salmon.populate_data()
+            if success:
+                return salmon
+        return None
+
 
 
 def setup(bot):
