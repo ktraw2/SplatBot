@@ -36,6 +36,18 @@ class Schedule:
     async def upcoming(self, ctx, *args):
         await self.print_schedule(ModeTypes.SALMON, ctx)
 
+    @ranked.command()
+    async def upcoming(self, ctx, *args):
+        await self.print_schedule(ModeTypes.RANKED, ctx)
+
+    @league.command()
+    async def upcoming(self, ctx, *args):
+        await self.print_schedule(ModeTypes.LEAGUE, ctx)
+
+    @regular.command()
+    async def upcoming(self, ctx, *args):
+        await self.print_schedule(ModeTypes.REGULAR, ctx)
+
     async def make_schedule(self, schedule_type: ModeTypes, ctx, *args):
         time = datetime.now()
 
@@ -130,8 +142,11 @@ class Schedule:
 
         embed.add_field(name="Mode", value=schedule_array[0].mode)
 
+        array_access = -1
+
         # custom stuff for salmon run
         if schedule_type == ModeTypes.SALMON:
+            array_access = 0
             value = ""
             for element in schedule_array:
                 value = value + SplatoonSchedule.format_time_sr(element.start_time) + " - " + \
@@ -139,13 +154,14 @@ class Schedule:
             embed.add_field(name="Rotation Times", value=value)
 
         else:
+            array_access = 1
             for element in schedule_array:
                 embed.add_field(name="Stages", value=element.stage_a + "\n" + element.stage_b)
                 embed.add_field(name="Rotation Times", value=SplatoonSchedule.format_time(element.start_time) + " - "
                                                       + SplatoonSchedule.format_time(element.end_time))
 
         # Calculates the amount of time until the next rotation
-        time = schedule_array[0].start_time
+        time = schedule_array[array_access].start_time
         time_diff = DateDifference.subtract_datetimes(time, datetime.now())
         time_str = str(time_diff)
         if time_diff <= DateDifference(0):
