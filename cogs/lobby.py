@@ -315,9 +315,9 @@ class Lobby:
                                     metadata["schedule_data"].weapons_array[2] + "\n" + \
                                     metadata["schedule_data"].weapons_array[3]
                 map_str = metadata["schedule_data"].stage_a
-            lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
+                lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
+                lobby_embed.add_field(name="Stage", value=map_str)
             lobby_embed.add_field(name="Mode", value=metadata["schedule_data"].mode)
-            lobby_embed.add_field(name="Maps", value=map_str)
             lobby_embed.add_field(name="Rotation Time",
                                     value=SplatoonSchedule.format_time_sr(metadata["schedule_data"].start_time) + " - "
                                     + SplatoonSchedule.format_time_sr(metadata["schedule_data"].end_time))
