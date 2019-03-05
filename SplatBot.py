@@ -10,7 +10,7 @@ from discord.ext import commands
 print("Starting SplatBot...")
 SPLATBOT_EXTENSIONS = ["cogs.lobby",
                        "cogs.misc",
-                       "cogs.schedule"]
+                       "cogs.rotation"]
 
 
 class SplatBot(commands.Bot):
