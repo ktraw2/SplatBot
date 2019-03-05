@@ -65,7 +65,7 @@ class Rotation:
         success = await rotation.populate_data()
 
         if success:
-            title = "Schedule Information - "
+            title = "Rotation Information - "
             thumbnail = ""
             if schedule_type is ModeTypes.REGULAR:
                 title += "Regular Battle"
@@ -122,7 +122,7 @@ class Rotation:
                                                                   session=self.bot.session)
 
         next_rot_val = 0  # Array val to access the next rotation
-        title = "Upcoming Schedule Information - "
+        title = "Upcoming Rotation Information - "
         thumbnail = ""
         if schedule_type is ModeTypes.REGULAR:
             title += "Regular Battle"
