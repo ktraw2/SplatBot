@@ -294,7 +294,7 @@ class Lobby:
 
         lobby_type = Lobby.parse_special_lobby_type(name)
         # add data for league
-        if lobby_type == ModeTypes.LEAGUE:
+        if lobby_type == ModeTypes.LEAGUE and "schedule_data" in metadata and metadata["schedule_data"] is not None:
             mode_str = "*Not released yet*"
             stages_str = "*Not released yet*"
             rotation_str = "*Not released yet*"
@@ -312,7 +312,7 @@ class Lobby:
             lobby_embed.add_field(name="Maps", value=stages_str)
             lobby_embed.add_field(name="Rotation Time", value=rotation_str)
         # add data for salmon
-        elif lobby_type == ModeTypes.SALMON:
+        elif lobby_type == ModeTypes.SALMON and "schedule_data" in metadata and metadata["schedule_data"] is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
             weapons_str = "*Not released yet*"
             map_str = "*Not released yet*"
