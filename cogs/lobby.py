@@ -295,19 +295,26 @@ class Lobby:
         lobby_type = Lobby.parse_special_lobby_type(name)
         # add data for league
         if lobby_type == ModeTypes.LEAGUE and "schedule_data" in metadata and metadata["schedule_data"] is not None:
+            mode_str = "*Not released yet"
+            stages_str = "*Not released yet"
+            rotation_str = "*Not released yet*"
+            if metadata["schedule_data"].stage_a is not None:
+                mode_str = metadata["schedule_data"].mode
+                stages_str = metadata["schedule_data"].stage_a + "\n" + metadata["schedule_data"].stage_b
+                rotation_str = SplatoonSchedule.format_time(metadata["schedule_data"].start_time) + " - " \
+                                  + SplatoonSchedule.format_time(metadata["schedule_data"].end_time)
+                lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
+
             lobby_embed.set_thumbnail(url=config.images["league"])
-            lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
-            lobby_embed.add_field(name="Mode", value=metadata["schedule_data"].mode)
-            lobby_embed.add_field(name="Maps", value=metadata["schedule_data"].stage_a + "\n" +
-                                                     metadata["schedule_data"].stage_b)
-            lobby_embed.add_field(name="Rotation Time",
-                                  value=SplatoonSchedule.format_time(metadata["schedule_data"].start_time) + " - "
-                                  + SplatoonSchedule.format_time(metadata["schedule_data"].end_time))
+            lobby_embed.add_field(name="Mode", value=mode_str)
+            lobby_embed.add_field(name="Maps", value=stages_str)
+            lobby_embed.add_field(name="Rotation Time", value=rotation_str)
         # add data for salmon
         elif lobby_type == ModeTypes.SALMON and "schedule_data" in metadata and metadata["schedule_data"] is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
             weapons_str = "*Not released yet*"
-            map_str = "Not released yet*"
+            map_str = "*Not released yet*"
+            rotation_str = "*Not released yet*"
             # Checking if weapons and map have been released yet
             if metadata["schedule_data"].stage_a is not None:
                 weapons_str = metadata["schedule_data"].weapons_array[0] + "\n" + \
@@ -315,12 +322,12 @@ class Lobby:
                                     metadata["schedule_data"].weapons_array[2] + "\n" + \
                                     metadata["schedule_data"].weapons_array[3]
                 map_str = metadata["schedule_data"].stage_a
+                rotation_str = SplatoonSchedule.format_time_sr(metadata["schedule_data"].start_time) + " - " \
+                                    + SplatoonSchedule.format_time_sr(metadata["schedule_data"].end_time)
                 lobby_embed.set_image(url=metadata["schedule_data"].stage_a_image)
-                lobby_embed.add_field(name="Stage", value=map_str)
+            lobby_embed.add_field(name="Stage", value=map_str)
             lobby_embed.add_field(name="Mode", value=metadata["schedule_data"].mode)
-            lobby_embed.add_field(name="Rotation Time",
-                                    value=SplatoonSchedule.format_time_sr(metadata["schedule_data"].start_time) + " - "
-                                    + SplatoonSchedule.format_time_sr(metadata["schedule_data"].end_time))
+            lobby_embed.add_field(name="Rotation Time", value=rotation_str)
             lobby_embed.add_field(name="Weapons", value=weapons_str)
         elif lobby_type == ModeTypes.PRIVATE:
             lobby_embed.set_thumbnail(url=config.images["private_battle"])
