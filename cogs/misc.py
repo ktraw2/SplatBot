@@ -26,7 +26,7 @@ class Misc:
                                  value="To get help for the various parts of " + self.bot.user.name + ", "
                                        "use `s!help [page]` to view any of the pages listed below:\n\n"
                                        "1. Lobby Commands\n"
-                                       "2. Schedule Commands\n"
+                                       "2. Rotation Commands\n"
                                        "3. Misc. Commands\n"
                                        "3. Command Syntax Help\n\n"
                                        "You can also type `s!help full` "
@@ -42,10 +42,10 @@ class Misc:
         embeds.add_help_embed_field(help_embed, "lobby_commands")
         await ctx.send(embed=help_embed)
 
-    @help.command(name="2", aliases=["Schedule"])
-    async def schedule_commands(self, ctx):
+    @help.command(name="2", aliases=["Rotation", "Schedule"])
+    async def rotation_commands(self, ctx):
         help_embed = embeds.generate_base_help_embed(self.bot)
-        embeds.add_help_embed_field(help_embed, "schedule_commands")
+        embeds.add_help_embed_field(help_embed, "rotation_commands")
         await ctx.send(embed=help_embed)
 
     @help.command(name="3", aliases=["Misc"])
