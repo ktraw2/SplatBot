@@ -135,6 +135,8 @@ class Lobby:
                 league = await Lobby.generate_league(name, time, self.bot.session)
             elif lobby_type == ModeTypes.SALMON:
                 league = await Lobby.generate_salmon(name, time, self.bot.session)
+            else:
+                league = None
 
             # add the lobby to the list
             lobby = LobbyData(LinkedList(),
