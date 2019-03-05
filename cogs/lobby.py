@@ -295,10 +295,11 @@ class Lobby:
         lobby_type = Lobby.parse_special_lobby_type(name)
         # add data for league
         if lobby_type == ModeTypes.LEAGUE:
-            mode_str = "*Not released yet"
-            stages_str = "*Not released yet"
+            mode_str = "*Not released yet*"
+            stages_str = "*Not released yet*"
             rotation_str = "*Not released yet*"
-            if metadata["schedule_data"] is None or "schedule_data" not in metadata or \
+            if metadata["schedule_data"] is None or metadata["schedule_data"] is None or \
+                    "schedule_data" not in metadata or \
                     metadata["schedule_data"].stage_a is not None:
                 mode_str = metadata["schedule_data"].mode
                 stages_str = metadata["schedule_data"].stage_a + "\n" + metadata["schedule_data"].stage_b
@@ -317,7 +318,8 @@ class Lobby:
             map_str = "*Not released yet*"
             rotation_str = "*Not released yet*"
             # Checking if weapons and map have been released yet
-            if "schedule_data" not in metadata or metadata["schedule_data"] is not metadata or \
+            if metadata["schedule_data"] is None or "schedule_data" not in metadata or \
+                    metadata["schedule_data"] is not metadata or \
                     metadata["schedule_data"].stage_a is not None:
                 weapons_str = metadata["schedule_data"].weapons_array[0] + "\n" + \
                                     metadata["schedule_data"].weapons_array[1] + "\n" + \
