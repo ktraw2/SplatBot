@@ -294,11 +294,12 @@ class Lobby:
 
         lobby_type = Lobby.parse_special_lobby_type(name)
         # add data for league
-        if lobby_type == ModeTypes.LEAGUE and "schedule_data" in metadata and metadata["schedule_data"] is not None:
+        if lobby_type == ModeTypes.LEAGUE:
             mode_str = "*Not released yet"
             stages_str = "*Not released yet"
             rotation_str = "*Not released yet*"
-            if metadata["schedule_data"].stage_a is not None:
+            if metadata["schedule_data"] is None or "schedule_data" not in metadata or \
+                    metadata["schedule_data"].stage_a is not None:
                 mode_str = metadata["schedule_data"].mode
                 stages_str = metadata["schedule_data"].stage_a + "\n" + metadata["schedule_data"].stage_b
                 rotation_str = SplatoonSchedule.format_time(metadata["schedule_data"].start_time) + " - " \
@@ -310,13 +311,14 @@ class Lobby:
             lobby_embed.add_field(name="Maps", value=stages_str)
             lobby_embed.add_field(name="Rotation Time", value=rotation_str)
         # add data for salmon
-        elif lobby_type == ModeTypes.SALMON and "schedule_data" in metadata and metadata["schedule_data"] is not None:
+        elif lobby_type == ModeTypes.SALMON:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
             weapons_str = "*Not released yet*"
             map_str = "*Not released yet*"
             rotation_str = "*Not released yet*"
             # Checking if weapons and map have been released yet
-            if metadata["schedule_data"].stage_a is not None:
+            if "schedule_data" not in metadata or metadata["schedule_data"] is not metadata or \
+                    metadata["schedule_data"].stage_a is not None:
                 weapons_str = metadata["schedule_data"].weapons_array[0] + "\n" + \
                                     metadata["schedule_data"].weapons_array[1] + "\n" + \
                                     metadata["schedule_data"].weapons_array[2] + "\n" + \
