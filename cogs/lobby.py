@@ -298,7 +298,7 @@ class Lobby:
             mode_str = "*Not released yet*"
             stages_str = "*Not released yet*"
             rotation_str = "*Not released yet*"
-            if metadata["schedule_data"] is None or metadata["schedule_data"] is None or \
+            if lobby.metadata["schedule_data"] is None or metadata["schedule_data"] is None or \
                     "schedule_data" not in metadata or \
                     metadata["schedule_data"].stage_a is not None:
                 mode_str = metadata["schedule_data"].mode
@@ -318,7 +318,7 @@ class Lobby:
             map_str = "*Not released yet*"
             rotation_str = "*Not released yet*"
             # Checking if weapons and map have been released yet
-            if metadata["schedule_data"] is None or "schedule_data" not in metadata or \
+            if lobby.metadata["schedule_data"] is None or "schedule_data" not in metadata or \
                     metadata["schedule_data"] is not metadata or \
                     metadata["schedule_data"].stage_a is not None:
                 weapons_str = metadata["schedule_data"].weapons_array[0] + "\n" + \
