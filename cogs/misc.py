@@ -3,6 +3,7 @@ import config
 from discord.ext import commands
 from modules.async_client import AsyncClient
 from modules import embeds
+import math
 
 
 def check_user_is_developer(ctx):
@@ -108,27 +109,29 @@ class Misc:
     async def eff(self, ctx, *args):
         char_to_print = "F"
         str_to_send = ""
+        size_mult = 1
         if len(args) > 0:
             char_to_print = args[0]
+            size_mult = 0.5
 
         # Builds the big F
-        for x in range(3):
-            for y in range(19):
+        for x in range(math.trunc(3*size_mult)):
+            for y in range(math.trunc(19*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(3):
-            for y in range(6):
+        for x in range(math.trunc(3*size_mult)):
+            for y in range(math.trunc(6*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(3):
-            for y in range(12):
+        for x in range(math.trunc(3*size_mult)):
+            for y in range(math.trunc(12*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(5):
-            for y in range(6):
+        for x in range(math.trunc(5*size_mult)):
+            for y in range(math.trunc(6*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
