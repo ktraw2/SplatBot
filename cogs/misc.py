@@ -106,20 +106,33 @@ class Misc:
 
     @commands.command(aliases=["f"])
     async def eff(self, ctx, *args):
-        await ctx.send("FFFFFFFFFFFFFFFFFFF" + "\n" + \
-                       "FFFFFFFFFFFFFFFFFFF" + "\n" + \
-                       "FFFFFFFFFFFFFFFFFFF" + "\n" + \
-                       "FFFFFF" + "\n" + \
-                       "FFFFFF" + "\n" + \
-                       "FFFFFF" + "\n" + \
-                       "FFFFFFFFFFFF" + "\n" + \
-                       "FFFFFFFFFFFF" + "\n" + \
-                       "FFFFFFFFFFFF" + "\n" + \
-                       "FFFFFF" + "\n" + \
-                       "FFFFFF" + "\n" + \
-                       "FFFFFF"  + "\n" + \
-                       "FFFFFF" + "\n" + \
-                       "FFFFFF" + "\n")
+        char_to_print = "F"
+        str_to_send = ""
+        if len(args) > 0:
+            char_to_print = args[0]
+
+        # Builds the big F
+        for x in range(3):
+            for y in range(19):
+                str_to_send = str_to_send + char_to_print
+            str_to_send = str_to_send + "\n"
+
+        for x in range(3):
+            for y in range(6):
+                str_to_send = str_to_send + char_to_print
+            str_to_send = str_to_send + "\n"
+
+        for x in range(3):
+            for y in range(12):
+                str_to_send = str_to_send + char_to_print
+            str_to_send = str_to_send + "\n"
+
+        for x in range(5):
+            for y in range(6):
+                str_to_send = str_to_send + char_to_print
+            str_to_send = str_to_send + "\n"
+
+        await ctx.send(str_to_send)
 
     @commands.command()
     @commands.is_owner()
