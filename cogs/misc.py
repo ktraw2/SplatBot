@@ -115,23 +115,23 @@ class Misc:
             size_mult = 0.5
 
         # Builds the big F
-        for x in range(math.trunc(3*size_mult)):
-            for y in range(math.trunc(19*size_mult)):
+        for x in range(math.ceil(3*size_mult)):
+            for y in range(math.ceil(19*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(math.trunc(3*size_mult)):
-            for y in range(math.trunc(6*size_mult)):
+        for x in range(math.ceil(3*size_mult)):
+            for y in range(math.ceil(6*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(math.trunc(3*size_mult)):
-            for y in range(math.trunc(12*size_mult)):
+        for x in range(math.ceil(3*size_mult)):
+            for y in range(math.ceil(12*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(math.trunc(5*size_mult)):
-            for y in range(math.trunc(6*size_mult)):
+        for x in range(math.ceil(5*size_mult)):
+            for y in range(math.ceil(6*size_mult)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
