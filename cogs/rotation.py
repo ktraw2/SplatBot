@@ -7,7 +7,7 @@ from discord.ext import commands
 from misc_date_utilities.date_difference import DateDifference
 
 
-class Rotation:
+class Rotation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

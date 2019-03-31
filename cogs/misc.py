@@ -1,20 +1,12 @@
 import sys
+import math
 import config
 from discord.ext import commands
 from modules.async_client import AsyncClient
-from modules import embeds
-import math
+from modules import embeds, checks
 
 
-def check_user_is_developer(ctx):
-    is_developer = False
-    for id in config.developers:
-        if ctx.author.id == id:
-            is_developer = True
-    return is_developer
-
-
-class Misc:
+class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -72,7 +64,7 @@ class Misc:
                        ", the full help for " + self.bot.user.name + " has been DMed to you to prevent spam.")
 
     @commands.command()
-    @commands.check(check_user_is_developer)
+    @commands.check(checks.user_is_developer)
     async def update(self, ctx, *args):
         await ctx.send(":white_check_mark: Updating and restarting " + self.bot.user.name + "...")
         sys.exit(3)  # exit code will be interpreted by bash to update bot
@@ -88,25 +80,33 @@ class Misc:
 
     @commands.command()
     @commands.guild_only()
+    @checks.message_from_guild(config.ts_guild_id)
+    @commands.check(checks.off_topic_commands_enabled)
     async def kevin(self, ctx, *args):
-        if ctx.guild.id == 533820666458144769:
-            await ctx.send(ctx.guild.get_role(537872945914314772).mention + " KEVIN GANG KEVIN GANG KEVIN GANG")
+        await ctx.send(ctx.guild.get_role(config.ts_guild_id).mention + " KEVIN GANG KEVIN GANG KEVIN GANG")
 
     @commands.command()
+    @commands.check(checks.off_topic_commands_enabled)
     async def boxie(self, ctx, *args):
         await ctx.send("VIAN WHERE'S BRIDGETT :(")
 
     @commands.command()
     @commands.guild_only()
+    @checks.message_from_guild(config.ts_guild_id)
+    @commands.check(checks.off_topic_commands_enabled)
     async def list_kevins(self, ctx, *args):
-        if ctx.guild.id == 533820666458144769:
-            kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
-                        "Kevin #2: <@333435876275388426>" + "\n" + \
-                        "Kevin #3: <@192053720236818432>" + "\n"
-            await ctx.send(kevin_str)
+        kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
+                    "Kevin #2: <@333435876275388426>" + "\n" + \
+                    "Kevin #3: <@192053720236818432>" + "\n"
+        await ctx.send(kevin_str)
 
     @commands.command(aliases=["f"])
+    @commands.check(checks.off_topic_commands_enabled)
     async def eff(self, ctx, *args):
+        # embedded function for small calculation
+        def get_num_f(base_size):
+            return int(math.ceil(base_size * size_mult))
+
         char_to_print = "F"
         str_to_send = ""
         size_mult = 1
@@ -115,23 +115,23 @@ class Misc:
             size_mult = 0.5
 
         # Builds the big F
-        for x in range(math.ceil(3*size_mult)):
-            for y in range(math.ceil(19*size_mult)):
+        for x in range(get_num_f(3)):
+            for y in range(get_num_f(19)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(math.ceil(3*size_mult)):
-            for y in range(math.ceil(6*size_mult)):
+        for x in range(get_num_f(3)):
+            for y in range(get_num_f(6)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(math.ceil(3*size_mult)):
-            for y in range(math.ceil(12*size_mult)):
+        for x in range(get_num_f(3)):
+            for y in range(get_num_f(12)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
-        for x in range(math.ceil(5*size_mult)):
-            for y in range(math.ceil(6*size_mult)):
+        for x in range(get_num_f(5)):
+            for y in range(get_num_f(6)):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
@@ -139,6 +139,7 @@ class Misc:
 
     @commands.command()
     @commands.is_owner()
+    @commands.check(checks.off_topic_commands_enabled)
     async def getip(self, ctx, *args):
         ip_text = await AsyncClient(session=self.bot.session).send_request("http://checkip.dyndns.org/")
         # scrape page for body

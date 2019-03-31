@@ -18,7 +18,7 @@ NAME = 0
 LobbyData = namedtuple("LobbyData", ["players", "metadata"])
 
 
-class Lobby:
+class Lobby(commands.Cog):
     """
     Defines commands for the lobby system of SplatBot.
     """
@@ -62,19 +62,21 @@ class Lobby:
                     lobby.metadata["notified"] = True
                 # code to clean up old notifications
                 elif lobby.metadata["notified"]:
-                    if lobby.metadata["rotation_data"] is not None:
+
+                    if lobby.metadata["rotation_data"] is not None and \
+                            lobby.metadata["rotation_data"].schedule_type == ModeTypes.LEAGUE:
+                        # delete league lobby when rotation ends
+                        delete_delay_hours = 0
                         end_difference = DateDifference.subtract_datetimes(lobby.metadata["rotation_data"].end_time,
-                                                                           datetime.now())
-                        # delete league lobby if the rotation ends
-                        if lobby.metadata["rotation_data"].schedule_type == ModeTypes.LEAGUE and \
-                           end_difference <= DateDifference():
-                            self.lobbies.remove(lobby)
+                                                                           datetime.now() +
+                                                                           timedelta(hours=delete_delay_hours))
                     else:
-                        # use 1 hour as default autodeletion time
+                        delete_delay_hours = 1  # use 1 hour as the default autodeletion time
                         end_difference = DateDifference.subtract_datetimes(lobby.metadata["time"],
-                                                                           datetime.now() + timedelta(hours=1))
-                        if end_difference <= DateDifference(hours=-1):
-                            self.lobbies.remove(lobby)
+                                                                           datetime.now())
+                    # delete lobby if it is time
+                    if end_difference <= DateDifference(hours=(-1 * delete_delay_hours)):
+                        self.lobbies.remove(lobby)
             # sleep until the next minute
             sleep_time = datetime.now()
             sleep_time += timedelta(seconds=60 - sleep_time.second)
@@ -255,6 +257,7 @@ class Lobby:
                         if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
                             time = time + timedelta(days=1)
                         lobby.metadata["time"] = time
+                        lobby.metadata["notified"] = False
                     except ValueError as e:
                         await ctx.send(":x: You gave an invalid start time.")
                         lobby.metadata["time"] = old_time
