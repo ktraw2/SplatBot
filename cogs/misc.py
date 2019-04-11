@@ -97,7 +97,9 @@ class Misc(commands.Cog):
     async def list_kevins(self, ctx, *args):
         kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
                     "Kevin #2: <@333435876275388426>" + "\n" + \
-                    "Kevin #3: <@192053720236818432>" + "\n"
+                    "Kevin #3: " + "\n" + \
+                    "Kevin #4: " + "\n" + \
+                    "Kevin #5: <@192053720236818432>" + "\n"
         await ctx.send(kevin_str)
 
     @commands.command(aliases=["f"])
