@@ -95,11 +95,11 @@ class Misc(commands.Cog):
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def list_kevins(self, ctx, *args):
-        kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
-                    "Kevin #2: <@333435876275388426>" + "\n" + \
+        kevin_str = "Kevin #1: <@192053720236818432>" + "\n" + \
+                    "Kevin #2: " + "\n" + \
                     "Kevin #3: " + "\n" + \
-                    "Kevin #4: " + "\n" + \
-                    "Kevin #5: <@192053720236818432>" + "\n"
+                    "Kevin #4: <@333435876275388426>" + "\n" + \
+                    "Kevin #5: <@394434644642103296>" + "\n"
         await ctx.send(kevin_str)
 
     @commands.command(aliases=["f"])
