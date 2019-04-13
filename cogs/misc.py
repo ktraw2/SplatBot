@@ -66,8 +66,11 @@ class Misc(commands.Cog):
     @commands.command()
     @commands.check(checks.user_is_developer)
     async def update(self, ctx, *args):
+        self.bot.exit = 3  # exit code will be interpreted by bash to update bot
         await ctx.send(":white_check_mark: Updating and restarting " + self.bot.user.name + "...")
-        sys.exit(3)  # exit code will be interpreted by bash to update bot
+        if self.bot.session is not None:
+            await self.bot.session.close()
+        await self.bot.logout()
 
     @commands.command()
     async def hello(self, ctx, *args):

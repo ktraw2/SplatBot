@@ -1,10 +1,13 @@
 import discord
 import asyncio
+import pickle
 import config
 from collections import namedtuple
+from modules.lobby_data import LobbyData, DiscordChannel, DiscordUser
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
+from modules import checks
 from modules.linked_list import LinkedList
 from modules.splatoon_rotation import SplatoonRotation, ModeTypes
 from misc_date_utilities.date_difference import DateDifference
@@ -14,8 +17,14 @@ NUM_PLAYERS = 2
 TIME = 1
 NAME = 0
 
-# define lobby namedtuple
-LobbyData = namedtuple("LobbyData", ["players", "metadata"])
+
+
+
+
+# define lobbydata
+# LobbyData = namedtuple("LobbyData", ["players", "metadata"])
+# add it to globals
+# globals()[LobbyData.__name__] = LobbyData
 
 
 class Lobby(commands.Cog):
@@ -29,10 +38,26 @@ class Lobby(commands.Cog):
         :param bot: reference to the bot that created this cog
         """
         self.bot = bot
-        self.lobbies = []
+
+        # initialize lobbies from serialized data
+        checks.make_sure_file_exists("lobbies.pickle", pickle.dumps([]))
+
+        with open("lobbies.pickle", "rb") as lobbypickle:
+            self.lobbies = pickle.load(lobbypickle)
 
         # register notification task
         bot.loop.create_task(self.send_notifications())
+
+    def __del__(self):
+        """
+        Cleans up by writing out lobbies to disk.
+        """
+        with open("lobbies.pickle", "wb") as lobbypickle:
+            try:
+                pickle.dump(self.lobbies, lobbypickle)
+            except pickle.PicklingError:
+                print("An error occurred! Writing empty list.")
+                lobbypickle.write(pickle.dumps([]))
 
     async def send_notifications(self):
         """
@@ -57,8 +82,8 @@ class Lobby(commands.Cog):
                         if i == len(lobby.players) - 2 and len(lobby.players) > 1:
                             announcement += "and "
                     announcement += " it's time for your scheduled lobby: `" + lobby.metadata["name"] + "`!"
-                    await lobby.metadata["channel"].send(announcement)
-                    await lobby.metadata["channel"].send(embed=Lobby.generate_lobby_embed(lobby))
+                    await self.bot.get_channel(lobby.metadata["channel"].id).send(announcement)
+                    await self.bot.get_channel(lobby.metadata["channel"].id).send(embed=Lobby.generate_lobby_embed(lobby))
                     lobby.metadata["notified"] = True
                 # code to clean up old notifications
                 elif lobby.metadata["notified"]:
@@ -140,7 +165,7 @@ class Lobby(commands.Cog):
 
             # add the lobby to the list
             lobby = LobbyData(LinkedList(),
-                              {"channel": ctx.channel,
+                              {"channel": DiscordChannel(ctx.channel),
                                "name": name,
                                "rotation_data": rotation,
                                "num_players": num_players,
@@ -158,7 +183,7 @@ class Lobby(commands.Cog):
         if lobby is not None:
             if ctx.author not in lobby.players:
                 if lobby.players.size < lobby.metadata["num_players"]:
-                    lobby.players.add(ctx.author, prevent_duplicates=True)
+                    lobby.players.add(DiscordUser(ctx.author), prevent_duplicates=True)
                     await ctx.send(":white_check_mark: Successfully added " + ctx.author.mention + " to the lobby.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
                 else:
@@ -172,7 +197,7 @@ class Lobby(commands.Cog):
     async def leave(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
-            if lobby.players.remove_object(ctx.author):
+            if lobby.players.remove_object(DiscordUser(ctx.author)):
                 await ctx.send(":white_check_mark: Successfully removed " + ctx.author.mention + " from the lobby.")
                 await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
             else:

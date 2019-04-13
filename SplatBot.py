@@ -1,32 +1,42 @@
 # Add this bot: https://discordapp.com/oauth2/authorize?client_id=545107229842472971&scope=bot&permissions=16384
 
 import discord
-import os
 import aiohttp
 import config
 import traceback
+import sys
+from modules import checks
 from discord.ext import commands
 
 print("Starting SplatBot...")
-SPLATBOT_EXTENSIONS = ["cogs.lobby",
-                       "cogs.misc",
-                       "cogs.rotation"]
+SPLATBOT_EXTENSIONS = ["cogs.rotation",
+                       "cogs.lobby",
+                       "cogs.misc"]
+
+exit_code = 0
 
 
 class SplatBot(commands.Bot):
     def __init__(self, extensions):
-        SplatBot.make_sure_file_exists("config.py")
+        checks.make_sure_file_exists("config.py")
         super().__init__(command_prefix=config.prefix, description=config.description, case_insensitive=True)
 
-        self.session = aiohttp.ClientSession()
+        global exit_code
+        self.exit = exit_code
+        self.session = None
 
         for e in extensions:
             self.load_extension(e)
 
     async def on_ready(self):
         print("Connected")
+        self.session = aiohttp.ClientSession()
         await self.get_channel(config.online_logger_id).send("*Connected to Discord*")
         await self.change_presence(activity=discord.Game(name="Say s!help"))
+
+    async def on_disconnect(self):
+        global exit_code
+        exit_code = self.exit
 
     async def on_guild_join(self, guild):
         await self.get_channel(config.online_logger_id).send("Joined `" + guild.name + "`")
@@ -88,14 +98,6 @@ class SplatBot(commands.Bot):
                                                              " on line `" + str(tb[-1].lineno) + "`" +
                                                              " in file `" + tb[-1].filename + "`")
 
-    @staticmethod
-    def make_sure_file_exists(path, default_config=""):
-        if not os.path.isfile(path):
-            # logger.log(level=logging.WARNING, msg=path + " does not exist. Creating a default configuration.")
-            print("WARNING: " + path + " does not exist. Creating a default configuration.")
-            new_file = open(path, "w")
-            new_file.write(default_config)
-            new_file.close()
-
 
 SplatBot(SPLATBOT_EXTENSIONS).run(config.token)
+sys.exit(exit_code)
