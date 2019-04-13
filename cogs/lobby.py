@@ -64,7 +64,7 @@ class Lobby(commands.Cog):
                 elif lobby.metadata["notified"]:
 
                     if lobby.metadata["rotation_data"] is not None and \
-                            lobby.metadata["rotation_data"].schedule_type == ModeTypes.LEAGUE:
+                            lobby.metadata["rotation_data"].mode_type == ModeTypes.LEAGUE:
                         # delete league lobby when rotation ends
                         delete_delay_hours = 0
                         end_difference = DateDifference.subtract_datetimes(lobby.metadata["rotation_data"].end_time,
