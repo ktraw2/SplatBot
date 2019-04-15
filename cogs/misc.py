@@ -114,6 +114,10 @@ class Misc(commands.Cog):
         size_mult = 1
         if len(args) > 0:
             char_to_print = args[0]
+
+            if char_to_print == "@everyone" or char_to_print == "@here":
+                return
+            
             size_mult = 0.5
 
         # Builds the big F
