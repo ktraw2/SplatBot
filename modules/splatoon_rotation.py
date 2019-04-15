@@ -15,21 +15,98 @@ class ModeTypes(Enum):
 
 
 class SplatoonRotation:
-    def __init__(self, target_time: datetime, mode_type: ModeTypes, session=None):
-        self.mode = None
-        self.stage_a = None
-        self.stage_a_image = None
-        if mode_type is not ModeTypes.SALMON:
-            self.stage_b = None                 # Not populated for salmon run
-            self.stage_b_image = None           # Not populated for salmon run
-        self.start_time = None
-        self.end_time = None
-        if mode_type is ModeTypes.SALMON:
-            self.weapons_array = None           # for salmon run only
-
+    def __init__(self, target_time: datetime, mode_type: ModeTypes, session=None, restore_from_pickle: dict = None):
         self.target_time = target_time
         self.mode_type = mode_type
         self.session = session
+
+        # when is object being created?
+        if restore_from_pickle is None:
+            # at runtime, the data will need to be populated by the program after construction
+            self.mode = None
+            self.stage_a = None
+            self.stage_a_image = None
+            if mode_type is not ModeTypes.SALMON:
+                self.stage_b = None                 # Not populated for salmon run
+                self.stage_b_image = None           # Not populated for salmon run
+            self.start_time = None
+            self.end_time = None
+            if mode_type is ModeTypes.SALMON:
+                self.weapons_array = None           # for salmon run only
+        else:
+            # we are restoring from the pickle, bring in all the data
+            if "mode" in restore_from_pickle:
+                self.mode = restore_from_pickle["mode"]
+            else:
+                self.mode = None
+
+            if "stage_a" in restore_from_pickle:
+                self.stage_a = restore_from_pickle["stage_a"]
+            else:
+                self.stage_a = None
+
+            if "stage_a_image" in restore_from_pickle:
+                self.stage_a_image = restore_from_pickle["stage_a_image"]
+            else:
+                self.stage_a_image = None
+
+            if "stage_b" in restore_from_pickle:
+                self.stage_b = restore_from_pickle["stage_b"]
+            else:
+                self.stage_b = None
+
+            if "stage_b_image" in restore_from_pickle:
+                self.stage_b_image = restore_from_pickle["stage_b_image"]
+            else:
+                self.stage_b_image = None
+
+            if "start_time" in restore_from_pickle:
+                self.start_time = restore_from_pickle["start_time"]
+            else:
+                self.start_time = None
+
+            if "end_time" in restore_from_pickle:
+                self.end_time = restore_from_pickle["end_time"]
+            else:
+                self.end_time = None
+
+            if "weapons_array" in restore_from_pickle:
+                self.weapons_array = restore_from_pickle["weapons_array"]
+            else:
+                self.weapons_array = None
+
+            if "target_time" in restore_from_pickle:
+                self.target_time = restore_from_pickle["target_time"]
+            else:
+                self.target_time = None
+
+            if "mode_type" in restore_from_pickle:
+                self.mode_type = restore_from_pickle["mode_type"]
+            else:
+                self.mode_type = None
+
+            # NOTE: can't restore the session object
+
+    def __reduce__(self):
+        """
+        For pickling this object, we need to keep all data but the session
+        :return: a tuple with class information as well as all needed data fields
+        """
+        restore_from_pickle = {
+            "mode": self.mode,
+            "stage_a": self.stage_a,
+            "stage_a_image": self.stage_a_image,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+        }
+
+        if self.mode_type is ModeTypes.SALMON:
+            restore_from_pickle["weapons_array"] = self.weapons_array
+        else:
+            restore_from_pickle["stage_b"] = self.stage_b
+            restore_from_pickle["stage_b_image"] = self.stage_b_image
+
+        return (self.__class__, (self.target_time, self.mode_type, None, restore_from_pickle))
 
     async def populate_data(self):
         sn = Splatnet(self.session)

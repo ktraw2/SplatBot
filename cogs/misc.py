@@ -66,8 +66,11 @@ class Misc(commands.Cog):
     @commands.command()
     @commands.check(checks.user_is_developer)
     async def update(self, ctx, *args):
+        self.bot.exit = 3  # exit code will be interpreted by bash to update bot
         await ctx.send(":white_check_mark: Updating and restarting " + self.bot.user.name + "...")
-        sys.exit(3)  # exit code will be interpreted by bash to update bot
+        if self.bot.session is not None:
+            await self.bot.session.close()
+        await self.bot.logout()
 
     @commands.command()
     async def hello(self, ctx, *args):
@@ -95,11 +98,11 @@ class Misc(commands.Cog):
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def list_kevins(self, ctx, *args):
-        kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
-                    "Kevin #2: <@333435876275388426>" + "\n" + \
+        kevin_str = "Kevin #1: <@192053720236818432>" + "\n" + \
+                    "Kevin #2: " + "\n" + \
                     "Kevin #3: " + "\n" + \
-                    "Kevin #4: " + "\n" + \
-                    "Kevin #5: <@192053720236818432>" + "\n"
+                    "Kevin #4: <@333435876275388426>" + "\n" + \
+                    "Kevin #5: <@394434644642103296>" + "\n"
         await ctx.send(kevin_str)
 
     @commands.command(aliases=["f"])
