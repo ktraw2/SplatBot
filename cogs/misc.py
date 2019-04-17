@@ -122,11 +122,7 @@ class Misc(commands.Cog):
             if "@everyone" in char_to_print or "@here" in char_to_print:
                 return
 
-            # Some sort of formating to prevent errors
-            if len(char_to_print) > 20:
-                size_mult = 0.25
-            else:
-                size_mult = 0.5
+            size_mult = 0.5
 
         # Builds the big F
         for x in range(get_num_f(3)):
