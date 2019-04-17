@@ -146,7 +146,7 @@ class Misc(commands.Cog):
             str_to_send = str_to_send + "\n"
 
         if len(str_to_send) > 2000:
-            await ctx(":warning: Output exceeds character limit. Please try a smaller output.")
+            await ctx.send(":warning: Output exceeds character limit. Please try a smaller output.")
         await ctx.send(str_to_send)
 
     @commands.command()
