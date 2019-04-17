@@ -21,7 +21,10 @@ help_embed_fields = {
                     "battle type. If no time is given, the current rotation is sent."},
     "misc_commands":
         {"title": "Misc. Commands",
-         "body": "`s!help` - view the help for SplatBot"},
+         "body": "`s!help` - view the help for SplatBot\n"
+                 "`s!hello` - tests to see if SplatBot is functioning properly\n"
+                 "`s!f` - prints out a F made of Fs\n"
+                 "`s!f <string> - replaces the F character with a given string, @everyone and @here is blacklisted"},
     "command_syntax":
         {"title": "Command Syntax",
          "body": "Commands are formatted like this: `s!command [argument]`. "

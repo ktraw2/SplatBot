@@ -98,11 +98,11 @@ class Misc(commands.Cog):
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def list_kevins(self, ctx, *args):
-        kevin_str = "Kevin #1: <@192053720236818432>" + "\n" + \
-                    "Kevin #2: " + "\n" + \
+        kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
+                    "Kevin #2: <@333435876275388426>" + "\n" + \
                     "Kevin #3: " + "\n" + \
-                    "Kevin #4: <@333435876275388426>" + "\n" + \
-                    "Kevin #5: <@394434644642103296>" + "\n"
+                    "Kevin #4: " + "\n" + \
+                    "Kevin #5: <@192053720236818432>" + "\n"
         await ctx.send(kevin_str)
 
     @commands.command(aliases=["f"])
@@ -118,10 +118,15 @@ class Misc(commands.Cog):
         if len(args) > 0:
             char_to_print = args[0]
 
-            if char_to_print == "@everyone" or char_to_print == "@here":
+            # Blacklisting @everyone and @here to prevent pinging everyone
+            if "@everyone" in char_to_print or "@here" in char_to_print:
                 return
-            
-            size_mult = 0.5
+
+            # Some sort of formating to prevent errors
+            if len(char_to_print) > 20:
+                size_mult = 0.25
+            else:
+                size_mult = 0.5
 
         # Builds the big F
         for x in range(get_num_f(3)):
@@ -144,6 +149,8 @@ class Misc(commands.Cog):
                 str_to_send = str_to_send + char_to_print
             str_to_send = str_to_send + "\n"
 
+        if len(str_to_send) > 2000:
+            await ctx(":warning: Output exceeds character limit. Please try a smaller output.")
         await ctx.send(str_to_send)
 
     @commands.command()
