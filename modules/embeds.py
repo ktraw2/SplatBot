@@ -17,14 +17,18 @@ help_embed_fields = {
                     "change the number of players, lobby name, or lobby start time"},
     "rotation_commands":
         {"title": "Rotation Commands",
-         "body": "`s!schedule [regular|ranked|league] [optional:Time]` - get the scheduled mode and maps for the given"
-                    "battle type. If no time is given, the current rotation is sent."},
+         "body": "`s!schedule [regular|ranked|league|salmon] [optional:Time]` - get the scheduled mode and maps for the "
+                 "given battle type. If no time is given, the current rotation is sent.\n"
+                 "`s!schedule [regular|ranked|league|salmon] upcoming` - gets the next rotations for the given mode."
+        },
     "misc_commands":
         {"title": "Misc. Commands",
          "body": "`s!help` - view the help for SplatBot\n"
                  "`s!hello` - tests to see if SplatBot is functioning properly\n"
                  "`s!f` - prints out a F made of Fs\n"
-                 "`s!f <string> - replaces the F character with a given string, @everyone and @here is blacklisted"},
+                 "`s!f <string>` - replaces the F character with a given string, @everyone and @here is blacklisted\n"
+                 "`s!boxie` - Boxie\n!"
+         },
     "command_syntax":
         {"title": "Command Syntax",
          "body": "Commands are formatted like this: `s!command [argument]`. "

@@ -136,6 +136,8 @@ class Lobby(commands.Cog):
                     name = "League Battle"
                 elif lobby_type == ModeTypes.SALMON:
                     name = "Salmon Run"
+                elif lobby_type == ModeTypes.REGULAR:
+                    name = "Turf War"
                 elif lobby_type == ModeTypes.PRIVATE:
                     name = "Private Battle"
                     num_players = 8
@@ -160,6 +162,8 @@ class Lobby(commands.Cog):
                 rotation = await Lobby.generate_league(name, time, self.bot.session)
             elif lobby_type is ModeTypes.SALMON:
                 rotation = await Lobby.generate_salmon(name, time, self.bot.session)
+            elif lobby_type is ModeTypes.REGULAR:
+                rotation = await Lobby.generate_regular(name, time, self.bot.session)
             else:
                 rotation = None
 
@@ -227,10 +231,16 @@ class Lobby(commands.Cog):
                         lobby.metadata["rotation_data"] = await Lobby.generate_salmon(args[0], lobby.metadata["time"],
                                                                                 self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
+                    elif lobby_type == ModeTypes.REGULAR:
+                        lobby.metadata["name"] = "Turf War"
+                        lobby.metadata["rotation_data"] = await Lobby.generate_regular(args[0], lobby.metadata["time"],
+                                                                                self.bot.session)
+                        Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.PRIVATE:
                         lobby.metadata["name"] = "Private Battle"
                         lobby.metadata["rotation_data"] = None
                         Lobby.attempt_update_num_players(lobby, 8)
+
                     else:
                         lobby.metadata["name"] = args[0]
                         lobby.metadata["rotation_data"] = None
@@ -329,6 +339,16 @@ class Lobby(commands.Cog):
             lobby_embed.add_field(name="Rotation Time",
                                   value=SplatoonRotation.format_time(metadata["rotation_data"].start_time) + " - "
                                         + SplatoonRotation.format_time(metadata["rotation_data"].end_time))
+        # add data for regular
+        elif lobby_type == ModeTypes.REGULAR and "rotation_data" in metadata and metadata["rotation_data"] is not None:
+            lobby_embed.set_thumbnail(url=config.images["default"])
+            lobby_embed.set_image(url=metadata["rotation_data"].stage_a_image)
+            lobby_embed.add_field(name="Mode", value=metadata["rotation_data"].mode)
+            lobby_embed.add_field(name="Maps", value=metadata["rotation_data"].stage_a + "\n" +
+                                                     metadata["rotation_data"].stage_b)
+            lobby_embed.add_field(name="Rotation Time",
+                                  value=SplatoonRotation.format_time(metadata["rotation_data"].start_time) + " - "
+                                        + SplatoonRotation.format_time(metadata["rotation_data"].end_time))
         # add data for salmon
         elif lobby_type == ModeTypes.SALMON and "rotation_data" in metadata and metadata["rotation_data"] is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
@@ -383,6 +403,8 @@ class Lobby(commands.Cog):
             return ModeTypes.LEAGUE
         elif "salmon" in name.lower():
             return ModeTypes.SALMON
+        elif "regular" in name.lower() or "turf" in name.lower():
+            return ModeTypes.REGULAR
         else:
             return None
 
@@ -404,6 +426,16 @@ class Lobby(commands.Cog):
             success = await salmon.populate_data()
             if success:
                 return salmon
+        return None
+
+    @staticmethod
+    async def generate_regular(name: str, time: datetime = datetime.now(), session=None):
+        lobby_type = Lobby.parse_special_lobby_type(name)
+        if lobby_type == ModeTypes.REGULAR:
+            regular = SplatoonRotation(time, ModeTypes.REGULAR, session)
+            success = await regular.populate_data()
+            if success:
+                return regular
         return None
 
 
