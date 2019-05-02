@@ -185,10 +185,11 @@ class Lobby(commands.Cog):
     async def join(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
-            if ctx.author not in lobby.players:
+            user = DiscordUser(ctx.author)
+            if user not in lobby.players:
                 if lobby.players.size < lobby.metadata["num_players"]:
-                    lobby.players.add(DiscordUser(ctx.author), prevent_duplicates=True)
-                    await ctx.send(":white_check_mark: Successfully added " + ctx.author.mention + " to the lobby.")
+                    lobby.players.add(user, prevent_duplicates=True)
+                    await ctx.send(":white_check_mark: Successfully added " + user.mention + " to the lobby.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
                 else:
                     await ctx.send(":x: This lobby is full.")

@@ -13,3 +13,6 @@ class DiscordChannel:
 class DiscordUser:
     def __init__(self, user):
         self.mention = user.mention
+
+    def __eq__(self, other):
+        return self.mention == other.mention
