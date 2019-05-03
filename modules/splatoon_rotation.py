@@ -147,11 +147,14 @@ class SplatoonRotation:
 
                     # getting weapons
                     for weapon in rotation["weapons"]:
-                        # weapon id of -1 indicates a special weapon, parsed differently
-                        if weapon["id"] != '-1':
-                            self.weapons_array.add(weapon["weapon"]["name"])
+                        # weapon id of -1 indicates a random weapon
+                        if weapon["id"] == '-1':
+                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + "Weapon")
+                        # weapon id of -2 indicates grizzco weapon
+                        elif weapon["id"] == '-2':
+                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + "Grizzco Weapon")
                         else:
-                            self.weapons_array.add(weapon["coop_special_weapon"]["name"])
+                            self.weapons_array.add(weapon["weapon"]["name"])
                     return True
 
             # if we can't find a detailed rotation, search some more in the other rotations
