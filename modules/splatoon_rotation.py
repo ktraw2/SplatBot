@@ -149,10 +149,10 @@ class SplatoonRotation:
                     for weapon in rotation["weapons"]:
                         # weapon id of -1 indicates a random weapon
                         if weapon["id"] == '-1':
-                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + "Weapon")
+                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon")
                         # weapon id of -2 indicates grizzco weapon
                         elif weapon["id"] == '-2':
-                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + "Grizzco Weapon")
+                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon")
                         else:
                             self.weapons_array.add(weapon["weapon"]["name"])
                     return True
