@@ -93,18 +93,26 @@ class Misc(commands.Cog):
     async def boxie(self, ctx, *args):
         await ctx.send("VIAN WHERE'S BRIDGETT :(")
 
-    @commands.command()
+    @commands.command(aliases=["listkevins", "kevins"])
     @commands.guild_only()
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def list_kevins(self, ctx, *args):
-        kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
-                    "Kevin #2: <@333435876275388426>" + "\n" + \
-                    "Kevin #3: " + "\n" + \
-                    "Kevin #4: " + "\n" + \
-                    "Kevin #5: " + "\n" + \
+        kevin_str = "Kevin #1: <@192053720236818432>" + "\n" + \
+                    "Kevin #2: <@192053720236818432>" + "\n" + \
+                    "Kevin #3: <@192053720236818432>" + "\n" + \
+                    "Kevin #4: <@192053720236818432>" + "\n" + \
+                    "Kevin #5: <@192053720236818432>" + "\n" + \
                     "Kevin #6: <@192053720236818432>" + "\n"
         await ctx.send(kevin_str)
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.message_from_guild(config.ts_guild_id)
+    @commands.check(checks.off_topic_commands_enabled)
+    async def list_uncool_poeple(self, ctx, *args):
+        await ctx.send("Uncool People:\n"
+                       "For being dum dum: <@365747839172870144>")
 
     @commands.command(aliases=["f"])
     @commands.check(checks.off_topic_commands_enabled)
