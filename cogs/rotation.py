@@ -190,7 +190,6 @@ class Rotation(commands.Cog):
 
         next_rotation = schedule_array[1]
 
-        next_rot_val = 0  # Array val to access the next rotation
         title = "Next Rotation Information - "
         thumbnail = ""
         if schedule_type is ModeTypes.REGULAR:
@@ -213,7 +212,7 @@ class Rotation(commands.Cog):
         if schedule_type is ModeTypes.SALMON:
             # Checking if full rotation has been released yet for salmon
             embed.set_image(url=next_rotation.stage_a_image)
-            embed.add_field(name="Stage", value=rotation.stage_a)
+            embed.add_field(name="Stage", value=next_rotation.stage_a)
             # use special formatting because salmon run can occur between two separate days
             embed.add_field(name="Rotation Time",
                             value=SplatoonRotation.format_time_sr(next_rotation.start_time) + " - "
@@ -224,13 +223,13 @@ class Rotation(commands.Cog):
                                                     next_rotation.weapons_array[3])
 
         else:
-            embed.set_image(url=rotation.stage_a_image)
+            embed.set_image(url=next_rotation.stage_a_image)
             embed.add_field(name="Stages", value=next_rotation.stage_a + "\n" + next_rotation.stage_b)
             embed.add_field(name="Rotation Time", value=SplatoonRotation.format_time(next_rotation.start_time) + " - " +
                                                         SplatoonRotation.format_time(next_rotation.end_time))
 
         # Calculates the amount of time until the next rotation
-        time = schedule_array[next_rot_val].start_time
+        time = next_rotation.start_time
         time_diff = DateDifference.subtract_datetimes(time, datetime.now())
         time_str = str(time_diff)
 

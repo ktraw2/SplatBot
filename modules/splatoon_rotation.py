@@ -181,7 +181,7 @@ class SplatoonRotation:
         elif mode_type is ModeTypes.LEAGUE:
             data = await sn.get_league()
         elif mode_type is ModeTypes.SALMON:
-            data = await sn.get_salmon_schedule()
+            data = await sn.get_salmon_detail()
 
         if data is None:
             raise Exception("Splatnet call failed.")
@@ -200,13 +200,42 @@ class SplatoonRotation:
                 schedule_list.append(element)
         # salmon run is a special exception, requires special processing
         else:
+            # Adding detailed info to the list
             for sr_schedule in data:
                 start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
                 element = SplatoonRotation(start_time, mode_type, session)
                 element.mode = "Salmon Run"
                 element.start_time = start_time
                 element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
+
+                element.stage_a = sr_schedule["stage"]["name"]
+                element.stage_a_image = IMAGE_BASE + sr_schedule["stage"]["image"]
+                element.weapons_array = LinkedList()
+
+                # getting weapons
+                for weapon in sr_schedule["weapons"]:
+                    # weapon id of -1 indicates a random weapon
+                    if weapon["id"] == '-1':
+                        element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon")
+                    # weapon id of -2 indicates grizzco weapon
+                    elif weapon["id"] == '-2':
+                        element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon")
+                    else:
+                        element.weapons_array.add(weapon["weapon"]["name"])
+
                 schedule_list.append(element)
+
+            # Adding salmon schedules that we don't know anything about
+            data = await sn.get_salmon_schedule()
+            for sr_schedule in data:
+                # Skipping the first 2 in the list as we already parsed that info above 
+                if schedule_list[0].start_time != start_time or schedule_list[1].start_time != start_time:
+                    start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
+                    element = SplatoonRotation(start_time, mode_type, session)
+                    element.mode = "Salmon Run"
+                    element.start_time = start_time
+                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
+                    schedule_list.append(element)
         return schedule_list
 
     @staticmethod
