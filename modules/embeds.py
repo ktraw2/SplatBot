@@ -27,7 +27,7 @@ help_embed_fields = {
                  "`s!hello` - tests to see if SplatBot is functioning properly\n"
                  "`s!f` - prints out a F made of Fs\n"
                  "`s!f <string>` - replaces the F character with a given string, @everyone and @here is blacklisted\n"
-                 "`s!boxie` - Boxie\n!"
+                 "`s!boxie` - Boxie!\n!"
          },
     "command_syntax":
         {"title": "Command Syntax",

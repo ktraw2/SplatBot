@@ -221,5 +221,5 @@ class SplatoonRotation:
 
     @staticmethod
     def format_time_sch(time: datetime):
-        # <hour> <am/pm>
+        # returns <hour> <am/pm>
         return time.strftime("%-I %p")

@@ -15,7 +15,7 @@ class Rotation(commands.Cog):
                                                                                  "info"])
     async def rotation(self, ctx, *args):
         await ctx.send("Available subcommands are: `regular`, `ranked`, `league`, `salmon`\n"
-                       "Available subcommands for `ranked`, `league`, and `salmon` are: `upcoming`")
+                       "Available subcommands for `ranked`, `league`, and `salmon` are: `upcoming` and 'next'")
 
     @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["turf", "t", "reg"])
     async def regular(self, ctx, *args):
@@ -48,6 +48,22 @@ class Rotation(commands.Cog):
     @regular.command(name="upcoming")
     async def turf_upcoming(self, ctx, *args):
         await self.make_upcoming_rotations(ModeTypes.REGULAR, ctx)
+
+    @salmon.command(name="next")
+    async def salmon_next(self, ctx, *args):
+        await self.make_next_rotation(ModeTypes.SALMON, ctx)
+
+    @ranked.command(name="next")
+    async def ranked_next(self, ctx, *args):
+        await self.make_next_rotation(ModeTypes.RANKED, ctx)
+
+    @league.command(name="next")
+    async def league_next(self, ctx, *args):
+        await self.make_next_rotation(ModeTypes.LEAGUE, ctx)
+
+    @regular.command(name="next")
+    async def turf_next(self, ctx, *args):
+        await self.make_next_rotation(ModeTypes.REGULAR, ctx)
 
     async def make_single_rotation(self, schedule_type: ModeTypes, ctx, *args):
         time = datetime.now()
@@ -164,6 +180,59 @@ class Rotation(commands.Cog):
         # For Salmon Run only: print if the rotation is happening right now
         if schedule_type is ModeTypes.SALMON and time_diff <= DateDifference(0):
             time_str = "Rotation is happening now!"
+
+        embed.add_field(name="Time Until Next Rotation", value=time_str)
+        await ctx.send(embed=embed)
+
+    async def make_next_rotation(self, schedule_type: ModeTypes, ctx):
+        schedule_array = await SplatoonRotation.get_all_rotations(time=datetime.now(), mode_type=schedule_type,
+                                                                  session=self.bot.session)
+
+        next_rotation = schedule_array[1]
+
+        next_rot_val = 0  # Array val to access the next rotation
+        title = "Next Rotation Information - "
+        thumbnail = ""
+        if schedule_type is ModeTypes.REGULAR:
+            title += "Regular Battle"
+            thumbnail = config.images["regular"]
+        elif schedule_type is ModeTypes.RANKED:
+            title += "Ranked Battle"
+            thumbnail = config.images["ranked"]
+        elif schedule_type is ModeTypes.LEAGUE:
+            title += "League Battle"
+            thumbnail = config.images["league"]
+        elif schedule_type is ModeTypes.SALMON:
+            title += "Salmon Run"
+            thumbnail = config.images["salmon"]
+
+        embed = discord.Embed(title=title, color=config.embed_color)
+        embed.set_thumbnail(url=thumbnail)
+
+        # custom stuff for salmon run
+        if schedule_type is ModeTypes.SALMON:
+            # Checking if full rotation has been released yet for salmon
+            embed.set_image(url=next_rotation.stage_a_image)
+            embed.add_field(name="Stage", value=rotation.stage_a)
+            # use special formatting because salmon run can occur between two separate days
+            embed.add_field(name="Rotation Time",
+                            value=SplatoonRotation.format_time_sr(next_rotation.start_time) + " - "
+                                    + SplatoonRotation.format_time_sr(next_rotation.end_time))
+            embed.add_field(name="Weapons", value=next_rotation.weapons_array[0] + "\n" +
+                                                    next_rotation.weapons_array[1] + "\n" +
+                                                    next_rotation.weapons_array[2] + "\n" +
+                                                    next_rotation.weapons_array[3])
+
+        else:
+            embed.set_image(url=rotation.stage_a_image)
+            embed.add_field(name="Stages", value=next_rotation.stage_a + "\n" + next_rotation.stage_b)
+            embed.add_field(name="Rotation Time", value=SplatoonRotation.format_time(next_rotation.start_time) + " - " +
+                                                        SplatoonRotation.format_time(next_rotation.end_time))
+
+        # Calculates the amount of time until the next rotation
+        time = schedule_array[next_rot_val].start_time
+        time_diff = DateDifference.subtract_datetimes(time, datetime.now())
+        time_str = str(time_diff)
 
         embed.add_field(name="Time Until Next Rotation", value=time_str)
         await ctx.send(embed=embed)
