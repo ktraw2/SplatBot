@@ -2,7 +2,6 @@ import discord
 import asyncio
 import pickle
 import config
-from collections import namedtuple
 from modules.lobby_data import LobbyData, DiscordChannel, DiscordUser
 from datetime import datetime, timedelta
 from dateutil.parser import parse

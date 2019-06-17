@@ -19,7 +19,8 @@ help_embed_fields = {
         {"title": "Rotation Commands",
          "body": "`s!schedule [regular|ranked|league|salmon] [optional:Time]` - get the scheduled mode and maps for the "
                  "given battle type. If no time is given, the current rotation is sent.\n"
-                 "`s!schedule [regular|ranked|league|salmon] upcoming` - gets the next rotations for the given mode."
+                 "`s!schedule [regular|ranked|league|salmon] upcoming` - gets a list of rotations for the given mode.\n"
+                 "`s!schedule [regular|ranked|league|salmon] next` - gets the next rotation for the given mode."
         },
     "misc_commands":
         {"title": "Misc. Commands",

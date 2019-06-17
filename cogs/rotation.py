@@ -15,7 +15,7 @@ class Rotation(commands.Cog):
                                                                                  "info"])
     async def rotation(self, ctx, *args):
         await ctx.send("Available subcommands are: `regular`, `ranked`, `league`, `salmon`\n"
-                       "Available subcommands for `ranked`, `league`, and `salmon` are: `upcoming` and 'next'")
+                       "Available subcommands for `ranked`, `league`, and `salmon` are: `upcoming` and `next`")
 
     @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["turf", "t", "reg"])
     async def regular(self, ctx, *args):
@@ -207,6 +207,8 @@ class Rotation(commands.Cog):
 
         embed = discord.Embed(title=title, color=config.embed_color)
         embed.set_thumbnail(url=thumbnail)
+
+        embed.add_field(name="Mode", value=next_rotation.mode)
 
         # custom stuff for salmon run
         if schedule_type is ModeTypes.SALMON:
