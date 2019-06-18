@@ -252,3 +252,12 @@ class SplatoonRotation:
     def format_time_sch(time: datetime):
         # returns <hour> <am/pm>
         return time.strftime("%-I %p")
+
+    @staticmethod
+    def print_sr_weapons(weapons_array: LinkedList):
+        # Used to print out salmon run weapons
+        weapon_list_str = ""
+        for weapon in weapons_array:
+            weapon_list_str = weapon_list_str + weapon + "\n"
+        return weapon_list_str
+

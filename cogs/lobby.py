@@ -356,10 +356,7 @@ class Lobby(commands.Cog):
             map_str = "Not released yet*"
             # Checking if weapons and map have been released yet
             if metadata["rotation_data"].stage_a is not None:
-                weapons_str = metadata["rotation_data"].weapons_array[0] + "\n" + \
-                                    metadata["rotation_data"].weapons_array[1] + "\n" + \
-                                    metadata["rotation_data"].weapons_array[2] + "\n" + \
-                                    metadata["rotation_data"].weapons_array[3]
+                weapons_str = SplatoonRotation.print_sr_weapons(metadata["rotation_data"].weapons_array)
                 map_str = metadata["rotation_data"].stage_a
             lobby_embed.set_image(url=metadata["rotation_data"].stage_a_image)
             lobby_embed.add_field(name="Mode", value=metadata["rotation_data"].mode)

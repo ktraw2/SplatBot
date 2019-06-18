@@ -21,15 +21,15 @@ class Rotation(commands.Cog):
     async def regular(self, ctx, *args):
         await self.make_single_rotation(ModeTypes.REGULAR, ctx, *args)
 
-    @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["rank", "rk"])
+    @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["rank", "rk", "rked"])
     async def ranked(self, ctx, *args):
         await self.make_single_rotation(ModeTypes.RANKED, ctx, *args)
 
-    @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["l"])
+    @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["l", "double", "quad"])
     async def league(self, ctx, *args):
         await self.make_single_rotation(ModeTypes.LEAGUE, ctx, *args)
 
-    @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["sr", "s"])
+    @rotation.group(case_insensitive=True, invoke_without_command=True, aliases=["sr", "s", "sal"])
     async def salmon(self, ctx, *args):
         await self.make_single_rotation(ModeTypes.SALMON, ctx, *args)
 
@@ -119,10 +119,8 @@ class Rotation(commands.Cog):
                     embed.add_field(name="Rotation Time",
                                     value=SplatoonRotation.format_time_sr(rotation.start_time) + " - "
                                           + SplatoonRotation.format_time_sr(rotation.end_time))
-                    embed.add_field(name="Weapons", value=rotation.weapons_array[0] + "\n" +
-                                    rotation.weapons_array[1] + "\n" +
-                                    rotation.weapons_array[2] + "\n" +
-                                    rotation.weapons_array[3])
+                    embed.add_field(name="Weapons",
+                                    value=SplatoonRotation.print_sr_weapons(next_rotation.weapons_array))
 
             else:
                 embed.set_image(url=rotation.stage_a_image)
@@ -219,10 +217,7 @@ class Rotation(commands.Cog):
             embed.add_field(name="Rotation Time",
                             value=SplatoonRotation.format_time_sr(next_rotation.start_time) + " - "
                                     + SplatoonRotation.format_time_sr(next_rotation.end_time))
-            embed.add_field(name="Weapons", value=next_rotation.weapons_array[0] + "\n" +
-                                                    next_rotation.weapons_array[1] + "\n" +
-                                                    next_rotation.weapons_array[2] + "\n" +
-                                                    next_rotation.weapons_array[3])
+            embed.add_field(name="Weapons", value=SplatoonRotation.print_sr_weapons(next_rotation.weapons_array))
 
         else:
             embed.set_image(url=next_rotation.stage_a_image)
