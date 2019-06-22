@@ -17,8 +17,8 @@ help_embed_fields = {
                     "change the number of players, lobby name, or lobby start time"},
     "rotation_commands":
         {"title": "Rotation Commands",
-         "body": "`s!schedule [regular|ranked|league|salmon] [optional:Time]` - get the scheduled mode and maps for the "
-                 "given battle type. If no time is given, the current rotation is sent.\n"
+         "body": "`s!schedule [regular|ranked|league|salmon] [optional:Time]` - get the scheduled mode and maps for the"
+                 " given battle type. If no time is given, the current rotation is sent.\n"
                  "`s!schedule [regular|ranked|league|salmon] upcoming` - gets a list of rotations for the given mode.\n"
                  "`s!schedule [regular|ranked|league|salmon] next` - gets the next rotation for the given mode."
         },
@@ -27,8 +27,8 @@ help_embed_fields = {
          "body": "`s!help` - view the help for SplatBot\n"
                  "`s!hello` - tests to see if SplatBot is functioning properly\n"
                  "`s!f` - prints out a F made of Fs\n"
-                 "`s!f <string>` - replaces the F character with a given string, @everyone and @here is blacklisted\n"
-                 "`s!boxie` - Boxie!\n!"
+                 "`s!f <string>` - replaces the F character with a given string (@everyone and @here is blacklisted)\n"
+                 "`s!boxie` - Boxie!\n"
          },
     "command_syntax":
         {"title": "Command Syntax",
@@ -37,7 +37,8 @@ help_embed_fields = {
                  "You *do not* type the brackets around the command argument.\n"
                  "**Examples:**\n"
                  "1. `s!lobby create \"Weekly 3v3\" 10PM 6`\n"
-                 "2. `s!schedule regular`"}
+                 "2. `s!schedule regular`\n"
+                 "3. `s!schedule league next`"}
 }
 
 
@@ -78,14 +79,14 @@ def add_help_embed_field(help_embed, key):
 def add_help_embed_footer_links(help_embed, bot):
     help_embed.add_field(name=":globe_with_meridians: " + bot.user.name + " Website",
                          value="Visit " + bot.user.name + " on the World Wide Web at "
-                                                          "https://ktraw2.github.io/SplatQueues")
+                                                          "https://github.com/ktraw2/SplatBot")
     help_embed.add_field(name="<:discord:545143558789791755> " + bot.user.name + " Discord",
-                         value="Join the official " + bot.user.name + " Discord at https://discord.gg/A2aWm9 "
+                         value="Join the official " + bot.user.name + " Discord at https://discord.gg/petBM29 "
                                                                       "for information, support, or just to have a chat!")
-    help_embed.add_field(name="<:SplatBot:548052186337116164> Bring " + bot.user.name + " to Your Discord",
+    help_embed.add_field(name="<:SplatBot:545143857956913202> Bring " + bot.user.name + " to Your Discord",
                          value="[Click here](https://discordapp.com/oauth2/authorize?"
                                "client_id=545107229842472971&scope=bot&permissions=16384) "
                                "to invite " + bot.user.name + " to your own Discord server")
     help_embed.add_field(name=":arrow_up: Support " + bot.user.name,
                          value="Support " + bot.user.name + " by upvoting it "
-                                                            "[here](https://google.com)!")
+                                                            "[here](https://example.com)!")

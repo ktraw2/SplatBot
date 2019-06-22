@@ -90,7 +90,7 @@ class Misc(commands.Cog):
     @commands.command()
     @commands.check(checks.off_topic_commands_enabled)
     async def boxie(self, ctx, *args):
-        await ctx.send("VIAN WHERE'S BRIDGETT :(")
+        await ctx.send("#PreventBridgettAbuse :package:")
 
     @commands.command(aliases=["listkevins", "kevins"])
     @commands.guild_only()
@@ -155,7 +155,7 @@ class Misc(commands.Cog):
             str_to_send = str_to_send + "\n"
 
         if len(str_to_send) > 2000:
-            await ctx.send(":warning: Output exceeds character limit. Please try a smaller output.")
+            await ctx.send(":warning: Output exceeds character limit. Please try a smaller input.")
         else:
             await ctx.send(str_to_send)
 
