@@ -166,6 +166,10 @@ class Lobby(commands.Cog):
             else:
                 rotation = None
 
+            if lobby_type is ModeTypes.SALMON:
+                if rotation is None:
+                    await ctx.send(":warning: No current Salmon Run rotation!")
+
             # add the lobby to the list
             lobby = LobbyData(LinkedList(),
                               {"channel": DiscordChannel(ctx.channel),

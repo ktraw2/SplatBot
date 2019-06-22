@@ -130,7 +130,13 @@ class Rotation(commands.Cog):
 
             await ctx.send(embed=embed)
         else:
-            await ctx.send(":x: No rotation information was found for the given time.")
+            # if there's no rotation, only print the next rotation for salmon run
+            if schedule_type is ModeTypes.SALMON:
+                await ctx.send(":x: No rotation information was found for the given time: showing next rotation...")
+                await self.make_next_rotation(schedule_type, ctx)
+
+            else:
+                await ctx.send(":x: No rotation information was found for the given time.")
 
     async def make_upcoming_rotations(self, schedule_type: ModeTypes, ctx):
         schedule_array = await SplatoonRotation.get_all_rotations(time=datetime.now(), mode_type=schedule_type,
@@ -202,6 +208,8 @@ class Rotation(commands.Cog):
         elif schedule_type is ModeTypes.SALMON:
             title += "Salmon Run"
             thumbnail = config.images["salmon"]
+            next_rotation = schedule_array[0]   # We want the next rotation so we want the next immediate rotation
+
 
         embed = discord.Embed(title=title, color=config.embed_color)
         embed.set_thumbnail(url=thumbnail)

@@ -7,6 +7,8 @@ import traceback
 import sys
 from modules import checks
 from discord.ext import commands
+import os
+import asyncio
 
 print("Starting SplatBot...")
 SPLATBOT_EXTENSIONS = ["cogs.rotation",
@@ -27,6 +29,19 @@ class SplatBot(commands.Bot):
 
         for e in extensions:
             self.load_extension(e)
+
+        self.loop.create_task(self.garbage_collector())
+
+    async def garbage_collector(self):
+        """Removes all .gif and .png files for gif generation for lobby/rotation info"""
+        await self.wait_until_ready()
+        while not self.is_closed():
+            print("Deleting old files...")
+            for f in os.listdir():
+                if f.endswith(".gif") or f.endswith(".png"):
+                    os.remove(f)
+            print("Deleted all old files")
+            await asyncio.sleep(300)  # removes every 5 min/300 sec
 
     async def on_ready(self):
         print("Connected")
