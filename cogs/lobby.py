@@ -73,7 +73,9 @@ class Lobby(commands.Cog):
                 # notify if less than zero and not notified
                 if not lobby.metadata["notified"] and difference <= DateDifference():
                     # build and send the notification
-                    announcement = "Hey "
+                    announcement = "Hey"
+                    if len(lobby.players) > 0:  # if there's no players, don't add a space for formatting
+                        announcement = announcement + " "
                     for i, player in enumerate(lobby.players):
                         announcement += player.mention
                         if i < len(lobby.players) - 1:
@@ -398,11 +400,11 @@ class Lobby(commands.Cog):
 
     @staticmethod
     def parse_special_lobby_type(name: str):
-        if "private" in name.lower():
+        if "private" in name.lower() or "pb" in name.lower():
             return ModeTypes.PRIVATE
         elif "league" in name.lower():
             return ModeTypes.LEAGUE
-        elif "salmon" in name.lower():
+        elif "salmon" in name.lower() or "sr" in name.lower() or "sal" in name.lower():
             return ModeTypes.SALMON
         elif "regular" in name.lower() or "turf" in name.lower():
             return ModeTypes.REGULAR
