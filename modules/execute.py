@@ -16,5 +16,5 @@ async def run_command(*args):
 
 
 async def render_gif(image_base: str):
-    await run_command('/Users/adamwang/Downloads/ffmpeg', '-r', '1', '-f', 'image2', '-i', image_base + '-%d.png',
+    await run_command('ffmpeg', '-r', '1', '-f', 'image2', '-i', image_base + '-%d.png',
                       '-r', '0.33', '-s', '848x480', image_base + '.gif')
