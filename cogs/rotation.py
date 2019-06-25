@@ -131,7 +131,7 @@ class Rotation(commands.Cog):
             # sets the embeded gif
             if schedule_type is not ModeTypes.SALMON:   # there's only one stage in salmon run per rotation
                 #  generate the gif, make it a discord file, and send it off
-                generated_gif = await generate_gif(rotation)
+                generated_gif = await generate_gif(rotation, ctx)
                 file = discord.File(generated_gif)
                 embed.set_image(url="attachment://" + generated_gif)
                 await ctx.send(embed=embed, file=file)
@@ -250,7 +250,7 @@ class Rotation(commands.Cog):
         # sets the embeded gif
         if schedule_type is not ModeTypes.SALMON:  # there's only one stage in salmon run per rotation
             #  generate the gif, make it a discord file, and send it off
-            generated_gif = await generate_gif(next_rotation)
+            generated_gif = await generate_gif(next_rotation, ctx)
             file = discord.File(generated_gif)
             embed.set_image(url="attachment://" + generated_gif)
             await ctx.send(embed=embed, file=file)
