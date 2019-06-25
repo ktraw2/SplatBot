@@ -303,7 +303,20 @@ class Lobby(commands.Cog):
                         await ctx.send(":x: You gave an invalid start time.")
                         lobby.metadata["time"] = old_time
                         return
-
+                    # update battle data dude to time change
+                    lobby_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
+                    if lobby_type == ModeTypes.LEAGUE:
+                        lobby.metadata["rotation_data"] = await Lobby.generate_league(lobby.metadata["name"],
+                                                                        lobby.metadata["time"], self.bot.session)
+                    elif lobby_type == ModeTypes.SALMON:
+                        lobby.metadata["rotation_data"] = await Lobby.generate_salmon(lobby.metadata["name"],
+                                                                        lobby.metadata["time"], self.bot.session)
+                        Lobby.attempt_update_num_players(lobby, 4)
+                    elif lobby_type == ModeTypes.REGULAR:
+                        lobby.metadata["rotation_data"] = await Lobby.generate_regular(lobby.metadata["name"],
+                                                                        lobby.metadata["time"], self.bot.session)
+                    else:
+                        lobby.metadata["rotation_data"] = None
                     await ctx.send(":white_check_mark: Successfully changed the start time.")
                     await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
             else:
