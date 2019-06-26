@@ -9,6 +9,7 @@ from discord.ext import commands
 from modules import checks
 from modules.linked_list import LinkedList
 from modules.splatoon_rotation import SplatoonRotation, ModeTypes
+from modules.gif_generator import generate_gif
 from misc_date_utilities.date_difference import DateDifference
 
 # constants for arguments
@@ -84,7 +85,16 @@ class Lobby(commands.Cog):
                             announcement += "and "
                     announcement += " it's time for your scheduled lobby: `" + lobby.metadata["name"] + "`!"
                     await self.bot.get_channel(lobby.metadata["channel"].id).send(announcement)
-                    await self.bot.get_channel(lobby.metadata["channel"].id).send(embed=Lobby.generate_lobby_embed(lobby))
+
+                    # making and sending if applicable
+                    embed, file = await Lobby.attach_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby,
+                                                         channel_id=str(lobby.metadata["channel"].id))
+                    if file is not None:
+                        await self.bot.get_channel(lobby.metadata["channel"].id).send(
+                            embed=embed,file=file)
+                    else:
+                        await self.bot.get_channel(lobby.metadata["channel"].id).send(
+                            embed=Lobby.generate_lobby_embed(lobby))
                     lobby.metadata["notified"] = True
                 # code to clean up old notifications
                 elif lobby.metadata["notified"]:
@@ -182,7 +192,7 @@ class Lobby(commands.Cog):
                                "notified": False})
             self.lobbies.append(lobby)
             await ctx.send(":white_check_mark: Created a lobby in " + ctx.channel.mention)
-            await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+            await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
         else:
             await ctx.send(":x: A lobby already exists in " + ctx.channel.mention)
 
@@ -195,7 +205,7 @@ class Lobby(commands.Cog):
                 if lobby.players.size < lobby.metadata["num_players"]:
                     lobby.players.add(user, prevent_duplicates=True)
                     await ctx.send(":white_check_mark: Successfully added " + user.mention + " to the lobby.")
-                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+                    await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
                 else:
                     await ctx.send(":x: This lobby is full.")
             else:
@@ -209,7 +219,7 @@ class Lobby(commands.Cog):
         if lobby is not None:
             if lobby.players.remove_object(DiscordUser(ctx.author)):
                 await ctx.send(":white_check_mark: Successfully removed " + ctx.author.mention + " from the lobby.")
-                await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+                await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
             else:
                 await ctx.send(":x: You are not currently in this lobby.")
         else:
@@ -252,7 +262,7 @@ class Lobby(commands.Cog):
                         lobby.metadata["rotation_data"] = None
 
                     await ctx.send(":white_check_mark: Successfully changed the lobby name.")
-                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+                    await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
             else:
                 await ctx.send(":x: Please give a lobby name.")
         else:
@@ -279,7 +289,7 @@ class Lobby(commands.Cog):
                         return
 
                     await ctx.send(":white_check_mark: Successfully changed the number of players.")
-                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+                    await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
             else:
                 await ctx.send(":x: Please give a number.")
         else:
@@ -318,7 +328,7 @@ class Lobby(commands.Cog):
                     else:
                         lobby.metadata["rotation_data"] = None
                     await ctx.send(":white_check_mark: Successfully changed the start time.")
-                    await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
+                    await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
             else:
                 await ctx.send(":x: Please give a time.")
         else:
@@ -453,6 +463,30 @@ class Lobby(commands.Cog):
             if success:
                 return regular
         return None
+
+    @staticmethod
+    async def attach_send_gif(embed, lobby: LobbyData, ctx):
+        schedule_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
+        channel_id = str(DiscordChannel(ctx.channel).id)
+        if schedule_type is ModeTypes.REGULAR or schedule_type is ModeTypes.LEAGUE:
+            embed, file = await Lobby.attach_gif(embed, lobby, channel_id)
+            if file is not None:
+                await ctx.send(embed=embed, file=file)
+                return
+        await ctx.send(embed=embed)
+
+    @staticmethod
+    async def attach_gif(embed, lobby: LobbyData, channel_id: str):
+        schedule_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
+        if schedule_type is ModeTypes.REGULAR or schedule_type is ModeTypes.LEAGUE:
+            #  generate the gif, make it a discord file, and send it off
+            rotation_data = lobby.metadata["rotation_data"]
+            generated_gif = await generate_gif(rotation_data, channel_id)
+            file = discord.File(generated_gif)
+            embed.set_image(url="attachment://" + generated_gif)
+            return embed, file
+        else:
+            return embed, None
 
 
 def setup(bot):

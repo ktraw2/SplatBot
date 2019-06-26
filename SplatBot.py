@@ -36,11 +36,11 @@ class SplatBot(commands.Bot):
         """Removes all .gif and .png files for gif generation for lobby/rotation info"""
         await self.wait_until_ready()
         while not self.is_closed():
-            print("Deleting old files...")
+            print("[Splatbot] Deleting old files...")
             for f in os.listdir():
                 if f.endswith(".gif") or f.endswith(".png"):
                     os.remove(f)
-            print("Deleted all old files")
+            print("[Splatbot] Deleted all old files")
             await asyncio.sleep(300)  # removes every 5 min/300 sec
 
     async def on_ready(self):

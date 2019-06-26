@@ -2,6 +2,7 @@ import config
 import discord
 from modules.splatoon_rotation import SplatoonRotation, ModeTypes
 from modules.gif_generator import generate_gif
+from modules.lobby_data import DiscordChannel
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
@@ -128,15 +129,8 @@ class Rotation(commands.Cog):
                 embed.add_field(name="Rotation Time", value=SplatoonRotation.format_time(rotation.start_time) + " - " +
                                                             SplatoonRotation.format_time(rotation.end_time))
 
-            # sets the embeded gif
-            if schedule_type is not ModeTypes.SALMON:   # there's only one stage in salmon run per rotation
-                #  generate the gif, make it a discord file, and send it off
-                generated_gif = await generate_gif(rotation, ctx)
-                file = discord.File(generated_gif)
-                embed.set_image(url="attachment://" + generated_gif)
-                await ctx.send(embed=embed, file=file)
-            else:
-                await ctx.send(embed=embed)
+            await Rotation.generate_send_gif(embed, rotation, schedule_type, ctx)
+
         else:
             # if there's no rotation, only print the next rotation for salmon run
             if schedule_type is ModeTypes.SALMON:
@@ -217,7 +211,9 @@ class Rotation(commands.Cog):
         elif schedule_type is ModeTypes.SALMON:
             title += "Salmon Run"
             thumbnail = config.images["salmon"]
-            next_rotation = schedule_array[0]   # We want the next rotation so we want the next immediate rotation
+            # if there isn't a salmon rotation happening, show the next one
+            if next_rotation.start_time > datetime.now() >= next_rotation.end_time:
+                next_rotation = schedule_array[0]
 
         embed = discord.Embed(title=title, color=config.embed_color)
         embed.set_thumbnail(url=thumbnail)
@@ -226,7 +222,6 @@ class Rotation(commands.Cog):
 
         # custom stuff for salmon run
         if schedule_type is ModeTypes.SALMON:
-            # Checking if full rotation has been released yet for salmon
             embed.set_image(url=next_rotation.stage_a_image)
             embed.add_field(name="Stage", value=next_rotation.stage_a)
             # use special formatting because salmon run can occur between two separate days
@@ -247,10 +242,14 @@ class Rotation(commands.Cog):
 
         embed.add_field(name="Time Until Next Rotation", value=time_str)
 
-        # sets the embeded gif
-        if schedule_type is not ModeTypes.SALMON:  # there's only one stage in salmon run per rotation
+        await Rotation.generate_send_gif(embed, next_rotation, schedule_type, ctx)
+
+    @staticmethod
+    async def generate_send_gif(embed, rotation_data: SplatoonRotation, schedule_type: ModeTypes, ctx):
+        if schedule_type is not ModeTypes.SALMON:
             #  generate the gif, make it a discord file, and send it off
-            generated_gif = await generate_gif(next_rotation, ctx)
+            channel_id = str(DiscordChannel(ctx.channel).id)
+            generated_gif = await generate_gif(rotation_data, channel_id)
             file = discord.File(generated_gif)
             embed.set_image(url="attachment://" + generated_gif)
             await ctx.send(embed=embed, file=file)
