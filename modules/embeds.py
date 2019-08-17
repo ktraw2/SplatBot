@@ -27,7 +27,7 @@ help_embed_fields = {
          "body": "`s!help` - view the help for SplatBot\n"
                  "`s!hello` - tests to see if SplatBot is functioning properly\n"
                  "`s!f` - prints out a F made of Fs\n"
-                 "`s!f <string>` - replaces the F character with a given string (@everyone and @here is blacklisted)\n"
+                 "`s!f <string>` - replaces the F character with a given string (@everyone and @here are blacklisted)\n"
                  "`s!boxie` - Boxie!\n"
          },
     "command_syntax":
@@ -38,7 +38,8 @@ help_embed_fields = {
                  "**Examples:**\n"
                  "1. `s!lobby create \"Weekly 3v3\" 10PM 6`\n"
                  "2. `s!schedule regular`\n"
-                 "3. `s!schedule league next`"}
+                 "3. `s!rotation sr n"
+         }
 }
 
 

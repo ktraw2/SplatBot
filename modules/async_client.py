@@ -41,7 +41,7 @@ class AsyncClient:
                 await asyncio.sleep(5)
                 return await self.send_image_request(image_url, file_path)
             else:
-                raise Exception("Error with getting image: " + str(response.status))
+                return '{"error":' + str(response.status) + '}'
 
     async def send_json_request(self, request: str, return_raw_and_json: bool = False):
         raw_data = await self.send_request(request)

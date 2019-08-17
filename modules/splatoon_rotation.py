@@ -147,10 +147,10 @@ class SplatoonRotation:
 
                     # getting weapons
                     for weapon in rotation["weapons"]:
-                        # weapon id of -1 indicates a random weapon
+                        # weapon id of -1 indicates a random weapon (non shiny question mark)
                         if weapon["id"] == '-1':
                             self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon")
-                        # weapon id of -2 indicates grizzco weapon
+                        # weapon id of -2 indicates a grizzco weapon
                         elif weapon["id"] == '-2':
                             self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon")
                         else:
@@ -214,7 +214,7 @@ class SplatoonRotation:
 
                 # getting weapons
                 for weapon in sr_schedule["weapons"]:
-                    # weapon id of -1 indicates a random weapon
+                    # weapon id of -1 indicates a random weapon (non shiny question mark)
                     if weapon["id"] == '-1':
                         element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon")
                     # weapon id of -2 indicates grizzco weapon

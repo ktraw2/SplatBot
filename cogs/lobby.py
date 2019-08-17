@@ -118,7 +118,7 @@ class Lobby(commands.Cog):
             sleep_time += timedelta(seconds=60 - sleep_time.second)
             await asyncio.sleep(sleep_time.second)
 
-    @commands.group(case_insensitive=True, invoke_without_command=True)
+    @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["l"])
     async def lobby(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is None:
@@ -126,7 +126,7 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
 
-    @lobby.command(aliases=["start"])
+    @lobby.command(aliases=["start", "c"])
     async def create(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is None:
@@ -168,19 +168,18 @@ class Lobby(commands.Cog):
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
 
-            # handle extra data for league battle
+            # attach extra data if applicable
             if lobby_type is ModeTypes.LEAGUE:
                 rotation = await Lobby.generate_league(name, time, self.bot.session)
             elif lobby_type is ModeTypes.SALMON:
                 rotation = await Lobby.generate_salmon(name, time, self.bot.session)
+                # checking if there is a salmon run rotation happening right now
+                if rotation is None:
+                    await ctx.send(":warning: No current Salmon Run rotation!")
             elif lobby_type is ModeTypes.REGULAR:
                 rotation = await Lobby.generate_regular(name, time, self.bot.session)
             else:
                 rotation = None
-
-            if lobby_type is ModeTypes.SALMON:
-                if rotation is None:
-                    await ctx.send(":warning: No current Salmon Run rotation!")
 
             # add the lobby to the list
             lobby = LobbyData(LinkedList(),
@@ -191,12 +190,14 @@ class Lobby(commands.Cog):
                                "time": time,
                                "notified": False})
             self.lobbies.append(lobby)
+
+            # generate and send off the embed
             await ctx.send(":white_check_mark: Created a lobby in " + ctx.channel.mention)
             await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
         else:
             await ctx.send(":x: A lobby already exists in " + ctx.channel.mention)
 
-    @lobby.command(aliases=["add"])
+    @lobby.command(aliases=["add", "j"])
     async def join(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
@@ -213,7 +214,7 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @lobby.command(aliases=["remove"])
+    @lobby.command(aliases=["remove", "l", "r"])
     async def leave(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
@@ -225,11 +226,11 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @lobby.group(case_insensitive=True, invoke_without_command=True)
+    @lobby.group(case_insensitive=True, invoke_without_command=True, aliases=["e"])
     async def edit(self, ctx, *args):
         await ctx.send("Available edit commands are: name, players, time")
 
-    @edit.command(aliases=["title", "lobbyname", "lobbytitle"])
+    @edit.command(aliases=["title", "lobbyname", "lobbytitle", "n"])
     async def name(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
@@ -268,7 +269,7 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @edit.command(aliases=["num", "numplayers", "num_players"])
+    @edit.command(aliases=["num", "numplayers", "num_players", "np"])
     async def players(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
@@ -295,7 +296,7 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @edit.command(aliases=["start", "starttime"])
+    @edit.command(aliases=["start", "starttime", "s"])
     async def time(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
@@ -321,7 +322,7 @@ class Lobby(commands.Cog):
                     elif lobby_type == ModeTypes.SALMON:
                         lobby.metadata["rotation_data"] = await Lobby.generate_salmon(lobby.metadata["name"],
                                                                         lobby.metadata["time"], self.bot.session)
-                        Lobby.attempt_update_num_players(lobby, 4)
+                        Lobby.attempt_update_num_players(lobby, 4)  # salmon can have a max of four players
                     elif lobby_type == ModeTypes.REGULAR:
                         lobby.metadata["rotation_data"] = await Lobby.generate_regular(lobby.metadata["name"],
                                                                         lobby.metadata["time"], self.bot.session)
@@ -334,7 +335,7 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @lobby.command(aliases=["end"])
+    @lobby.command(aliases=["end", "d"])
     async def delete(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
@@ -425,7 +426,7 @@ class Lobby(commands.Cog):
     def parse_special_lobby_type(name: str):
         if "private" in name.lower() or "pb" in name.lower():
             return ModeTypes.PRIVATE
-        elif "league" in name.lower():
+        elif "league" in name.lower() or "leg" in name.lower():
             return ModeTypes.LEAGUE
         elif "salmon" in name.lower() or "sr" in name.lower() or "sal" in name.lower():
             return ModeTypes.SALMON
@@ -468,7 +469,9 @@ class Lobby(commands.Cog):
     async def attach_send_gif(embed, lobby: LobbyData, ctx):
         schedule_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
         channel_id = str(DiscordChannel(ctx.channel).id)
+        # we check if there are multiple stages in the rotation
         if schedule_type is ModeTypes.REGULAR or schedule_type is ModeTypes.LEAGUE:
+            # if so attach the gif to the embed and send it off via the files argument
             embed, file = await Lobby.attach_gif(embed, lobby, channel_id)
             if file is not None:
                 await ctx.send(embed=embed, file=file)
@@ -478,8 +481,9 @@ class Lobby(commands.Cog):
     @staticmethod
     async def attach_gif(embed, lobby: LobbyData, channel_id: str):
         schedule_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
+        # we check if there are multiple stages in the rotation
         if schedule_type is ModeTypes.REGULAR or schedule_type is ModeTypes.LEAGUE:
-            #  generate the gif, make it a discord file, and send it off
+            #  generate the gif, make it a discord file, attach gif to the embed, and return the result
             rotation_data = lobby.metadata["rotation_data"]
             generated_gif = await generate_gif(rotation_data, channel_id)
             file = discord.File(generated_gif)

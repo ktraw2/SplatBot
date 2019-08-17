@@ -7,7 +7,7 @@ from modules.execute import render_gif
 
 async def generate_gif(rotation_info: SplatoonRotation, channel_id: str):
 
-    # Making sure we have images to put together
+    # Making sure we have the images to put together
     if rotation_info is None or rotation_info.stage_a_image is None or rotation_info.stage_b_image is None:
         raise AttributeError("Files to generate gif does not exist")
 
@@ -29,5 +29,6 @@ async def generate_gif(rotation_info: SplatoonRotation, channel_id: str):
     # making the gif
     await render_gif(image_base, gif_filename)
 
+    # returning the name of the gif on file
     return gif_filename
 

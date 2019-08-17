@@ -33,7 +33,7 @@ class SplatBot(commands.Bot):
         self.loop.create_task(self.garbage_collector())
 
     async def garbage_collector(self):
-        """Removes all .gif and .png files for gif generation for lobby/rotation info"""
+        """Removes all .gif and .png files from gif generation for lobby/rotation info"""
         await self.wait_until_ready()
         while not self.is_closed():
             print("[Splatbot] Deleting old files...")

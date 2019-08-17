@@ -114,7 +114,7 @@ class Misc(commands.Cog):
         await ctx.send("Uncool People:\n"
                        "For being dum dum: <@192053720236818432>")
 
-    @commands.command(aliases=["f"])
+    @commands.command(aliases=["f", "F"]
     @commands.check(checks.off_topic_commands_enabled)
     async def eff(self, ctx, *args):
         # embedded function for small calculation
@@ -129,6 +129,7 @@ class Misc(commands.Cog):
 
             # Blacklisting @everyone and @here to prevent pinging everyone
             if "@everyone" in char_to_print or "@here" in char_to_print:
+                await ctx.send(":x: `@everyone` and `@here` have been blacklisted. Please try again.")
                 return
 
             size_mult = 0.5
@@ -155,7 +156,7 @@ class Misc(commands.Cog):
             str_to_send = str_to_send + "\n"
 
         if len(str_to_send) > 2000:
-            await ctx.send(":warning: Output exceeds character limit. Please try a smaller input.")
+            await ctx.send(":warning: Output exceeds Discord character limit. Please try a smaller input.")
         else:
             await ctx.send(str_to_send)
 
