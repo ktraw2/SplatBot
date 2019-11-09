@@ -108,7 +108,7 @@ class Misc(commands.Cog):
     @commands.check(checks.off_topic_commands_enabled)
     async def list_uncool_people(self, ctx, *args):
         await ctx.send("Uncool People:\n"
-                       "For being dum dum: <@192053720236818432>")
+                       "For being dum dum: <@365747839172870144>")
 
     @commands.command(aliases=["f"])
     @commands.check(checks.off_topic_commands_enabled)
