@@ -102,7 +102,7 @@ class Misc(commands.Cog):
             kevin_str += f"Kevin #{i}:  <@192053720236818432>\n"
         await ctx.send(kevin_str)
 
-    @commands.command(aliases="dumdum")
+    @commands.command(aliases=["dumdum"])
     @commands.guild_only()
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
