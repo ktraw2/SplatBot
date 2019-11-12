@@ -97,22 +97,18 @@ class Misc(commands.Cog):
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def list_kevins(self, ctx, *args):
-        kevin_str = "Kevin #1: <@394434644642103296>" + "\n" + \
-                    "Kevin #2: <@333435876275388426>" + "\n" + \
-                    "Kevin #3: " + "\n" + \
-                    "Kevin #4: " + "\n" + \
-                    "Kevin #5: " + "\n" + \
-                    "Kevin #6: " + "\n" + \
-                    "Kevin # Rainmaker Main: <@192053720236818432>" + "\n"
+        kevin_str = ""
+        for i in range(0, 10):
+            kevin_str += f"Kevin #{i}:  <@192053720236818432>\n"
         await ctx.send(kevin_str)
 
-    @commands.command()
+    @commands.command(aliases=["dumdum"])
     @commands.guild_only()
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def list_uncool_people(self, ctx, *args):
         await ctx.send("Uncool People:\n"
-                       "For being dum dum: <@192053720236818432>")
+                       "For being dum dum: <@365747839172870144>")
 
     @commands.command(aliases=["f", "F"]
     @commands.check(checks.off_topic_commands_enabled)
