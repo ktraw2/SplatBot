@@ -16,5 +16,6 @@ async def run_command(*args):
 
 
 async def render_gif(image_base: str, gif_filename: str):
-    await run_command('ffmpeg', '-framerate', '0.33', '-f', 'image2', '-i', image_base + '-%d.png', '-filter_complex', '[0:v] split [a][b];[a] palettegen=stats_mode=single [p]; [b][p] paletteuse=dither=none',
+    await run_command('ffmpeg', '-framerate', '0.33', '-f', 'image2', '-i', image_base + '-%d.png', '-filter_complex',
+                      '[0:v] split [a][b];[a] palettegen=stats_mode=single [p]; [b][p] paletteuse=dither=none',
                       '-loglevel', 'warning', '-y', gif_filename)

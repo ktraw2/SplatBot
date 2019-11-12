@@ -31,4 +31,3 @@ async def generate_gif(rotation_info: SplatoonRotation, channel_id: str):
 
     # returning the name of the gif on file
     return gif_filename
-

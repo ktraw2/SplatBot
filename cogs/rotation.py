@@ -35,35 +35,35 @@ class Rotation(commands.Cog):
     async def salmon(self, ctx, *args):
         await self.make_single_rotation(ModeTypes.SALMON, ctx, *args)
 
-    @salmon.command(name="upcoming")
+    @salmon.command(name="upcoming", aliases=["list", "full", "rotations"])
     async def salmon_upcoming(self, ctx, *args):
         await self.make_upcoming_rotations(ModeTypes.SALMON, ctx)
 
-    @ranked.command(name="upcoming")
+    @ranked.command(name="upcoming", aliases=["list", "full", "rotations"])
     async def ranked_upcoming(self, ctx, *args):
         await self.make_upcoming_rotations(ModeTypes.RANKED, ctx)
 
-    @league.command(name="upcoming")
+    @league.command(name="upcoming", aliases=["u", "list", "full", "rotations"])
     async def league_upcoming(self, ctx, *args):
         await self.make_upcoming_rotations(ModeTypes.LEAGUE, ctx)
 
-    @regular.command(name="upcoming")
+    @regular.command(name="upcoming", aliases=["list", "full", "rotations"])
     async def turf_upcoming(self, ctx, *args):
         await self.make_upcoming_rotations(ModeTypes.REGULAR, ctx)
 
-    @salmon.command(name="next")
+    @salmon.command(name="next", aliases=["n"])
     async def salmon_next(self, ctx, *args):
         await self.make_next_rotation(ModeTypes.SALMON, ctx)
 
-    @ranked.command(name="next")
+    @ranked.command(name="next", aliases=["n"])
     async def ranked_next(self, ctx, *args):
         await self.make_next_rotation(ModeTypes.RANKED, ctx)
 
-    @league.command(name="next")
+    @league.command(name="next", aliases=["n"])
     async def league_next(self, ctx, *args):
         await self.make_next_rotation(ModeTypes.LEAGUE, ctx)
 
-    @regular.command(name="next")
+    @regular.command(name="next", aliases=["n"])
     async def turf_next(self, ctx, *args):
         await self.make_next_rotation(ModeTypes.REGULAR, ctx)
 
@@ -212,7 +212,7 @@ class Rotation(commands.Cog):
             title += "Salmon Run"
             thumbnail = config.images["salmon"]
             # if there isn't a salmon rotation happening, show the next one
-            if next_rotation.start_time > datetime.now() >= next_rotation.end_time:
+            if next_rotation.start_time <= datetime.now() <= next_rotation.end_time:
                 next_rotation = schedule_array[0]
 
         embed = discord.Embed(title=title, color=config.embed_color)
