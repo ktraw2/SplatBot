@@ -278,8 +278,12 @@ class Lobby(commands.Cog):
                         if lobby.players.size <= new_num <= 64:
                             lobby.metadata["num_players"] = int(args[0])
                         else:
-                            await ctx.send(":x: You cannot set the number of players to a number that is lower than the"
-                                           " amount of players that are currently in the lobby.")
+                            if new_num < lobby.players.size:
+                                await ctx.send(":x: You cannot set the number of players to a number that is lower than the"
+                                               " amount of players that are currently in the lobby.")
+                            else:
+                                await ctx.send(":x: You cannot have more than 64 players in a lobby.")
+
                             return
                     except ValueError as e:
                         await ctx.send(":x: You gave an invalid number of players.")
