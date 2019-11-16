@@ -278,7 +278,7 @@ class Lobby(commands.Cog):
                     old_num = lobby.metadata["num_players"]
                     try:
                         new_num = int(args[0])
-                        if new_num >= lobby.players.size:
+                        if 64 <= new_num >= lobby.players.size:
                             lobby.metadata["num_players"] = int(args[0])
                         else:
                             await ctx.send(":x: You cannot set the number of players to a number that is lower than the"
@@ -419,7 +419,7 @@ class Lobby(commands.Cog):
 
     @staticmethod
     def attempt_update_num_players(lobby: LobbyData, new_num: int):
-        if len(lobby.players) < new_num:
+        if len(lobby.players) < new_num <= 64:
             lobby.metadata["num_players"] = new_num
 
     @staticmethod
