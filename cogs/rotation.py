@@ -101,28 +101,11 @@ class Rotation(commands.Cog):
 
             embed = discord.Embed(title=title, color=config.embed_color)
             embed.set_thumbnail(url=thumbnail)
-
             embed.add_field(name="Mode", value=rotation.mode)
 
             # custom stuff for salmon run
             if schedule_type is ModeTypes.SALMON:
-                # Checking if full rotation has been released yet for salmon
-                if rotation.stage_a is None:
-                    # use special formatting because salmon run can occur between two separate days
-                    embed.add_field(name="Stage", value="*Not released yet*")
-                    embed.add_field(name="Rotation Time",
-                                    value=SplatoonRotation.format_time_sr(rotation.start_time) + " - "
-                                          + SplatoonRotation.format_time_sr(rotation.end_time))
-                    embed.add_field(name="Weapons", value="*Not released yet*")
-                else:
-                    embed.set_image(url=rotation.stage_a_image)
-                    embed.add_field(name="Stage", value=rotation.stage_a)
-                    # use special formatting because salmon run can occur between two separate days
-                    embed.add_field(name="Rotation Time",
-                                    value=SplatoonRotation.format_time_sr(rotation.start_time) + " - "
-                                          + SplatoonRotation.format_time_sr(rotation.end_time))
-                    embed.add_field(name="Weapons",
-                                    value=SplatoonRotation.print_sr_weapons(rotation.weapons_array))
+                embed = await Rotation.generate_salmon_embed(embed, rotation)
 
             else:
                 embed.add_field(name="Stages", value=rotation.stage_a + "\n" + rotation.stage_b)
@@ -135,8 +118,17 @@ class Rotation(commands.Cog):
             # if there's no rotation, only print the next rotation for salmon run
             if schedule_type is ModeTypes.SALMON:
                 await ctx.send(":x: No rotation information was found for the given time: showing next rotation...")
-                await self.make_next_rotation(schedule_type, ctx)
 
+                # Make the embed, add required fields
+                embed = discord.Embed(title="Rotation Information - Salmon Run", color=config.embed_color)
+                embed.set_thumbnail(url=config.images["salmon"])
+                embed.add_field(name="Mode", value=rotation.mode)
+                # Get next rotation (which is the 0th one) and send it out
+                next_rotation_array = await rotation.get_all_rotations(time=datetime.now(), mode_type=schedule_type)
+                next_rotation = next_rotation_array[0]
+                embed = await Rotation.generate_salmon_embed(embed, next_rotation)
+
+                await Rotation.generate_send_gif(embed, rotation, schedule_type, ctx)
             else:
                 await ctx.send(":x: No rotation information was found for the given time.")
 
@@ -212,7 +204,7 @@ class Rotation(commands.Cog):
             title += "Salmon Run"
             thumbnail = config.images["salmon"]
             # if there isn't a salmon rotation happening, show the next one
-            if next_rotation.start_time <= datetime.now() <= next_rotation.end_time:
+            if schedule_array[0].start_time <= datetime.now() <= schedule_array[0].end_time:
                 next_rotation = schedule_array[0]
 
         embed = discord.Embed(title=title, color=config.embed_color)
@@ -222,14 +214,11 @@ class Rotation(commands.Cog):
 
         # custom stuff for salmon run
         if schedule_type is ModeTypes.SALMON:
-            embed.set_image(url=next_rotation.stage_a_image)
-            embed.add_field(name="Stage", value=next_rotation.stage_a)
-            # use special formatting because salmon run can occur between two separate days
-            embed.add_field(name="Rotation Time",
-                            value=SplatoonRotation.format_time_sr(next_rotation.start_time) + " - "
-                                    + SplatoonRotation.format_time_sr(next_rotation.end_time))
-            embed.add_field(name="Weapons", value=SplatoonRotation.print_sr_weapons(next_rotation.weapons_array))
-
+            # Use helper method to generate salmon run info
+            embed = await Rotation.generate_salmon_embed(embed, next_rotation)
+            # Print warning if detailed salmon run info isn't available
+            if next_rotation.stage_a_image is None:
+                await ctx.send(":warning: Detailed Salmon Run information is not available!")
         else:
             embed.add_field(name="Stages", value=next_rotation.stage_a + "\n" + next_rotation.stage_b)
             embed.add_field(name="Rotation Time", value=SplatoonRotation.format_time(next_rotation.start_time) + " - " +
@@ -256,6 +245,26 @@ class Rotation(commands.Cog):
         else:
             await ctx.send(embed=embed)
 
+    @staticmethod
+    async def generate_salmon_embed(embed: discord.Embed, rotation: SplatoonRotation):
+        # Checking if full rotation has been released yet for salmon
+        if rotation.stage_a is None:
+            # use special formatting because salmon run can occur between two separate days
+            embed.add_field(name="Stage", value="*Not released yet*")
+            embed.add_field(name="Rotation Time",
+                            value=SplatoonRotation.format_time_sr(rotation.start_time) + " - "
+                                  + SplatoonRotation.format_time_sr(rotation.end_time))
+            embed.add_field(name="Weapons", value="*Not released yet*")
+        else:
+            embed.set_image(url=rotation.stage_a_image)
+            embed.add_field(name="Stage", value=rotation.stage_a)
+            # use special formatting because salmon run can occur between two separate days
+            embed.add_field(name="Rotation Time",
+                            value=SplatoonRotation.format_time_sr(rotation.start_time) + " - "
+                                  + SplatoonRotation.format_time_sr(rotation.end_time))
+            embed.add_field(name="Weapons",
+                            value=SplatoonRotation.print_sr_weapons(rotation.weapons_array))
+        return embed
 
 def setup(bot):
     bot.add_cog(Rotation(bot))

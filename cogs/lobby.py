@@ -124,6 +124,10 @@ class Lobby(commands.Cog):
         if lobby is None:
             await ctx.send("Available lobby commands are: `create`, `edit`, `join`, `leave`, `end`")
         else:
+            if lobby.metadata["rotation_data"] is None and Lobby.parse_special_lobby_type(lobby.metadata["name"]) is ModeTypes.SALMON:
+                await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
+            elif lobby.metadata["rotation_data"].stage_a is None:
+                await ctx.send(":warning: Detailed Salmon Run information not avaliable!")
             await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
 
     @lobby.command(aliases=["start", "c"])
@@ -175,7 +179,7 @@ class Lobby(commands.Cog):
                 rotation = await Lobby.generate_salmon(name, time, self.bot.session)
                 # checking if there is a salmon run rotation happening right now
                 if rotation is None:
-                    await ctx.send(":warning: No current Salmon Run rotation!")
+                    await Lobby.send_sal_err(ctx, time, session=self.bot.session)
             elif lobby_type is ModeTypes.REGULAR:
                 rotation = await Lobby.generate_regular(name, time, self.bot.session)
             else:
@@ -247,6 +251,8 @@ class Lobby(commands.Cog):
                         lobby.metadata["name"] = "Salmon Run"
                         lobby.metadata["rotation_data"] = await Lobby.generate_salmon(args[0], lobby.metadata["time"],
                                                                                 self.bot.session)
+                        if lobby.metadata["rotation_data"] is None:
+                            await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.REGULAR:
                         lobby.metadata["name"] = "Turf War"
@@ -322,6 +328,8 @@ class Lobby(commands.Cog):
                     elif lobby_type == ModeTypes.SALMON:
                         lobby.metadata["rotation_data"] = await Lobby.generate_salmon(lobby.metadata["name"],
                                                                         lobby.metadata["time"], self.bot.session)
+                        if lobby.metadata["rotation_data"] is None:
+                            await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)  # salmon can have a max of four players
                     elif lobby_type == ModeTypes.REGULAR:
                         lobby.metadata["rotation_data"] = await Lobby.generate_regular(lobby.metadata["name"],
@@ -383,14 +391,14 @@ class Lobby(commands.Cog):
         elif lobby_type == ModeTypes.SALMON and "rotation_data" in metadata and metadata["rotation_data"] is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
             weapons_str = "*Not released yet*"
-            map_str = "Not released yet*"
+            map_str = "*Not released yet*"
             # Checking if weapons and map have been released yet
             if metadata["rotation_data"].stage_a is not None:
                 weapons_str = SplatoonRotation.print_sr_weapons(metadata["rotation_data"].weapons_array)
                 map_str = metadata["rotation_data"].stage_a
-            lobby_embed.set_image(url=metadata["rotation_data"].stage_a_image)
+                lobby_embed.set_image(url=metadata["rotation_data"].stage_a_image)
             lobby_embed.add_field(name="Mode", value=metadata["rotation_data"].mode)
-            lobby_embed.add_field(name="Maps", value=map_str)
+            lobby_embed.add_field(name="Map", value=map_str)
             lobby_embed.add_field(name="Rotation Time",
                                   value=SplatoonRotation.format_time_sr(metadata["rotation_data"].start_time) + " - "
                                         + SplatoonRotation.format_time_sr(metadata["rotation_data"].end_time))
@@ -464,6 +472,27 @@ class Lobby(commands.Cog):
             if success:
                 return regular
         return None
+
+    @staticmethod
+    async def send_sal_err(ctx, time: datetime = datetime.now(), session=None):
+        # Get all rotations
+        all_rotations = await SplatoonRotation.get_all_rotations(time=time,
+                                                                 mode_type=ModeTypes.SALMON, session=session)
+        start_time = None
+        # Loop through all rotations until we find the 1st one that's after the given time
+        for rotation in all_rotations:
+            if rotation.start_time >= time:
+                start_time = rotation.start_time
+                break
+        # If we can't find given rotation use an error str
+        if start_time is None:
+            format_str = "an unknown time."
+        else:
+            format_str = SplatoonRotation.format_time_sr(start_time)
+        # Form error string and send it
+        err_str = ":warning: There isn't a Salmon Run rotation happening at the given time! The next rotation is at {}."
+        err_str = err_str.format(format_str)
+        await ctx.send(err_str)
 
     @staticmethod
     async def attach_send_gif(embed, lobby: LobbyData, ctx):
