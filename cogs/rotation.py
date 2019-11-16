@@ -204,7 +204,7 @@ class Rotation(commands.Cog):
             title += "Salmon Run"
             thumbnail = config.images["salmon"]
             # if there isn't a salmon rotation happening, show the next one
-            if schedule_array[0].start_time <= datetime.now() <= schedule_array[0].end_time:
+            if schedule_array[0].start_time > datetime.now():
                 next_rotation = schedule_array[0]
 
         embed = discord.Embed(title=title, color=config.embed_color)
