@@ -18,9 +18,6 @@ TIME = 1
 NAME = 0
 
 
-
-
-
 # define lobbydata
 # LobbyData = namedtuple("LobbyData", ["players", "metadata"])
 # add it to globals
@@ -91,7 +88,7 @@ class Lobby(commands.Cog):
                                                          channel_id=str(lobby.metadata["channel"].id))
                     if file is not None:
                         await self.bot.get_channel(lobby.metadata["channel"].id).send(
-                            embed=embed,file=file)
+                            embed=embed, file=file)
                     else:
                         await self.bot.get_channel(lobby.metadata["channel"].id).send(
                             embed=Lobby.generate_lobby_embed(lobby))
@@ -241,17 +238,17 @@ class Lobby(commands.Cog):
                     if lobby_type == ModeTypes.LEAGUE:
                         lobby.metadata["name"] = "League Battle"
                         lobby.metadata["rotation_data"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
-                                                                                self.bot.session)
+                                                                                      self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.SALMON:
                         lobby.metadata["name"] = "Salmon Run"
                         lobby.metadata["rotation_data"] = await Lobby.generate_salmon(args[0], lobby.metadata["time"],
-                                                                                self.bot.session)
+                                                                                      self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.REGULAR:
                         lobby.metadata["name"] = "Turf War"
                         lobby.metadata["rotation_data"] = await Lobby.generate_regular(args[0], lobby.metadata["time"],
-                                                                                self.bot.session)
+                                                                                       self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.PRIVATE:
                         lobby.metadata["name"] = "Private Battle"
@@ -278,7 +275,7 @@ class Lobby(commands.Cog):
                     old_num = lobby.metadata["num_players"]
                     try:
                         new_num = int(args[0])
-                        if 64 <= new_num >= lobby.players.size:
+                        if lobby.players.size <= new_num <= 64:
                             lobby.metadata["num_players"] = int(args[0])
                         else:
                             await ctx.send(":x: You cannot set the number of players to a number that is lower than the"
@@ -318,14 +315,17 @@ class Lobby(commands.Cog):
                     lobby_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
                     if lobby_type == ModeTypes.LEAGUE:
                         lobby.metadata["rotation_data"] = await Lobby.generate_league(lobby.metadata["name"],
-                                                                        lobby.metadata["time"], self.bot.session)
+                                                                                      lobby.metadata["time"],
+                                                                                      self.bot.session)
                     elif lobby_type == ModeTypes.SALMON:
                         lobby.metadata["rotation_data"] = await Lobby.generate_salmon(lobby.metadata["name"],
-                                                                        lobby.metadata["time"], self.bot.session)
+                                                                                      lobby.metadata["time"],
+                                                                                      self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)  # salmon can have a max of four players
                     elif lobby_type == ModeTypes.REGULAR:
                         lobby.metadata["rotation_data"] = await Lobby.generate_regular(lobby.metadata["name"],
-                                                                        lobby.metadata["time"], self.bot.session)
+                                                                                       lobby.metadata["time"],
+                                                                                       self.bot.session)
                     else:
                         lobby.metadata["rotation_data"] = None
                     await ctx.send(":white_check_mark: Successfully changed the start time.")
