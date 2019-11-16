@@ -2,7 +2,6 @@ import config
 import discord
 from modules.splatoon_rotation import SplatoonRotation, ModeTypes
 from modules.gif_generator import generate_gif
-from modules.lobby_data import DiscordChannel
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
@@ -239,7 +238,7 @@ class Rotation(commands.Cog):
     async def generate_send_gif(embed, rotation_data: SplatoonRotation, schedule_type: ModeTypes, ctx):
         if schedule_type is not ModeTypes.SALMON:
             #  generate the gif, make it a discord file, and send it off
-            channel_id = str(DiscordChannel(ctx.channel).id)
+            channel_id = str(ctx.channel.id)
             generated_gif = await generate_gif(rotation_data, channel_id)
             file = discord.File(generated_gif)
             embed.set_image(url="attachment://" + generated_gif)
