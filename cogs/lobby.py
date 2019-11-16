@@ -125,6 +125,7 @@ class Lobby(commands.Cog):
                 await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
             elif lobby.metadata["rotation_data"].stage_a is None:
                 await ctx.send(":warning: Detailed Salmon Run information not avaliable!")
+
             await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
 
     @lobby.command(aliases=["start", "c"])
@@ -177,6 +178,8 @@ class Lobby(commands.Cog):
                 # checking if there is a salmon run rotation happening right now
                 if rotation is None:
                     await Lobby.send_sal_err(ctx, time, session=self.bot.session)
+                elif rotation.stage_a is None:
+                    await ctx.send(":warning: Detailed Salmon Run information not avaliable!")
             elif lobby_type is ModeTypes.REGULAR:
                 rotation = await Lobby.generate_regular(name, time, self.bot.session)
             else:
@@ -250,6 +253,8 @@ class Lobby(commands.Cog):
                                                                                 self.bot.session)
                         if lobby.metadata["rotation_data"] is None:
                             await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
+                        elif lobby.metadata["rotation_data"].stage_a is None:
+                            await ctx.send(":warning: Detailed Salmon Run information not avaliable!")
                         Lobby.attempt_update_num_players(lobby, 4)
                     elif lobby_type == ModeTypes.REGULAR:
                         lobby.metadata["name"] = "Turf War"
@@ -333,6 +338,8 @@ class Lobby(commands.Cog):
                                                                                       self.bot.session)
                         if lobby.metadata["rotation_data"] is None:
                             await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
+                        elif lobby.metadata["rotation_data"].stage_a is None:
+                            await ctx.send(":warning: Detailed Salmon Run information not avaliable!")
                         Lobby.attempt_update_num_players(lobby, 4)  # salmon can have a max of four players
                     elif lobby_type == ModeTypes.REGULAR:
                         lobby.metadata["rotation_data"] = await Lobby.generate_regular(lobby.metadata["name"],
