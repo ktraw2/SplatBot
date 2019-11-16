@@ -35,26 +35,10 @@ class Lobby(commands.Cog):
         :param bot: reference to the bot that created this cog
         """
         self.bot = bot
-
-        # initialize lobbies from serialized data
-        checks.make_sure_file_exists("lobbies.pickle", pickle.dumps([]))
-
-        with open("lobbies.pickle", "rb") as lobbypickle:
-            self.lobbies = pickle.load(lobbypickle)
-
+        self.lobbies = []
         # register notification task
         bot.loop.create_task(self.send_notifications())
 
-    def __del__(self):
-        """
-        Cleans up by writing out lobbies to disk.
-        """
-        with open("lobbies.pickle", "wb") as lobbypickle:
-            try:
-                pickle.dump(self.lobbies, lobbypickle)
-            except pickle.PicklingError:
-                print("An error occurred! Writing empty list.")
-                lobbypickle.write(pickle.dumps([]))
 
     async def send_notifications(self):
         """
@@ -67,9 +51,9 @@ class Lobby(commands.Cog):
         while not self.bot.is_closed():
             # loop through all lobbies
             for lobby in self.lobbies:
-                difference = DateDifference.subtract_datetimes(lobby.metadata["time"], datetime.now())
+                difference = DateDifference.subtract_datetimes(lobby.time, datetime.now())
                 # notify if less than zero and not notified
-                if not lobby.metadata["notified"] and difference <= DateDifference():
+                if not lobby.notified and difference <= DateDifference():
                     # build and send the notification
                     announcement = "Hey"
                     if len(lobby.players) > 0:  # if there's no players, don't add a space for formatting
@@ -80,32 +64,32 @@ class Lobby(commands.Cog):
                             announcement += ", "
                         if i == len(lobby.players) - 2 and len(lobby.players) > 1:
                             announcement += "and "
-                    announcement += " it's time for your scheduled lobby: `" + lobby.metadata["name"] + "`!"
-                    await self.bot.get_channel(lobby.metadata["channel"].id).send(announcement)
+                    announcement += " it's time for your scheduled lobby: `" + lobby.name + "`!"
+                    await self.bot.get_channel(lobby.channel).send(announcement)
 
                     # making and sending if applicable
                     embed, file = await Lobby.attach_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby,
-                                                         channel_id=str(lobby.metadata["channel"].id))
+                                                         channel_id=str(lobby.channel))
                     if file is not None:
-                        await self.bot.get_channel(lobby.metadata["channel"].id).send(
+                        await self.bot.get_channel(lobby.channel).send(
                             embed=embed, file=file)
                     else:
-                        await self.bot.get_channel(lobby.metadata["channel"].id).send(
+                        await self.bot.get_channel(lobby.channel).send(
                             embed=Lobby.generate_lobby_embed(lobby))
-                    lobby.metadata["notified"] = True
+                    lobby.notified = True
                 # code to clean up old notifications
-                elif lobby.metadata["notified"]:
+                elif lobby.notified:
 
-                    if lobby.metadata["rotation_data"] is not None and \
-                            lobby.metadata["rotation_data"].mode_type == ModeTypes.LEAGUE:
+                    if lobby.rotation_data is not None and \
+                            lobby.rotation_data.mode_type == ModeTypes.LEAGUE:
                         # delete league lobby when rotation ends
                         delete_delay_hours = 0
-                        end_difference = DateDifference.subtract_datetimes(lobby.metadata["rotation_data"].end_time,
+                        end_difference = DateDifference.subtract_datetimes(lobby.rotation_data.end_time,
                                                                            datetime.now() +
                                                                            timedelta(hours=delete_delay_hours))
                     else:
                         delete_delay_hours = 1  # use 1 hour as the default autodeletion time
-                        end_difference = DateDifference.subtract_datetimes(lobby.metadata["time"],
+                        end_difference = DateDifference.subtract_datetimes(lobby.time,
                                                                            datetime.now())
                     # delete lobby if it is time
                     if end_difference <= DateDifference(hours=(-1 * delete_delay_hours)):
@@ -121,9 +105,9 @@ class Lobby(commands.Cog):
         if lobby is None:
             await ctx.send("Available lobby commands are: `create`, `edit`, `join`, `leave`, `end`")
         else:
-            if lobby.metadata["rotation_data"] is None and Lobby.parse_special_lobby_type(lobby.metadata["name"]) is ModeTypes.SALMON:
-                await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
-            elif lobby.metadata["rotation_data"].stage_a is None:
+            if lobby.rotation_data is None and Lobby.parse_special_lobby_type(lobby.name) is ModeTypes.SALMON:
+                await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)
+            elif lobby.rotation_data.stage_a is None:
                 await ctx.send(":warning: Detailed Salmon Run information not avaliable!")
             await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
 
@@ -183,13 +167,7 @@ class Lobby(commands.Cog):
                 rotation = None
 
             # add the lobby to the list
-            lobby = LobbyData(LinkedList(),
-                              {"channel": DiscordChannel(ctx.channel),
-                               "name": name,
-                               "rotation_data": rotation,
-                               "num_players": num_players,
-                               "time": time,
-                               "notified": False})
+            lobby = LobbyData(LinkedList(), ctx.channel, name, rotation, num_players, time, False)
             self.lobbies.append(lobby)
 
             # generate and send off the embed
@@ -204,7 +182,7 @@ class Lobby(commands.Cog):
         if lobby is not None:
             user = DiscordUser(ctx.author)
             if user not in lobby.players:
-                if lobby.players.size < lobby.metadata["num_players"]:
+                if lobby.players.size < lobby.num_players:
                     lobby.players.add(user, prevent_duplicates=True)
                     await ctx.send(":white_check_mark: Successfully added " + user.mention + " to the lobby.")
                     await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
@@ -236,37 +214,35 @@ class Lobby(commands.Cog):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
             if len(args) > 0:
-                if "name" in lobby.metadata:
-                    # add or remove custom battle data if necessary
-                    lobby_type = Lobby.parse_special_lobby_type(args[0])
-                    if lobby_type == ModeTypes.LEAGUE:
-                        lobby.metadata["name"] = "League Battle"
-                        lobby.metadata["rotation_data"] = await Lobby.generate_league(args[0], lobby.metadata["time"],
-                                                                                      self.bot.session)
-                        Lobby.attempt_update_num_players(lobby, 4)
-                    elif lobby_type == ModeTypes.SALMON:
-                        lobby.metadata["name"] = "Salmon Run"
-                        lobby.metadata["rotation_data"] = await Lobby.generate_salmon(args[0], lobby.metadata["time"],
-                                                                                self.bot.session)
-                        if lobby.metadata["rotation_data"] is None:
-                            await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
-                        Lobby.attempt_update_num_players(lobby, 4)
-                    elif lobby_type == ModeTypes.REGULAR:
-                        lobby.metadata["name"] = "Turf War"
-                        lobby.metadata["rotation_data"] = await Lobby.generate_regular(args[0], lobby.metadata["time"],
-                                                                                       self.bot.session)
-                        Lobby.attempt_update_num_players(lobby, 4)
-                    elif lobby_type == ModeTypes.PRIVATE:
-                        lobby.metadata["name"] = "Private Battle"
-                        lobby.metadata["rotation_data"] = None
-                        Lobby.attempt_update_num_players(lobby, 8)
+                # add or remove custom battle data if necessary
+                lobby_type = Lobby.parse_special_lobby_type(args[0])
+                if lobby_type == ModeTypes.LEAGUE:
+                    lobby.name = "League Battle"
+                    lobby.rotation_data = await Lobby.generate_league(args[0], lobby.time,
+                                                                                  self.bot.session)
+                    Lobby.attempt_update_num_players(lobby, 4)
+                elif lobby_type == ModeTypes.SALMON:
+                    lobby.name = "Salmon Run"
+                    lobby.rotation_data = await Lobby.generate_salmon(args[0], lobby.time,
+                                                                                  self.bot.session)
+                    if lobby.metadata["rotation_data"] is None:
+                        await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)Lobby.attempt_update_num_players(lobby, 4)
+                elif lobby_type == ModeTypes.REGULAR:
+                    lobby.name = "Turf War"
+                    lobby.rotation_data = await Lobby.generate_regular(args[0], lobby.time,
+                                                                                   self.bot.session)
+                    Lobby.attempt_update_num_players(lobby, 4)
+                elif lobby_type == ModeTypes.PRIVATE:
+                    lobby.name = "Private Battle"
+                    lobby.rotation_data = None
+                    Lobby.attempt_update_num_players(lobby, 8)
 
-                    else:
-                        lobby.metadata["name"] = args[0]
-                        lobby.metadata["rotation_data"] = None
+                else:
+                    lobby.name = args[0]
+                    lobby.rotation_data = None
 
-                    await ctx.send(":white_check_mark: Successfully changed the lobby name.")
-                    await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
+                await ctx.send(":white_check_mark: Successfully changed the lobby name.")
+                await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
             else:
                 await ctx.send(":x: Please give a lobby name.")
         else:
@@ -277,27 +253,26 @@ class Lobby(commands.Cog):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
             if len(args) > 0:
-                if "num_players" in lobby.metadata:
-                    old_num = lobby.metadata["num_players"]
-                    try:
-                        new_num = int(args[0])
-                        if lobby.players.size <= new_num <= 64:
-                            lobby.metadata["num_players"] = int(args[0])
+                old_num = lobby.num_players
+                try:
+                    new_num = int(args[0])
+                    if lobby.players.size <= new_num <= 64:
+                        lobby.num_players = int(args[0])
+                    else:
+                        if new_num < lobby.players.size:
+                            await ctx.send(":x: You cannot set the number of players to a number that is lower than the"
+                                           " amount of players that are currently in the lobby.")
                         else:
-                            if new_num < lobby.players.size:
-                                await ctx.send(":x: You cannot set the number of players to a number that is lower than the"
-                                               " amount of players that are currently in the lobby.")
-                            else:
-                                await ctx.send(":x: You cannot have more than 64 players in a lobby.")
+                            await ctx.send(":x: You cannot have more than 64 players in a lobby.")
 
-                            return
-                    except ValueError as e:
-                        await ctx.send(":x: You gave an invalid number of players.")
-                        lobby.metadata["num_players"] = old_num
                         return
+                except ValueError as e:
+                    await ctx.send(":x: You gave an invalid number of players.")
+                    lobby.num_players = old_num
+                    return
 
-                    await ctx.send(":white_check_mark: Successfully changed the number of players.")
-                    await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
+                await ctx.send(":white_check_mark: Successfully changed the number of players.")
+                await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
             else:
                 await ctx.send(":x: Please give a number.")
         else:
@@ -308,40 +283,39 @@ class Lobby(commands.Cog):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
             if len(args) > 0:
-                if "time" in lobby.metadata:
-                    old_time = lobby.metadata["time"]
-                    try:
-                        time = parse(args[0])
-                        # if the time has already happened, delay the lobby start time to the next day
-                        if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
-                            time = time + timedelta(days=1)
-                        lobby.metadata["time"] = time
-                        lobby.metadata["notified"] = False
-                    except ValueError as e:
-                        await ctx.send(":x: You gave an invalid start time.")
-                        lobby.metadata["time"] = old_time
-                        return
-                    # update battle data dude to time change
-                    lobby_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
-                    if lobby_type == ModeTypes.LEAGUE:
-                        lobby.metadata["rotation_data"] = await Lobby.generate_league(lobby.metadata["name"],
-                                                                                      lobby.metadata["time"],
-                                                                                      self.bot.session)
-                    elif lobby_type == ModeTypes.SALMON:
-                        lobby.metadata["rotation_data"] = await Lobby.generate_salmon(lobby.metadata["name"],
-                                                                                      lobby.metadata["time"],
-                                                                                      self.bot.session)
-                        if lobby.metadata["rotation_data"] is None:
-                            await Lobby.send_sal_err(ctx, lobby.metadata["time"], session=self.bot.session)
+                old_time = lobby.time
+                try:
+                    time = parse(args[0])
+                    # if the time has already happened, delay the lobby start time to the next day
+                    if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
+                        time = time + timedelta(days=1)
+                    lobby.time = time
+                    lobby.notified = False
+                except ValueError as e:
+                    await ctx.send(":x: You gave an invalid start time.")
+                    lobby.time = old_time
+                    return
+                # update battle data dude to time change
+                lobby_type = Lobby.parse_special_lobby_type(lobby.name)
+                if lobby_type == ModeTypes.LEAGUE:
+                    lobby.rotation_data = await Lobby.generate_league(lobby.name,
+                                                                      lobby.time,
+                                                                      self.bot.session)
+                elif lobby_type == ModeTypes.SALMON:
+                    lobby.rotation_data = await Lobby.generate_salmon(lobby.name,
+                                                                      lobby.time,
+                                                                      self.bot.session)
+                    if lobby.rotation_data is None:
+                        await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)  # salmon can have a max of four players
-                    elif lobby_type == ModeTypes.REGULAR:
-                        lobby.metadata["rotation_data"] = await Lobby.generate_regular(lobby.metadata["name"],
-                                                                                       lobby.metadata["time"],
-                                                                                       self.bot.session)
-                    else:
-                        lobby.metadata["rotation_data"] = None
-                    await ctx.send(":white_check_mark: Successfully changed the start time.")
-                    await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
+                elif lobby_type == ModeTypes.REGULAR:
+                    lobby.rotation_data = await Lobby.generate_regular(lobby.name,
+                                                                       lobby.time,
+                                                                       self.bot.session)
+                else:
+                    lobby.rotation_data = None
+                await ctx.send(":white_check_mark: Successfully changed the start time.")
+                await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
             else:
                 await ctx.send(":x: Please give a time.")
         else:
@@ -358,62 +332,57 @@ class Lobby(commands.Cog):
 
     def find_lobby(self, channel):
         for lobby in self.lobbies:
-            if "channel" in lobby.metadata and lobby.metadata["channel"].id == channel.id:
+            if lobby.channel == channel.id:
                 return lobby
         return None
 
     @staticmethod
     def generate_lobby_embed(lobby: LobbyData):
-        metadata = lobby.metadata
-        name = metadata["name"]
-
-        lobby_embed = discord.Embed(title="Lobby Information - " + name, color=config.embed_color)
+        lobby_embed = discord.Embed(title="Lobby Information - " + lobby.name, color=config.embed_color)
         lobby_embed.set_thumbnail(url=config.images["default"])
 
-        lobby_type = Lobby.parse_special_lobby_type(name)
+        lobby_type = Lobby.parse_special_lobby_type(lobby.name)
         # add data for league
-        if lobby_type == ModeTypes.LEAGUE and "rotation_data" in metadata and metadata["rotation_data"] is not None:
+        if lobby_type == ModeTypes.LEAGUE and lobby.rotation_data is not None:
             lobby_embed.set_thumbnail(url=config.images["league"])
-            lobby_embed.set_image(url=metadata["rotation_data"].stage_a_image)
-            lobby_embed.add_field(name="Mode", value=metadata["rotation_data"].mode)
-            lobby_embed.add_field(name="Maps", value=metadata["rotation_data"].stage_a + "\n" +
-                                                     metadata["rotation_data"].stage_b)
+            lobby_embed.set_image(url=lobby.rotation_data.stage_a_image)
+            lobby_embed.add_field(name="Mode", value=lobby.rotation_data.mode)
+            lobby_embed.add_field(name="Maps", value=lobby.rotation_data.stage_a + "\n" +
+                                                     lobby.rotation_data.stage_b)
             lobby_embed.add_field(name="Rotation Time",
-                                  value=SplatoonRotation.format_time(metadata["rotation_data"].start_time) + " - "
-                                        + SplatoonRotation.format_time(metadata["rotation_data"].end_time))
+                                  value=SplatoonRotation.format_time(lobby.rotation_data.start_time) + " - "
+                                        + SplatoonRotation.format_time(lobby.rotation_data.end_time))
         # add data for regular
-        elif lobby_type == ModeTypes.REGULAR and "rotation_data" in metadata and metadata["rotation_data"] is not None:
+        elif lobby_type == ModeTypes.REGULAR and lobby.rotation_data is not None:
             lobby_embed.set_thumbnail(url=config.images["default"])
-            lobby_embed.set_image(url=metadata["rotation_data"].stage_a_image)
-            lobby_embed.add_field(name="Mode", value=metadata["rotation_data"].mode)
-            lobby_embed.add_field(name="Maps", value=metadata["rotation_data"].stage_a + "\n" +
-                                                     metadata["rotation_data"].stage_b)
+            lobby_embed.set_image(url=lobby.rotation_data.stage_a_image)
+            lobby_embed.add_field(name="Mode", value=lobby.rotation_data.mode)
+            lobby_embed.add_field(name="Maps", value=lobby.rotation_data.stage_a + "\n" +
+                                                     lobby.rotation_data.stage_b)
             lobby_embed.add_field(name="Rotation Time",
-                                  value=SplatoonRotation.format_time(metadata["rotation_data"].start_time) + " - "
-                                        + SplatoonRotation.format_time(metadata["rotation_data"].end_time))
+                                  value=SplatoonRotation.format_time(lobby.rotation_data.start_time) + " - "
+                                        + SplatoonRotation.format_time(lobby.rotation_data.end_time))
         # add data for salmon
-        elif lobby_type == ModeTypes.SALMON and "rotation_data" in metadata and metadata["rotation_data"] is not None:
+        elif lobby_type == ModeTypes.SALMON and lobby.rotation_data is not None:
             lobby_embed.set_thumbnail(url=config.images["salmon"])
             weapons_str = "*Not released yet*"
             map_str = "*Not released yet*"
             # Checking if weapons and map have been released yet
-            if metadata["rotation_data"].stage_a is not None:
-                weapons_str = SplatoonRotation.print_sr_weapons(metadata["rotation_data"].weapons_array)
-                map_str = metadata["rotation_data"].stage_a
-                lobby_embed.set_image(url=metadata["rotation_data"].stage_a_image)
-            lobby_embed.add_field(name="Mode", value=metadata["rotation_data"].mode)
+            if lobby.rotation_data.stage_a is not None:
+                weapons_str = SplatoonRotation.print_sr_weapons(lobby.rotation_data.weapons_array)
+                map_str = lobby.rotation_data.stage_a
+                lobby_embed.set_image(url=lobby.rotation_data.stage_a_image)
+            lobby_embed.add_field(name="Mode", value=lobby.rotation_data.mode)
             lobby_embed.add_field(name="Map", value=map_str)
             lobby_embed.add_field(name="Rotation Time",
-                                  value=SplatoonRotation.format_time_sr(metadata["rotation_data"].start_time) + " - "
-                                        + SplatoonRotation.format_time_sr(metadata["rotation_data"].end_time))
+                                  value=SplatoonRotation.format_time_sr(lobby.rotation_data.start_time) + " - "
+                                        + SplatoonRotation.format_time_sr(lobby.rotation_data.end_time))
             lobby_embed.add_field(name="Weapons", value=weapons_str)
         elif lobby_type == ModeTypes.PRIVATE:
             lobby_embed.set_thumbnail(url=config.images["private_battle"])
         # add rest of data
-        if "num_players" in metadata:
-            lobby_embed.add_field(name="Number of Players", value=str(metadata["num_players"]))
-        if "time" in metadata:
-            lobby_embed.add_field(name="Lobby Start Time", value=SplatoonRotation.format_time(metadata["time"]))
+        lobby_embed.add_field(name="Number of Players", value=str(lobby.num_players))
+        lobby_embed.add_field(name="Lobby Start Time", value=SplatoonRotation.format_time(lobby.time))
 
         # add list of players
         i = 0
@@ -422,7 +391,7 @@ class Lobby(commands.Cog):
             player_string = player_string + str(i + 1) + ". " + player.mention + "\n"
             i += 1
         # now, add all the blank spots
-        while i < metadata["num_players"]:
+        while i < lobby.num_players:
             player_string = player_string + str(i + 1) + ". Empty\n"
             i += 1
         lobby_embed.add_field(name="Players", value=player_string)
@@ -432,7 +401,7 @@ class Lobby(commands.Cog):
     @staticmethod
     def attempt_update_num_players(lobby: LobbyData, new_num: int):
         if len(lobby.players) < new_num <= 64:
-            lobby.metadata["num_players"] = new_num
+            lobby.num_players = new_num
 
     @staticmethod
     def parse_special_lobby_type(name: str):
@@ -500,8 +469,8 @@ class Lobby(commands.Cog):
 
     @staticmethod
     async def attach_send_gif(embed, lobby: LobbyData, ctx):
-        schedule_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
-        channel_id = str(DiscordChannel(ctx.channel).id)
+        schedule_type = Lobby.parse_special_lobby_type(lobby.name)
+        channel_id = str(ctx.channel.id)
         # we check if there are multiple stages in the rotation
         if schedule_type is ModeTypes.REGULAR or schedule_type is ModeTypes.LEAGUE:
             # if so attach the gif to the embed and send it off via the files argument
@@ -513,11 +482,11 @@ class Lobby(commands.Cog):
 
     @staticmethod
     async def attach_gif(embed, lobby: LobbyData, channel_id: str):
-        schedule_type = Lobby.parse_special_lobby_type(lobby.metadata["name"])
+        schedule_type = Lobby.parse_special_lobby_type(lobby.name)
         # we check if there are multiple stages in the rotation
         if schedule_type is ModeTypes.REGULAR or schedule_type is ModeTypes.LEAGUE:
             #  generate the gif, make it a discord file, attach gif to the embed, and return the result
-            rotation_data = lobby.metadata["rotation_data"]
+            rotation_data = lobby.rotation_data
             generated_gif = await generate_gif(rotation_data, channel_id)
             file = discord.File(generated_gif)
             embed.set_image(url="attachment://" + generated_gif)

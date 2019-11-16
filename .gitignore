@@ -4,6 +4,7 @@
 config.py
 venv/*
 *.pickle
+*.db
 
 
 # Created by https://www.gitignore.io/api/python,pycharm
