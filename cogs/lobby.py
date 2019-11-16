@@ -2,7 +2,7 @@ import discord
 import asyncio
 import pickle
 import config
-from modules.lobby_data import LobbyData, DiscordChannel, DiscordUser
+from modules.lobby_data import LobbyData, DiscordUser
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
@@ -226,7 +226,8 @@ class Lobby(commands.Cog):
                     lobby.rotation_data = await Lobby.generate_salmon(args[0], lobby.time,
                                                                                   self.bot.session)
                     if lobby.metadata["rotation_data"] is None:
-                        await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)Lobby.attempt_update_num_players(lobby, 4)
+                        await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)
+                        Lobby.attempt_update_num_players(lobby, 4)
                 elif lobby_type == ModeTypes.REGULAR:
                     lobby.name = "Turf War"
                     lobby.rotation_data = await Lobby.generate_regular(args[0], lobby.time,
