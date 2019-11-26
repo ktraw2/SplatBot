@@ -76,9 +76,19 @@ class Misc(commands.Cog):
         await ctx.send("Hello, World!")
 
     @commands.command(aliases=["🍑"])
+    @commands.guild_only()
+    @checks.message_from_guild(config.ts_guild_id)
+    @commands.check(checks.off_topic_commands_enabled)
     async def buttcheeks(self, ctx, *args):
         await ctx.message.add_reaction("🍑")
         await ctx.send("Who is buttcheeks???")
+
+    @commands.command(aliases=["reminddavid"])
+    @commands.guild_only()
+    @checks.message_from_guild(config.ts_guild_id)
+    @commands.check(checks.off_topic_commands_enabled)
+    async def remind_david(self, ctx, *args):
+        await ctx.send("<@283480526336163840> reminder to bring gcn to wgf kthxbai")
 
     @commands.command()
     @commands.guild_only()
