@@ -106,7 +106,7 @@ class SplatoonRotation:
             restore_from_pickle["stage_b"] = self.stage_b
             restore_from_pickle["stage_b_image"] = self.stage_b_image
 
-        return (self.__class__, (self.target_time, self.mode_type, None, restore_from_pickle))
+        return self.__class__, (self.target_time, self.mode_type, None, restore_from_pickle)
 
     async def populate_data(self):
         sn = Splatnet(self.session)
@@ -120,6 +120,8 @@ class SplatoonRotation:
             data = await sn.get_league()
         elif self.mode_type is ModeTypes.SALMON:
             data = await sn.get_salmon_detail()
+
+        print(data)
 
         # find a regular/ranked/league session given the target time
         if self.mode_type is not ModeTypes.SALMON:

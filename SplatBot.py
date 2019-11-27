@@ -6,6 +6,7 @@ import config
 import traceback
 import sys
 from modules import checks
+from modules.database import Database
 from discord.ext import commands
 import os
 import asyncio
@@ -26,6 +27,8 @@ class SplatBot(commands.Bot):
         global exit_code
         self.exit = exit_code
         self.session = None
+        self.database = Database()
+        self.database.create_database()
 
         for e in extensions:
             self.load_extension(e)

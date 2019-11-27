@@ -1,27 +1,20 @@
 import discord
 import asyncio
-import pickle
 import config
 from modules.lobby_data import LobbyData, DiscordUser
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from discord.ext import commands
-from modules import checks
 from modules.linked_list import LinkedList
 from modules.splatoon_rotation import SplatoonRotation, ModeTypes
 from modules.gif_generator import generate_gif
+from modules.database import Database
 from misc_date_utilities.date_difference import DateDifference
 
 # constants for arguments
 NUM_PLAYERS = 2
 TIME = 1
 NAME = 0
-
-
-# define lobbydata
-# LobbyData = namedtuple("LobbyData", ["players", "metadata"])
-# add it to globals
-# globals()[LobbyData.__name__] = LobbyData
 
 
 class Lobby(commands.Cog):
@@ -35,10 +28,9 @@ class Lobby(commands.Cog):
         :param bot: reference to the bot that created this cog
         """
         self.bot = bot
-        self.lobbies = []
+        self.database = bot.database
         # register notification task
         bot.loop.create_task(self.send_notifications())
-
 
     async def send_notifications(self):
         """
@@ -50,7 +42,9 @@ class Lobby(commands.Cog):
         await self.bot.wait_until_ready()
         while not self.bot.is_closed():
             # loop through all lobbies
-            for lobby in self.lobbies:
+            cursor = self.database.get_all_lobbies_cursor()
+            for row in cursor:
+                lobby = self.database.make_lobby_from_row(row)
                 difference = DateDifference.subtract_datetimes(lobby.time, datetime.now())
                 # notify if less than zero and not notified
                 if not lobby.notified and difference <= DateDifference():
@@ -93,7 +87,7 @@ class Lobby(commands.Cog):
                                                                            datetime.now())
                     # delete lobby if it is time
                     if end_difference <= DateDifference(hours=(-1 * delete_delay_hours)):
-                        self.lobbies.remove(lobby)
+                        self.database.delete_lobby_for_channel(lobby.channel)
             # sleep until the next minute
             sleep_time = datetime.now()
             sleep_time += timedelta(seconds=60 - sleep_time.second)
@@ -107,7 +101,7 @@ class Lobby(commands.Cog):
         else:
             if lobby.rotation_data is None and Lobby.parse_special_lobby_type(lobby.name) is ModeTypes.SALMON:
                 await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)
-            elif lobby.rotation_data.stage_a is None:
+            elif hasattr(lobby.rotation_data, "stage_a") and lobby.rotation_data.stage_a is None:
                 await ctx.send(":warning: Detailed Salmon Run information not avaliable!")
             await ctx.send(embed=Lobby.generate_lobby_embed(lobby))
 
@@ -167,8 +161,8 @@ class Lobby(commands.Cog):
                 rotation = None
 
             # add the lobby to the list
-            lobby = LobbyData(LinkedList(), ctx.channel, name, rotation, num_players, time, False)
-            self.lobbies.append(lobby)
+            lobby = LobbyData(LinkedList(), ctx.channel.id, name, rotation, num_players, time, False, self.database)
+            self.bot.database.store_lobby(lobby)
 
             # generate and send off the embed
             await ctx.send(":white_check_mark: Created a lobby in " + ctx.channel.mention)
@@ -184,6 +178,7 @@ class Lobby(commands.Cog):
             if user not in lobby.players:
                 if lobby.players.size < lobby.num_players:
                     lobby.players.add(user, prevent_duplicates=True)
+                    lobby.commit_players()
                     await ctx.send(":white_check_mark: Successfully added " + user.mention + " to the lobby.")
                     await Lobby.attach_send_gif(embed=Lobby.generate_lobby_embed(lobby), lobby=lobby, ctx=ctx)
                 else:
@@ -218,20 +213,17 @@ class Lobby(commands.Cog):
                 lobby_type = Lobby.parse_special_lobby_type(args[0])
                 if lobby_type == ModeTypes.LEAGUE:
                     lobby.name = "League Battle"
-                    lobby.rotation_data = await Lobby.generate_league(args[0], lobby.time,
-                                                                                  self.bot.session)
+                    lobby.rotation_data = await Lobby.generate_league(args[0], lobby.time, self.bot.session)
                     Lobby.attempt_update_num_players(lobby, 4)
                 elif lobby_type == ModeTypes.SALMON:
                     lobby.name = "Salmon Run"
-                    lobby.rotation_data = await Lobby.generate_salmon(args[0], lobby.time,
-                                                                                  self.bot.session)
-                    if lobby.metadata["rotation_data"] is None:
+                    lobby.rotation_data = await Lobby.generate_salmon(args[0], lobby.time, self.bot.session)
+                    if lobby.rotation_data is None:
                         await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)
                         Lobby.attempt_update_num_players(lobby, 4)
                 elif lobby_type == ModeTypes.REGULAR:
                     lobby.name = "Turf War"
-                    lobby.rotation_data = await Lobby.generate_regular(args[0], lobby.time,
-                                                                                   self.bot.session)
+                    lobby.rotation_data = await Lobby.generate_regular(args[0], lobby.time, self.bot.session)
                     Lobby.attempt_update_num_players(lobby, 4)
                 elif lobby_type == ModeTypes.PRIVATE:
                     lobby.name = "Private Battle"
@@ -326,16 +318,13 @@ class Lobby(commands.Cog):
     async def delete(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
-            self.lobbies.remove(lobby)
+            self.database.delete_lobby_for_channel(ctx.channel.id)
             await ctx.send(":white_check_mark: Deleted the lobby from " + ctx.channel.mention)
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
     def find_lobby(self, channel):
-        for lobby in self.lobbies:
-            if lobby.channel == channel.id:
-                return lobby
-        return None
+        return self.database.get_lobby_for_channel(channel.id)
 
     @staticmethod
     def generate_lobby_embed(lobby: LobbyData):
@@ -369,7 +358,7 @@ class Lobby(commands.Cog):
             weapons_str = "*Not released yet*"
             map_str = "*Not released yet*"
             # Checking if weapons and map have been released yet
-            if lobby.rotation_data.stage_a is not None:
+            if hasattr(lobby.rotation_data, "stage_a") and lobby.rotation_data.stage_a is not None:
                 weapons_str = SplatoonRotation.print_sr_weapons(lobby.rotation_data.weapons_array)
                 map_str = lobby.rotation_data.stage_a
                 lobby_embed.set_image(url=lobby.rotation_data.stage_a_image)
