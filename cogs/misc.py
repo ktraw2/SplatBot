@@ -88,10 +88,13 @@ class Misc(commands.Cog):
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def remind_david(self, ctx, *args):
-        if len(arg) == 0:
+        if len(args) == 0:
             await ctx.send("<@283480526336163840> reminder to bring gcn to wgf kthxbai")
         else:
-            await ctx.send("<@283480526336163840> " + arg)
+            david_reminder_str = ""
+            for arg in args:
+                david_reminder_str = david_reminder_str + arg
+            await ctx.send("<@283480526336163840> " + david_reminder_str)
 
     @commands.command(aliases=["tea"])
     @commands.guild_only()
