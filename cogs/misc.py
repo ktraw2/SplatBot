@@ -93,7 +93,7 @@ class Misc(commands.Cog):
         else:
             david_reminder_str = ""
             for arg in args:
-                david_reminder_str = david_reminder_str + arg
+                david_reminder_str = david_reminder_str + arg + " "
             await ctx.send("<@283480526336163840> " + david_reminder_str)
 
     @commands.command(aliases=["tea"])
