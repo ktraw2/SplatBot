@@ -96,7 +96,7 @@ class Misc(commands.Cog):
                 david_reminder_str = david_reminder_str + arg + " "
             await ctx.send("<@283480526336163840> " + david_reminder_str)
 
-    @commands.command(aliases=["tea"])
+    @commands.command(aliases=["tea", "🍵"])
     @commands.guild_only()
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
