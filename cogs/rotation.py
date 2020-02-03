@@ -105,7 +105,7 @@ class Rotation(commands.Cog):
             # custom stuff for salmon run
             if schedule_type is ModeTypes.SALMON:
                 embed = await Rotation.generate_salmon_embed(embed, rotation)
-                if next_rotation.stage_a_image is None:
+                if rotation.stage_a_image is None:
                     await ctx.send(":warning: Detailed Salmon Run information is not available!")
 
             else:
