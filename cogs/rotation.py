@@ -127,6 +127,10 @@ class Rotation(commands.Cog):
                 # Get next rotation (which is the 0th one) and send it out
                 next_rotation_array = await rotation.get_all_rotations(time=datetime.now(), mode_type=schedule_type)
                 next_rotation = next_rotation_array[0]
+                for rotation in next_rotation_array:
+                    if time <= rotation.start_time:
+                        next_rotation = rotation
+                        break
                 embed = await Rotation.generate_salmon_embed(embed, next_rotation)
 
                 await Rotation.generate_send_gif(embed, rotation, schedule_type, ctx)
