@@ -108,6 +108,29 @@ class Misc(commands.Cog):
     @commands.guild_only()
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
+    async def bruh(self, ctx, *args):
+
+        # gets previous message and reacts to it
+        channel = ctx.message.channel
+        logs = channel.history(limit=2)
+        # FIXME I'm guessing there's a better way of doing this but i can't think of it
+        await logs.next() # skips command message
+        # adds reaction
+        async for msg in logs:
+            await msg.add_reaction("🇧")
+            await msg.add_reaction("🇷")
+            await msg.add_reaction("🇺")
+            await msg.add_reaction("🇭")
+
+        # sends out message, space separated due to stupid unicode
+        await ctx.send(":regional_indicator_b: :regional_indicator_r: "
+                       ":regional_indicator_u: :regional_indicator_h:")
+
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.message_from_guild(config.ts_guild_id)
+    @commands.check(checks.off_topic_commands_enabled)
     async def kevin(self, ctx, *args):
         await ctx.send(ctx.guild.get_role(config.ts_guild_id).mention + " KEVIN GANG KEVIN GANG KEVIN GANG")
 

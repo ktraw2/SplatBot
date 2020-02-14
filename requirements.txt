@@ -3,7 +3,8 @@ async-timeout==3.0.1
 attrs==19.1.0
 cffi==1.12.3
 chardet==3.0.4
-discord.py==1.2.2
+discord.py==1.2.5
+
 idna==2.8
 misc-date-utilities==1.0.6
 multidict==4.5.2
