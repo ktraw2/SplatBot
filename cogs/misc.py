@@ -106,7 +106,7 @@ class Misc(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @checks.message_from_guild(config.ts_guild_id)
+#    @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def bruh(self, ctx, *args):
 
