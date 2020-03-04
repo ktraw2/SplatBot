@@ -29,6 +29,7 @@ help_embed_fields = {
                  "`s!f` - prints out a F made of Fs\n"
                  "`s!f <string>` - replaces the F character with a given string (@everyone and @here are blacklisted)\n"
                  "`s!boxie` - Boxie!\n"
+                 "`s!bruh` - B R U H\n"
          },
     "command_syntax":
         {"title": "Command Syntax",
@@ -38,7 +39,7 @@ help_embed_fields = {
                  "**Examples:**\n"
                  "1. `s!lobby create \"Weekly 3v3\" 10PM 6`\n"
                  "2. `s!schedule regular`\n"
-                 "3. `s!rotation sr n"
+                 "3. `s!rotation sr n`\n"
          }
 }
 
