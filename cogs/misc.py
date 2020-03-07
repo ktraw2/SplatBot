@@ -4,6 +4,11 @@ from discord.ext import commands
 from modules.async_client import AsyncClient
 from modules import embeds, checks
 
+# Delete below when ac command is EOL-ed
+from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
+
+
 
 class Misc(commands.Cog):
     def __init__(self, bot):
@@ -105,8 +110,6 @@ class Misc(commands.Cog):
         await ctx.send("<@283480526336163840>, you're missing out :tea:")
 
     @commands.command()
-    @commands.guild_only()
-#    @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def bruh(self, ctx, *args):
 
@@ -126,6 +129,19 @@ class Misc(commands.Cog):
         await ctx.send(":regional_indicator_b: :regional_indicator_r: "
                        ":regional_indicator_u: :regional_indicator_h:")
 
+    @commands.command(aliases=["ac", "nh", "acnh"])
+    @commands.check(checks.off_topic_commands_enabled)
+    async def animalcrossing(self, ctx, *args):
+        curr_time = datetime.now()
+        delta = relativedelta(date(year=2020, month=3, day=20), curr_time)
+
+        if delta.days <= 0:
+            ac_str = "New Horizons is out!"
+        else:
+            ac_str = "Only " + str(delta.days) + " days, " + str(delta.hours) + " hours, and " + str(delta.minutes)\
+                 + " minutes until New Horizons comes out!"
+
+        await ctx.send(ac_str)
 
     @commands.command()
     @commands.guild_only()
