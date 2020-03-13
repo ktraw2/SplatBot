@@ -133,10 +133,10 @@ class Misc(commands.Cog):
     @commands.check(checks.off_topic_commands_enabled)
     async def animalcrossing(self, ctx, *args):
         curr_time = datetime.now()
-        delta = relativedelta(date(year=2020, month=3, day=20), curr_time)
+        delta = relativedelta(datetime(year=2020, month=3, day=19, hour=21), curr_time)
 
-        if delta.days <= 0:
-            ac_str = "New Horizons is out!"
+        if delta.days < 0:
+            ac_str = "New Horizons is out! Why are you still using Splatbot?"
         else:
             ac_str = "Only " + str(delta.days) + " days, " + str(delta.hours) + " hours, and " + str(delta.minutes)\
                  + " minutes until New Horizons comes out!"

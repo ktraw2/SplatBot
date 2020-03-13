@@ -30,6 +30,7 @@ help_embed_fields = {
                  "`s!f <string>` - replaces the F character with a given string (@everyone and @here are blacklisted)\n"
                  "`s!boxie` - Boxie!\n"
                  "`s!bruh` - B R U H\n"
+                 "`s!ac` - How long until New Horizons comes out\n"
          },
     "command_syntax":
         {"title": "Command Syntax",
