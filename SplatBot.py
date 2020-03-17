@@ -14,7 +14,9 @@ import asyncio
 print("Starting SplatBot...")
 SPLATBOT_EXTENSIONS = ["cogs.rotation",
                        "cogs.lobby",
-                       "cogs.misc",
+                       "cogs.help",
+                       "cogs.dev",
+                       "cogs.fun",
                        "cogs.settings"]
 
 exit_code = 0
