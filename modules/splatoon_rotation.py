@@ -132,8 +132,8 @@ class SplatoonRotation:
                     self.stage_a_image = IMAGE_BASE + rotation["stage_a"]["image"]
                     self.stage_b = rotation["stage_b"]["name"]
                     self.stage_b_image = IMAGE_BASE + rotation["stage_b"]["image"]
-                    self.start_time = datetime.fromtimestamp(rotation["start_time"], self.target_time.tzname())
-                    self.end_time = datetime.fromtimestamp(rotation["end_time"], self.target_time.tzname())
+                    self.start_time = datetime.fromtimestamp(rotation["start_time"], self.target_time.tzinfo)
+                    self.end_time = datetime.fromtimestamp(rotation["end_time"], self.target_time.tzinfo)
                     return True
             return False
         # salmon run is a special exception, requires special processing

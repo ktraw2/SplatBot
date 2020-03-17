@@ -4,6 +4,7 @@ from modules.splatoon_rotation import SplatoonRotation, ModeTypes
 from modules.gif_generator import generate_gif
 from datetime import datetime, timedelta
 from dateutil.parser import parse
+from dateutil.tz import tz
 from discord.ext import commands
 from misc_date_utilities.date_difference import DateDifference
 
@@ -11,6 +12,7 @@ from misc_date_utilities.date_difference import DateDifference
 class Rotation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.database = bot.database
 
     @commands.group(case_insensitive=True, invoke_without_command=True, aliases=["schedule", "schedules", "rotations",
                                                                                  "info"])
@@ -67,13 +69,18 @@ class Rotation(commands.Cog):
         await self.make_next_rotation(ModeTypes.REGULAR, ctx)
 
     async def make_single_rotation(self, schedule_type: ModeTypes, ctx, *args):
-        time = datetime.now()
+        utc = tz.tzutc()
+        timezone = self.database.time_zone_for_server(ctx.guild.id)
+        time = datetime.now(timezone)
 
         if len(args) > 0:
             try:
                 time = parse(args[0])
+                if timezone != utc:
+                    time = time.astimezone(timezone)
+
                 # if the time has already happened, delay the lobby start time to the next day
-                if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
+                if DateDifference.subtract_datetimes(time, datetime.now(timezone)) <= DateDifference(0):
                     time = time + timedelta(days=1)
             except ValueError as e:
                 await ctx.send(":x: You gave an invalid time.")
@@ -105,7 +112,7 @@ class Rotation(commands.Cog):
             # custom stuff for salmon run
             if schedule_type is ModeTypes.SALMON:
                 embed = await Rotation.generate_salmon_embed(embed, rotation)
-                if next_rotation.stage_a_image is None:
+                if rotation.stage_a_image is None:
                     await ctx.send(":warning: Detailed Salmon Run information is not available!")
 
             else:
@@ -266,6 +273,7 @@ class Rotation(commands.Cog):
             embed.add_field(name="Weapons",
                             value=SplatoonRotation.print_sr_weapons(rotation.weapons_array))
         return embed
+
 
 def setup(bot):
     bot.add_cog(Rotation(bot))

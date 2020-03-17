@@ -1,6 +1,6 @@
 import sqlite3
 import modules.checks
-import pytz
+from dateutil.tz import tz
 from modules.lobby_data import LobbyData
 from datetime import datetime
 import pickle
@@ -62,7 +62,7 @@ class Database:
 
     def get_lobby_for_channel(self, channel: int):
         self.cursor.execute("""
-        SELECT * FROM lobbies WHERE channelID = ?;
+        SELECT * FROM lobbies WHERE channelID = ? LIMIT 1;
         """, (channel,))
         row = self.cursor.fetchone()
         self.cursor.fetchall()
@@ -91,17 +91,36 @@ class Database:
 
     def time_zone_for_server(self, server: int):
         self.cursor.execute("""
-        SELECT timezone FROM serverSettings WHERE serverID = ?
+        SELECT timezone FROM serverSettings WHERE serverID = ? LIMIT 1;
         """, (server,))
         row = self.cursor.fetchone()
         self.cursor.fetchall()
         if row is not None:
-            try:
-                return pytz.timezone(row[0])
-            except pytz.UnknownTimeZoneError:
-                return pytz.utc
+            zone = tz.gettz(row[0])
+            return zone if zone is not None else tz.tzutc()
+        return tz.tzutc()
 
-        return pytz.utc
+    def set_time_zone_for_server(self, server: int, zone: str):
+        if tz.gettz(zone) is None:
+            raise AttributeError("Invalid timezone.")
+
+        self.cursor.execute("""
+        SELECT * FROM serverSettings WHERE serverID = ? LIMIT 1;
+        """, (server,))
+        row = self.cursor.fetchone()
+        self.cursor.fetchall()
+        if row is not None:
+            self.cursor.execute("""
+            UPDATE serverSettings
+            SET timezone = ?
+            WHERE serverID = ?;
+            """, (zone, server))
+        else:
+            self.cursor.execute("""
+            INSERT INTO serverSettings VALUES (?,?);
+            """, (server, zone))
+
+        self.connection.commit()
 
 
 if __name__ == "__main__":

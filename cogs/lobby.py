@@ -8,7 +8,6 @@ from discord.ext import commands
 from modules.linked_list import LinkedList
 from modules.splatoon_rotation import SplatoonRotation, ModeTypes
 from modules.gif_generator import generate_gif
-from modules.database import Database
 from misc_date_utilities.date_difference import DateDifference
 
 # constants for arguments
