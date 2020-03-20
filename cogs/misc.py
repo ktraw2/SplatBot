@@ -135,7 +135,7 @@ class Misc(commands.Cog):
         curr_time = datetime.now()
         delta = relativedelta(datetime(year=2020, month=3, day=19, hour=21), curr_time)
 
-        if delta.microseconds < 0:
+        if delta.days < 0 or delta.hours < 0 or delta.minutes < 0:
             ac_str = "New Horizons is out! Why are you still using Splatbot?"
         else:
             ac_str = "Only " + str(delta.days) + " days, " + str(delta.hours) + " hours, and " + str(delta.minutes)\
