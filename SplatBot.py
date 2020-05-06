@@ -87,21 +87,8 @@ class SplatBot(commands.Bot):
                                                                  "` on `" + ctx.guild.name + "`: " +
                                                                  ctx.message.content)
         elif isinstance(error, discord.ext.commands.CheckFailure):
-            if isinstance(error, discord.ext.commands.NotOwner):
-                await ctx.send(":warning: You are not authorized to run this command, "
-                               "to be able to run `" + ctx.invoked_with +
-                               "` you must be the owner of this bot.")
-            else:
-                await ctx.send(":warning: Either this command is disabled, you are not authorized to run this command, "
-                               "or this command is not being run in the proper context.")
-                # if ctx.invoked_with == "form":
-                #     await ctx.send(":warning: You are not authorized to run this command.")
-                # else:
-                #     await ctx.send(":warning: You are not authorized to run this command, "
-                #                    "to be able to run `" + ctx.invoked_with +
-                #                    "` you must have a role named `SplatManager` or have one or more of "
-                #                    "the following permissions: `Administrator`, `Manage Channels`, "
-                #                    "and/or `Manage Server`.")
+            await ctx.send(":x: Sorry, `" + ctx.invoked_with +
+                           "` is not a valid command in this context.  Type `s!help` for a list of commands.")
         elif isinstance(error, discord.ext.commands.BadArgument):
             await ctx.send(":x: Your command arguments could not be interpreted, please try again (Did you forget a"
                            " \" character?).")

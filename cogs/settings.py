@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord.ext.commands import Context
 from dateutil import tz
+from datetime import datetime
 
 
 class Settings(commands.Cog):
@@ -24,6 +25,12 @@ class Settings(commands.Cog):
         else:
             name = zone._filename
         await ctx.send("The timezone for `" + ctx.guild.name + "` is: `" + name + "`")
+
+    @get.command()
+    async def time(self, ctx: Context):
+        await ctx.send("The current UTC time is: `" + str(datetime.utcnow()) +
+                       "`\nThe time on `" + ctx.guild.name + "` is: `" +
+                       str(self.database.current_time_on_server(ctx.guild.id)) + "`")
 
     @settings.group(case_insensitive=True, invoke_without_command=True)
     async def set(self, ctx: Context):

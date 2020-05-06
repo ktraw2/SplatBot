@@ -114,7 +114,7 @@ class Lobby(commands.Cog):
             lobby_type = None
 
             # default time is the next hour
-            time = datetime.now()
+            time = self.database.current_time_on_server(ctx.guild.id)
             time += timedelta(minutes=60 - time.minute)
 
             # get arguments if they exist
@@ -139,9 +139,10 @@ class Lobby(commands.Cog):
                                    + " players.")
             if len(args) >= TIME + 1:
                 try:
-                    time = parse(args[TIME])
+                    time = parse(args[TIME]).astimezone(self.database.time_zone_for_server(ctx.guild.id))
                     # if the time has already happened, delay the lobby start time to the next day
-                    if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
+                    if DateDifference.subtract_datetimes(time, self.database.current_time_on_server(ctx.guild.id)) \
+                            <= DateDifference(0):
                         time = time + timedelta(days=1)
                 except ValueError as e:
                     await ctx.send(":warning: You gave an invalid lobby time, defaulting to the next hour.")
@@ -169,8 +170,8 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(":x: A lobby already exists in " + ctx.channel.mention)
 
-    @lobby.command(aliases=["add", "j"])
-    async def join(self, ctx, *args):
+    # not a command
+    async def execute_lobby_join(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
             user = DiscordUser(ctx.author)
@@ -187,8 +188,16 @@ class Lobby(commands.Cog):
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
 
-    @lobby.command(aliases=["remove", "l", "r"])
-    async def leave(self, ctx, *args):
+    @commands.command()
+    async def join(self, ctx, *args):
+        await self.execute_lobby_join(ctx, args)
+
+    @lobby.command(name="join", aliases=["add", "j"])
+    async def lobby_join(self, ctx, *args):
+        await self.execute_lobby_join(ctx, args)
+
+    # not a command
+    async def execute_lobby_leave(self, ctx, *args):
         lobby = self.find_lobby(ctx.channel)
         if lobby is not None:
             if lobby.players.remove_object(DiscordUser(ctx.author)):
@@ -198,6 +207,15 @@ class Lobby(commands.Cog):
                 await ctx.send(":x: You are not currently in this lobby.")
         else:
             await ctx.send(":x: There is currently no active lobby in " + ctx.channel.mention)
+
+
+    @commands.command()
+    async def leave(self, ctx, *args):
+        await self.execute_lobby_leave(ctx, args)
+
+    @lobby.command(name="leave", aliases=["remove", "l", "r"])
+    async def lobby_leave(self, ctx, *args):
+        await self.execute_lobby_leave(ctx, args)
 
     @lobby.group(case_insensitive=True, invoke_without_command=True, aliases=["e"])
     async def edit(self, ctx, *args):
@@ -219,7 +237,7 @@ class Lobby(commands.Cog):
                     lobby.rotation_data = await Lobby.generate_salmon(args[0], lobby.time, self.bot.session)
                     if lobby.rotation_data is None:
                         await Lobby.send_sal_err(ctx, lobby.time, session=self.bot.session)
-                        Lobby.attempt_update_num_players(lobby, 4)
+                    Lobby.attempt_update_num_players(lobby, 4)
                 elif lobby_type == ModeTypes.REGULAR:
                     lobby.name = "Turf War"
                     lobby.rotation_data = await Lobby.generate_regular(args[0], lobby.time, self.bot.session)
@@ -277,9 +295,9 @@ class Lobby(commands.Cog):
             if len(args) > 0:
                 old_time = lobby.time
                 try:
-                    time = parse(args[0])
+                    time = parse(args[0]).astimezone(self.database.time_zone_for_server(ctx.guild.id))
                     # if the time has already happened, delay the lobby start time to the next day
-                    if DateDifference.subtract_datetimes(time, datetime.now()) <= DateDifference(0):
+                    if DateDifference.subtract_datetimes(time, self.database.current_time_on_server(ctx.guild.id)) <= DateDifference(0):
                         time = time + timedelta(days=1)
                     lobby.time = time
                     lobby.notified = False
@@ -406,7 +424,7 @@ class Lobby(commands.Cog):
             return None
 
     @staticmethod
-    async def generate_league(name: str, time: datetime = datetime.now(), session=None):
+    async def generate_league(name: str, time: datetime = datetime.utcnow(), session=None):
         lobby_type = Lobby.parse_special_lobby_type(name)
         if lobby_type == ModeTypes.LEAGUE:
             league = SplatoonRotation(time, ModeTypes.LEAGUE, session)
@@ -416,7 +434,7 @@ class Lobby(commands.Cog):
         return None
 
     @staticmethod
-    async def generate_salmon(name: str, time: datetime = datetime.now(), session=None):
+    async def generate_salmon(name: str, time: datetime = datetime.utcnow(), session=None):
         lobby_type = Lobby.parse_special_lobby_type(name)
         if lobby_type == ModeTypes.SALMON:
             salmon = SplatoonRotation(time, ModeTypes.SALMON, session)
@@ -426,7 +444,7 @@ class Lobby(commands.Cog):
         return None
 
     @staticmethod
-    async def generate_regular(name: str, time: datetime = datetime.now(), session=None):
+    async def generate_regular(name: str, time: datetime = datetime.utcnow(), session=None):
         lobby_type = Lobby.parse_special_lobby_type(name)
         if lobby_type == ModeTypes.REGULAR:
             regular = SplatoonRotation(time, ModeTypes.REGULAR, session)
@@ -436,7 +454,7 @@ class Lobby(commands.Cog):
         return None
 
     @staticmethod
-    async def send_sal_err(ctx, time: datetime = datetime.now(), session=None):
+    async def send_sal_err(ctx, time: datetime = datetime.utcnow(), session=None):
         # Get all rotations
         all_rotations = await SplatoonRotation.get_all_rotations(time=time,
                                                                  mode_type=ModeTypes.SALMON, session=session)

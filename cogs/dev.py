@@ -29,6 +29,5 @@ class Dev(commands.Cog):
         body = ip_text[ip_text.index("<body>") + len("<body>"):ip_text.index("</body>")]
         await ctx.send(body)
 
-
 def setup(bot):
     bot.add_cog(Dev(bot))

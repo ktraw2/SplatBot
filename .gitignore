@@ -1,3 +1,5 @@
+*.png
+
 .idea/vcs.xml
 .idea/workspace.xml
 .idea/preferred-vcs.xml

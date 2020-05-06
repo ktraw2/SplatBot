@@ -2,6 +2,7 @@ from enum import Enum, auto
 from modules.splatnet import Splatnet
 from datetime import datetime
 from modules.linked_list import LinkedList
+from dateutil.tz import tz
 
 IMAGE_BASE = "https://splatoon2.ink/assets/splatnet"
 

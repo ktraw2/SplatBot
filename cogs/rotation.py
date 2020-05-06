@@ -69,18 +69,15 @@ class Rotation(commands.Cog):
         await self.make_next_rotation(ModeTypes.REGULAR, ctx)
 
     async def make_single_rotation(self, schedule_type: ModeTypes, ctx, *args):
-        utc = tz.tzutc()
-        timezone = self.database.time_zone_for_server(ctx.guild.id)
-        time = datetime.now(timezone)
+        current_time = self.database.time_zone_for_server(ctx.guild.id)
+        time = current_time
 
         if len(args) > 0:
             try:
-                time = parse(args[0])
-                if timezone != utc:
-                    time = time.astimezone(timezone)
+                time = parse(args[0]).astimezone(self.database.time_zone_for_server(ctx.guild.id))
 
                 # if the time has already happened, delay the lobby start time to the next day
-                if DateDifference.subtract_datetimes(time, datetime.now(timezone)) <= DateDifference(0):
+                if DateDifference.subtract_datetimes(time, current_time) <= DateDifference(0):
                     time = time + timedelta(days=1)
             except ValueError as e:
                 await ctx.send(":x: You gave an invalid time.")
@@ -111,14 +108,17 @@ class Rotation(commands.Cog):
 
             # custom stuff for salmon run
             if schedule_type is ModeTypes.SALMON:
-                embed = await Rotation.generate_salmon_embed(embed, rotation)
+                embed = await Rotation.generate_salmon_embed(embed, rotation, ctx)
                 if rotation.stage_a_image is None:
                     await ctx.send(":warning: Detailed Salmon Run information is not available!")
 
             else:
+                current_timezone = self.database.time_zone_for_server(ctx.guild.id)
                 embed.add_field(name="Stages", value=rotation.stage_a + "\n" + rotation.stage_b)
-                embed.add_field(name="Rotation Time", value=SplatoonRotation.format_time(rotation.start_time) + " - " +
-                                                            SplatoonRotation.format_time(rotation.end_time))
+                embed.add_field(name="Rotation Time",
+                                value=SplatoonRotation.format_time(rotation.start_time.astimezone(current_timezone))
+                                      + " - " +
+                                      SplatoonRotation.format_time(rotation.end_time.astimezone(current_timezone)))
 
             await Rotation.generate_send_gif(embed, rotation, schedule_type, ctx)
 
@@ -132,16 +132,17 @@ class Rotation(commands.Cog):
                 embed.set_thumbnail(url=config.images["salmon"])
                 embed.add_field(name="Mode", value=rotation.mode)
                 # Get next rotation (which is the 0th one) and send it out
-                next_rotation_array = await rotation.get_all_rotations(time=datetime.now(), mode_type=schedule_type)
+                next_rotation_array = await rotation.get_all_rotations(time=current_time, mode_type=schedule_type)
                 next_rotation = next_rotation_array[0]
-                embed = await Rotation.generate_salmon_embed(embed, next_rotation)
+                embed = await Rotation.generate_salmon_embed(embed, next_rotation, ctx)
 
                 await Rotation.generate_send_gif(embed, rotation, schedule_type, ctx)
             else:
                 await ctx.send(":x: No rotation information was found for the given time.")
 
     async def make_upcoming_rotations(self, schedule_type: ModeTypes, ctx):
-        schedule_array = await SplatoonRotation.get_all_rotations(time=datetime.now(), mode_type=schedule_type,
+        current_timezone = self.database.time_zone_for_server(ctx.guild.id)
+        schedule_array = await SplatoonRotation.get_all_rotations(time=self.database.time_zone_for_server(ctx.guild.id), mode_type=schedule_type,
                                                                   session=self.bot.session)
 
         next_rot_val = 0  # Array val to access the next rotation
@@ -168,20 +169,20 @@ class Rotation(commands.Cog):
             embed.add_field(name="Mode", value=schedule_array[0].mode)
             value = ""
             for element in schedule_array:
-                value = value + SplatoonRotation.format_time_sr(element.start_time) + " - " + \
-                        SplatoonRotation.format_time_sr(element.end_time) + "\n"
+                value = value + SplatoonRotation.format_time_sr(element.start_time.astimezone(current_timezone)) + " - " + \
+                        SplatoonRotation.format_time_sr(element.end_time.astimezone(current_timezone)) + "\n"
             embed.add_field(name="Rotation Times", value=value)
         else:
             next_rot_val = 1
             for element in schedule_array:
-                fmt_time = SplatoonRotation.format_time_sch(element.start_time) + " - " \
-                           + SplatoonRotation.format_time_sch(element.end_time)
+                fmt_time = SplatoonRotation.format_time_sch(element.start_time.astimezone(current_timezone)) + " - " \
+                           + SplatoonRotation.format_time_sch(element.end_time.astimezone(current_timezone))
                 embed.add_field(name="Rotation Time", value=fmt_time, inline=True)
                 embed.add_field(name="Mode", value=element.mode, inline=True)
 
         # Calculates the amount of time until the next rotation
         time = schedule_array[next_rot_val].start_time
-        time_diff = DateDifference.subtract_datetimes(time, datetime.now())
+        time_diff = DateDifference.subtract_datetimes(time, self.database.current_time_on_server(ctx.guild.id))
         time_str = str(time_diff)
         # For Salmon Run only: print if the rotation is happening right now
         if schedule_type is ModeTypes.SALMON and time_diff <= DateDifference(0):
@@ -192,7 +193,8 @@ class Rotation(commands.Cog):
         await ctx.send(embed=embed)
 
     async def make_next_rotation(self, schedule_type: ModeTypes, ctx):
-        schedule_array = await SplatoonRotation.get_all_rotations(time=datetime.now(), mode_type=schedule_type,
+        current_time = self.database.current_time_on_server(ctx.guild.id)
+        schedule_array = await SplatoonRotation.get_all_rotations(time=current_time, mode_type=schedule_type,
                                                                   session=self.bot.session)
 
         next_rotation = schedule_array[1]
@@ -212,7 +214,7 @@ class Rotation(commands.Cog):
             title += "Salmon Run"
             thumbnail = config.images["salmon"]
             # if there isn't a salmon rotation happening, show the next one
-            if schedule_array[0].start_time > datetime.now():
+            if schedule_array[0].start_time > current_time:
                 next_rotation = schedule_array[0]
 
         embed = discord.Embed(title=title, color=config.embed_color)
@@ -223,18 +225,21 @@ class Rotation(commands.Cog):
         # custom stuff for salmon run
         if schedule_type is ModeTypes.SALMON:
             # Use helper method to generate salmon run info
-            embed = await Rotation.generate_salmon_embed(embed, next_rotation)
+            embed = await Rotation.generate_salmon_embed(embed, next_rotation, ctx)
             # Print warning if detailed salmon run info isn't available
             if next_rotation.stage_a_image is None:
                 await ctx.send(":warning: Detailed Salmon Run information is not available!")
         else:
+            current_timezone = self.database.time_zone_for_server(ctx.guild.id)
             embed.add_field(name="Stages", value=next_rotation.stage_a + "\n" + next_rotation.stage_b)
-            embed.add_field(name="Rotation Time", value=SplatoonRotation.format_time(next_rotation.start_time) + " - " +
-                                                        SplatoonRotation.format_time(next_rotation.end_time))
+            embed.add_field(name="Rotation Time",
+                            value=SplatoonRotation.format_time(next_rotation.start_time.astimezone(current_timezone))
+                                  + " - " +
+                                  SplatoonRotation.format_time(next_rotation.end_time.astimezone(current_timezone)))
 
         # Calculates the amount of time until the next rotation
         time = next_rotation.start_time
-        time_diff = DateDifference.subtract_datetimes(time, datetime.now())
+        time_diff = DateDifference.subtract_datetimes(time, current_time)
         time_str = str(time_diff)
 
         embed.add_field(name="Time Until Next Rotation", value=time_str)
@@ -254,22 +259,25 @@ class Rotation(commands.Cog):
             await ctx.send(embed=embed)
 
     @staticmethod
-    async def generate_salmon_embed(embed: discord.Embed, rotation: SplatoonRotation):
+    async def generate_salmon_embed(embed: discord.Embed, rotation: SplatoonRotation, ctx):
+        current_timezone = self.database.time_zone_for_server(ctx.guild.id)
         # Checking if full rotation has been released yet for salmon
         if rotation.stage_a is None:
             # use special formatting because salmon run can occur between two separate days
             embed.add_field(name="Stage", value="*Not released yet*")
             embed.add_field(name="Rotation Time",
-                            value=SplatoonRotation.format_time_sr(rotation.start_time) + " - "
-                                  + SplatoonRotation.format_time_sr(rotation.end_time))
+                            value=SplatoonRotation.format_time_sr(rotation.start_time.astimezone(current_timezone))
+                                  + " - "
+                                  + SplatoonRotation.format_time_sr(rotation.end_time.astimezone(current_timezone)))
             embed.add_field(name="Weapons", value="*Not released yet*")
         else:
             embed.set_image(url=rotation.stage_a_image)
             embed.add_field(name="Stage", value=rotation.stage_a)
             # use special formatting because salmon run can occur between two separate days
             embed.add_field(name="Rotation Time",
-                            value=SplatoonRotation.format_time_sr(rotation.start_time) + " - "
-                                  + SplatoonRotation.format_time_sr(rotation.end_time))
+                            value=SplatoonRotation.format_time_sr(rotation.start_time.astimezone(current_timezone))
+                                  + " - "
+                                  + SplatoonRotation.format_time_sr(rotation.end_time.astimezone(current_timezone)))
             embed.add_field(name="Weapons",
                             value=SplatoonRotation.print_sr_weapons(rotation.weapons_array))
         return embed

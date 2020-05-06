@@ -100,6 +100,9 @@ class Database:
             return zone if zone is not None else tz.tzutc()
         return tz.tzutc()
 
+    def current_time_on_server(self, server: int):
+        return datetime.now(self.time_zone_for_server(server))
+
     def set_time_zone_for_server(self, server: int, zone: str):
         if tz.gettz(zone) is None:
             raise AttributeError("Invalid timezone.")
