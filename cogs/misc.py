@@ -150,12 +150,10 @@ class Misc(commands.Cog):
     async def kevin(self, ctx, *args):
         await ctx.send(ctx.guild.get_role(config.ts_guild_id).mention + " KEVIN GANG KEVIN GANG KEVIN GANG")
 
-    @commands.command()
+    @commands.command(aliases=["vote", "upvote", "downvote", "karma"])
     @commands.guild_only()
     @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
-    @commands.command(aliases=["vote", "upvote", "downvote", "karma"])
-    @commands.bot_has_permissions()
     async def reddit(self, ctx, *args):
         # gets previous message and reacts to it, from the `bruh` command
         channel = ctx.message.channel
