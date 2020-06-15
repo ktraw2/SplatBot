@@ -113,11 +113,16 @@ class Misc(commands.Cog):
     @commands.check(checks.off_topic_commands_enabled)
     async def bruh(self, ctx, *args):
 
+        is_silent = False
+        for i in range(0, len(args)):
+            if "-s" in args[i] or "--silent" in args[i] or "mute" in args[i]:
+                is_silent = True
+
         # gets previous message and reacts to it
         channel = ctx.message.channel
         logs = channel.history(limit=2)
         # FIXME I'm guessing there's a better way of doing this but i can't think of it
-        await logs.next() # skips command message
+        await logs.next()  # skips command message
         # adds reaction
         async for msg in logs:
             await msg.add_reaction("🇧")
@@ -126,8 +131,12 @@ class Misc(commands.Cog):
             await msg.add_reaction("🇭")
 
         # sends out message, space separated due to stupid unicode
-        await ctx.send(":regional_indicator_b: :regional_indicator_r: "
-                       ":regional_indicator_u: :regional_indicator_h:")
+        if is_silent:
+            if ctx.message.channel.permissions_for(ctx.message.channel.guild.me):
+                await ctx.message.delete()
+        else:
+            await ctx.send(":regional_indicator_b: :regional_indicator_r: "
+                           ":regional_indicator_u: :regional_indicator_h:")
 
     @commands.command(aliases=["ac", "nh", "acnh"])
     @commands.check(checks.off_topic_commands_enabled)
@@ -197,7 +206,7 @@ class Misc(commands.Cog):
     @commands.check(checks.off_topic_commands_enabled)
     async def list_uncool_people(self, ctx, *args):
         await ctx.send("Uncool People:\n"
-                       "For being dum dum: <@192053720236818432>")
+                       "For being dum dum: <@333435876275388426>")
 
     @commands.command(case_insensitive=True, aliases=["f"])
     @commands.check(checks.off_topic_commands_enabled)
