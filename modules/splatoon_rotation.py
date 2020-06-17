@@ -2,12 +2,9 @@ from enum import Enum, auto
 from modules.splatnet import Splatnet
 from datetime import datetime
 from modules.linked_list import LinkedList
-from modules.salmon_emote_dict import gen_emote_id
+from modules.salmon_emotes import gen_emote_id, SR_TERM_CHAR
 
 IMAGE_BASE = "https://splatoon2.ink/assets/splatnet"
-
-SR_TERM_CHAR = "|"  # used to denote end of weapon name and start of weapon ID
-EMOTE_BASE = "splatbot_" # base for splatbot emotes
 
 
 class ModeTypes(Enum):
@@ -149,16 +146,16 @@ class SplatoonRotation:
                     self.end_time = datetime.fromtimestamp(rotation["end_time"], self.target_time.tzname())
                     self.weapons_array = LinkedList()
 
-                    # getting weapons
+                    # getting weapons, using SR_TERM_CHAR to separate b/t weapon name and weapon id
                     for weapon in rotation["weapons"]:
                         # weapon id of -1 indicates a random weapon (non shiny question mark)
                         if weapon["id"] == '-1':
                             self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon" + SR_TERM_CHAR +
-                                                  weapon["id"])
+                                                   "r1")  # using r1 for -1 as discord doesn't support "-" char
                         # weapon id of -2 indicates a grizzco weapon
                         elif weapon["id"] == '-2':
                             self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon" +
-                                                   SR_TERM_CHAR + weapon["id"])
+                                                   SR_TERM_CHAR + "r2")  # using r2 for -2
                         else:
                             self.weapons_array.add(weapon["weapon"]["name"] + SR_TERM_CHAR + weapon["id"])
                     return True
@@ -223,11 +220,11 @@ class SplatoonRotation:
                     # weapon id of -1 indicates a random weapon (non shiny question mark)
                     if weapon["id"] == '-1':
                         element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon" + SR_TERM_CHAR +
-                                                  weapon["id"])
+                                                  "r1")
                     # weapon id of -2 indicates grizzco weapon
                     elif weapon["id"] == '-2':
                         element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon" +
-                                                  SR_TERM_CHAR + weapon["id"])
+                                                  SR_TERM_CHAR + "r2")
                     else:
                         element.weapons_array.add(weapon["weapon"]["name"] + SR_TERM_CHAR + weapon["id"])
 
@@ -266,8 +263,9 @@ class SplatoonRotation:
         # Used to print out salmon run weapons
         weapon_list_str = ""
         for weapon in weapons_array:
+            # we split based off SR_TERM_CHAR: <weapon name>SR_TERM_CHAR<weapon id>
             weapon_name = weapon.split(SR_TERM_CHAR)[0]
             weapon_id = weapon.split(SR_TERM_CHAR)[1]
-            weapon_list_str = weapon_list_str + gen_emote_id(weapon_id) + " " + weapon_name + "\n"
+            weapon_list_str += gen_emote_id(weapon_id) + " " + weapon_name + "\n"
         return weapon_list_str
 

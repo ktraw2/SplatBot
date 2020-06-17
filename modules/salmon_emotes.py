@@ -1,6 +1,9 @@
 
-# emotes from private emote server
+# emotes from private emote servers, total of 52
+# input is weapon id, output is emote id
 SR_EMOTE_DICT = {
+    "r2": "722645552311042110",  # refers to random grizzco weapon
+    "r1": "722645931140579400",  # refers to random weapon (non-grizzco)
     "0": "722213178338967684",
     "10": "722213315014819870",
     "20": "722213495491395666",
@@ -53,14 +56,13 @@ SR_EMOTE_DICT = {
     "6020": "722217100273516555"
 }
 
-# prefix used in server
-SR_EMOTE_PREFIX = "splatbot_"
+SR_EMOTE_PREFIX = "splatbot_"  # prefix used in servers
+SR_TERM_CHAR = "|"  # used to denote end of weapon name and start of weapon ID
 
 
 def gen_emote_id(weapon_id: str):
-    # generates weapon emote str given weapon id
     final_emote_name = SR_EMOTE_PREFIX + weapon_id
-    emote_id = SR_EMOTE_DICT.get(weapon_id, None)  # None as default value if input is not valid
-    if emote_id is None:
-        raise SyntaxWarning("Invalid weapon id")
+    if weapon_id not in SR_EMOTE_DICT:  # basic error checking/handling
+        raise AttributeError("Invalid weapon id")
+    emote_id = SR_EMOTE_DICT.get(weapon_id)
     return "<:" + final_emote_name + ":" + emote_id + ">"
