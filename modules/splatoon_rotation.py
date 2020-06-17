@@ -2,8 +2,12 @@ from enum import Enum, auto
 from modules.splatnet import Splatnet
 from datetime import datetime
 from modules.linked_list import LinkedList
+from modules.salmon_emote_dict import gen_emote_id
 
 IMAGE_BASE = "https://splatoon2.ink/assets/splatnet"
+
+SR_TERM_CHAR = "|"  # used to denote end of weapon name and start of weapon ID
+EMOTE_BASE = "splatbot_" # base for splatbot emotes
 
 
 class ModeTypes(Enum):
@@ -149,12 +153,14 @@ class SplatoonRotation:
                     for weapon in rotation["weapons"]:
                         # weapon id of -1 indicates a random weapon (non shiny question mark)
                         if weapon["id"] == '-1':
-                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon")
+                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon" + SR_TERM_CHAR +
+                                                  weapon["id"])
                         # weapon id of -2 indicates a grizzco weapon
                         elif weapon["id"] == '-2':
-                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon")
+                            self.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon" +
+                                                   SR_TERM_CHAR + weapon["id"])
                         else:
-                            self.weapons_array.add(weapon["weapon"]["name"])
+                            self.weapons_array.add(weapon["weapon"]["name"] + SR_TERM_CHAR + weapon["id"])
                     return True
 
             # if we can't find a detailed rotation, search some more in the other rotations
@@ -216,12 +222,14 @@ class SplatoonRotation:
                 for weapon in sr_schedule["weapons"]:
                     # weapon id of -1 indicates a random weapon (non shiny question mark)
                     if weapon["id"] == '-1':
-                        element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon")
+                        element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Weapon" + SR_TERM_CHAR +
+                                                  weapon["id"])
                     # weapon id of -2 indicates grizzco weapon
                     elif weapon["id"] == '-2':
-                        element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon")
+                        element.weapons_array.add(weapon["coop_special_weapon"]["name"] + " Grizzco Weapon" +
+                                                  SR_TERM_CHAR + weapon["id"])
                     else:
-                        element.weapons_array.add(weapon["weapon"]["name"])
+                        element.weapons_array.add(weapon["weapon"]["name"] + SR_TERM_CHAR + weapon["id"])
 
                 schedule_list.append(element)
 
@@ -258,6 +266,8 @@ class SplatoonRotation:
         # Used to print out salmon run weapons
         weapon_list_str = ""
         for weapon in weapons_array:
-            weapon_list_str = weapon_list_str + weapon + "\n"
+            weapon_name = weapon.split(SR_TERM_CHAR)[0]
+            weapon_id = weapon.split(SR_TERM_CHAR)[1]
+            weapon_list_str = weapon_list_str + gen_emote_id(weapon_id) + " " + weapon_name + "\n"
         return weapon_list_str
 
