@@ -132,7 +132,7 @@ class Misc(commands.Cog):
 
         # sends out message, space separated due to stupid unicode
         if is_silent:
-            if ctx.message.channel.permissions_for(ctx.message.channel.guild.me):
+            if ctx.message.channel.permissions_for(ctx.message.channel.guild.me).manage_messages:
                 await ctx.message.delete()
         else:
             await ctx.send(":regional_indicator_b: :regional_indicator_r: "
@@ -160,8 +160,6 @@ class Misc(commands.Cog):
         await ctx.send(ctx.guild.get_role(config.ts_guild_id).mention + " KEVIN GANG KEVIN GANG KEVIN GANG")
 
     @commands.command(aliases=["vote", "upvote", "downvote", "karma"])
-    @commands.guild_only()
-    @checks.message_from_guild(config.ts_guild_id)
     @commands.check(checks.off_topic_commands_enabled)
     async def reddit(self, ctx, *args):
         # gets previous message and reacts to it, from the `bruh` command
@@ -175,7 +173,8 @@ class Misc(commands.Cog):
             await msg.add_reaction("⬇️")
 
         # deletes command that made it
-        await ctx.message.delete()
+        if ctx.message.channel.permissions_for(ctx.message.channel.guild.me).manage_messages:
+            await ctx.message.delete()
 
     @commands.command()
     @commands.check(checks.off_topic_commands_enabled)

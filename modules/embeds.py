@@ -29,8 +29,10 @@ help_embed_fields = {
                  "`s!f` - prints out a F made of Fs\n"
                  "`s!f <string>` - replaces the F character with a given string (@everyone and @here are blacklisted)\n"
                  "`s!boxie` - Boxie!\n"
-                 "`s!bruh` - B R U H\n"
+                 "`s!bruh` - reacts above message with BRUH and prints out BRUH. Use flag -s to not print out and to "
+                 "delete command message\n"
                  "`s!ac` - How long until New Horizons comes out\n"
+                 "`s!vote` - Reacts above message with up and down arrow for voting, also deletes command message"
          },
     "command_syntax":
         {"title": "Command Syntax",
