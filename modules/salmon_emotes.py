@@ -2,8 +2,8 @@
 # emotes from private emote servers, total of 52
 # input is weapon id, output is emote id
 SR_EMOTE_DICT = {
-    "r2": "722645552311042110",  # refers to random grizzco weapon
-    "r1": "722645931140579400",  # refers to random weapon (non-grizzco)
+    "r2": "722645069546651670",  # refers to random grizzco weapon
+    "r1": "722645056481263646",  # refers to random weapon (non-grizzco)
     "0": "722213178338967684",
     "10": "722213315014819870",
     "20": "722213495491395666",
