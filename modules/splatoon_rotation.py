@@ -233,13 +233,14 @@ class SplatoonRotation:
             # Adding salmon schedules that we don't know anything about
             data = await sn.get_salmon_schedule()
             for sr_schedule in data:
+                start_time_elm = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
+                end_time_elm = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
                 # Skipping the first 2 in the list as we already parsed that info above
-                if schedule_list[0].start_time != start_time or schedule_list[1].start_time != start_time:
-                    start_time = datetime.fromtimestamp(sr_schedule["start_time"], time.tzname())
-                    element = SplatoonRotation(start_time, mode_type, session)
+                if schedule_list[0].start_time != start_time_elm and schedule_list[1].start_time != start_time_elm:
+                    element = SplatoonRotation(start_time_elm, mode_type, session)
                     element.mode = "Salmon Run"
-                    element.start_time = start_time
-                    element.end_time = datetime.fromtimestamp(sr_schedule["end_time"], time.tzname())
+                    element.start_time = start_time_elm
+                    element.end_time = end_time_elm
                     schedule_list.append(element)
         return schedule_list
 
