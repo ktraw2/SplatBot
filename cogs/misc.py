@@ -1,3 +1,4 @@
+import asyncio
 import math
 import config
 from discord.ext import commands
@@ -137,6 +138,17 @@ class Misc(commands.Cog):
         else:
             await ctx.send(":regional_indicator_b: :regional_indicator_r: "
                            ":regional_indicator_u: :regional_indicator_h:")
+
+    @commands.command()
+    @commands.check(checks.off_topic_commands_enabled)
+    async def g7(self, ctx, *args):
+        g7_str = ":loudspeaker: MAY I HAVE YOUR ATTENTION PLEASE\n" \
+                 ":loudspeaker: MAY I HAVE YOUR ATTENTION PLEASE\n" \
+                 ":loudspeaker: THE BUILDING ALARM SYSTEM HAS BEEN ACTIVATED\n" \
+                 ":loudspeaker: PLEASE DO NOT USE THE ELEVATORS"
+        for i in range(0, 3):
+            await ctx.send(g7_str)
+            await asyncio.sleep(2)
 
     @commands.command(aliases=["ac", "nh", "acnh"])
     @commands.check(checks.off_topic_commands_enabled)
