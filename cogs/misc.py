@@ -145,6 +145,7 @@ class Misc(commands.Cog):
         g7_str = ":loudspeaker: MAY I HAVE YOUR ATTENTION PLEASE\n" \
                  ":loudspeaker: MAY I HAVE YOUR ATTENTION PLEASE\n" \
                  ":loudspeaker: THE BUILDING ALARM SYSTEM HAS BEEN ACTIVATED\n" \
+                 ":loudspeaker: PLEASE DO NOT USE THE ELEVATORS\n" \
                  ":loudspeaker: PLEASE DO NOT USE THE ELEVATORS"
         for i in range(0, 3):
             await ctx.send(g7_str)
